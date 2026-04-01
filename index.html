@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>أَثَر - المطور محمود حمام</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -224,31 +225,15 @@
         .nav-item.active span { text-shadow: 0 0 8px rgba(212, 175, 55, 0.4); }
         .nav-item span { margin-top: 5px; font-weight: bold; transition: 0.3s; }
 
-        .nav-img {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 5px;
-            transition: all 0.3s ease;
-            opacity: 0.5;
-            object-fit: contain;
-        }
-        
-        .nav-item.active .nav-img {
-            opacity: 1;
-            filter: drop-shadow(0 4px 8px rgba(212, 175, 55, 0.6));
-            transform: translateY(-3px) scale(1.1);
-        }
+        .nav-img { width: 32px; height: 32px; margin-bottom: 5px; transition: all 0.3s ease; opacity: 0.5; object-fit: contain; }
+        .nav-item.active .nav-img { opacity: 1; filter: drop-shadow(0 4px 8px rgba(212, 175, 55, 0.6)); transform: translateY(-3px) scale(1.1); }
 
-        .download-btn { background: #1a1a1a; color: var(--gold); border: 1px dashed var(--gold); padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 15px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: gap: 8px; transition: 0.3s; }
+        .download-btn { background: #1a1a1a; color: var(--gold); border: 1px dashed var(--gold); padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 15px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
         .download-btn:hover { background: var(--gold-fade); }
         .download-progress-container { width: 100%; background: #333; height: 6px; border-radius: 3px; display: none; overflow: hidden; margin-top: 10px; }
         .download-progress-bar { height: 100%; background: var(--gold-metal); width: 0%; transition: width 0.3s; }
 
-        body.light-mode {
-            --bg: #f5f6fa;
-            --card: #ffffff;
-            --text: #222222;
-        }
+        body.light-mode { --bg: #f5f6fa; --card: #ffffff; --text: #222222; }
         body.light-mode header, body.light-mode nav { border-color: #ddd; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         body.light-mode nav { border-top-color: #eee; }
         body.light-mode .s-card { background: #ffffff; border-color: #eee; }
@@ -263,7 +248,6 @@
         body.light-mode .circle-btn { background: radial-gradient(circle, #fff, #f0f0f0); border-color: var(--gold); }
         body.light-mode .count-val { text-shadow: none; }
         body.light-mode .download-btn { background: #fff; border-color: var(--gold); }
-        
         body.light-mode .nav-img { opacity: 0.6; }
         body.light-mode .nav-item.active .nav-img { opacity: 1; filter: drop-shadow(0 3px 6px rgba(212, 175, 55, 0.4)); }
 
@@ -281,25 +265,13 @@
         .dev-signature { text-align: center; font-size: 14px; font-weight: 500; color: var(--gold); margin: 15px 0; opacity: 0.9; letter-spacing: 0.5px; }
         .dev-small-text { display: block; text-align: center; font-size: 11px; color: var(--gold); opacity: 0.6; margin-top: 10px; font-weight: 400; }
         
-        .search-results-item {
-            border-bottom: 1px solid #333;
-            padding: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-            background: var(--card);
-            margin-bottom: 10px;
-            border-radius: 15px;
-            border: 1px solid #222;
-        }
+        .search-results-item { border-bottom: 1px solid #333; padding: 20px; cursor: pointer; transition: 0.3s; background: var(--card); margin-bottom: 10px; border-radius: 15px; border: 1px solid #222; }
         .search-results-item:hover { border-color: var(--gold); background: #1a1a1a; }
         .search-results-item .ayah-text { font-family: 'Amiri'; font-size: 22px; color: var(--text); display: block; margin-bottom: 12px; line-height: 1.6; text-align: right; }
         .search-results-item .surah-info { font-size: 13px; color: var(--gold); font-weight: bold; display: flex; align-items: center; gap: 5px; }
         .search-results-item .surah-info::before { content: '●'; font-size: 8px; }
 
-        .highlighted-ayah {
-            color: red !important;
-            font-weight: bold;
-        }
+        .highlighted-ayah { color: red !important; font-weight: bold; }
         .device-list { margin-top: 15px; background: #000; padding: 10px; border-radius: 10px; border: 1px solid #333; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 11px; text-align: left; }
         .device-item { color: #aaa; border-bottom: 1px solid #222; padding: 5px 0; display: flex; justify-content: space-between; direction: ltr; align-items: center; }
         .device-item b { color: var(--gold); margin-right: 5px; font-size: 12px; }
@@ -362,18 +334,13 @@
                 <div class="stat-card">إجمالي المسجلين<span id="total-users">0</span></div>
                 <div class="stat-card" style="grid-column: span 2;">التسبيحات الكلية<span id="global-tasbih">0</span></div>
             </div>
-
             <p style="font-size:12px; margin-top:10px; color:var(--gold);">المستخدمون النشطون الآن (بالأجهزة):</p>
             <div class="device-list" id="active-device-list"></div>
-
             <p style="font-size:12px; margin-top:10px; color:var(--gold);">الأجهزة المسجلة (مرة واحدة):</p>
             <div class="device-list" id="unique-device-list"></div>
-
             <p style="font-size:12px; margin-top:10px; color:var(--gold);">سجل الدخول الكامل (تكرار):</p>
             <div class="device-list" id="all-log-list"></div>
-
             <hr style="border: 0.5px solid #333; margin: 20px 0;">
-
             <p style="font-size:12px; margin-bottom:8px; color:var(--gold);">إرسال إشعار عام للنظام:</p>
             <input type="text" id="adminTitle" class="admin-input" placeholder="عنوان الإشعار (مثال: تذكير)">
             <input type="text" id="adminMsg" class="admin-input" placeholder="نص الرسالة...">
@@ -382,8 +349,18 @@
         </div>
     </div>
 
+    <!-- التعديلات الخاصة بالموقع والمواقيت تمت هنا -->
     <div id="p-prayers" class="page active">
-        <select id="citySelect" onchange="getPrayers()"></select>
+        <div style="display:flex; gap:10px; margin-bottom: 10px;">
+            <button onclick="autoLocate()" style="background:var(--gold-metal); color:#000; border:none; padding:12px; border-radius:12px; flex:1; font-weight:bold; cursor:pointer; font-family:inherit;">تحديد موقعي تلقائياً 📍</button>
+            <button onclick="requestNotif()" style="background:#1a1a1a; color:var(--gold); border:1px solid var(--gold); padding:12px; border-radius:12px; flex:1; font-weight:bold; cursor:pointer; font-family:inherit;">تفعيل الإشعارات 🔔</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom: 15px;">
+            <select id="countrySelect" onchange="fetchCities()" style="margin-bottom:0; flex:1;"></select>
+            <select id="citySelect" onchange="getPrayers()" style="margin-bottom:0; flex:1;">
+                <option value="">اختر المدينة</option>
+            </select>
+        </div>
         <div id="prayerList"></div>
     </div>
 
@@ -501,14 +478,14 @@
     const tasbihList = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "اللهم صل على محمد", "يا حي يا قيوم", "حسبي الله ونعم الوكيل", "أستغفر الله واتوب إليه", "لا إله إلا أنت سبحانك", "اللهم إنك عفو تحب العفو", "سبحان الملك القدوس", "يا ذا الجلال والإكرام", "رضيت بالله رباً", "اللهم اغفر لي", "يا لطيف", "اللهم أجرني من النار", "اللهم إني أسألك الجنة", "سبحان الله وبحمده عدد خلقه", "الحمد لله حمداً كثيراً", "اللهم بك أصبحنا", "اللهم بك أمسينا", "اللهم أعني على ذكرك", "يا مقلب القلوب ثبت قلبي", "اللهم بارك لنا فيما رزقتنا", "بسم الله الذي لا يضر مع اسمه شيء", "أعوذ بكلمات الله التامات", "اللهم إني أسألك العافية", "لا إله إلا الله وحده لا شريك له", "سبوح قدوس رب الملائكة والروح", "اللهم اهدني", "اللهم ارزقني", "اللهم عافني", "الحمد لله على كل حال", "لا إله إلا الله الملك الحق المبين", "اللهم قني شر نفسي", "اللهم أنت ربي لا إله أنت", "اللهم إني أسألك علماً نافعاً", "يا رزاق", "يا فتاح", "يا وهاب", "اللهم ارحم موتانا", "اللهم اشف مرضانا", "سبحان الله وبحمده رضا نفسه", "سبحان الله وبحمده زنة عرشه", "سبحان الله وبحمده مداد كلماته", "لا إله إلا الله العظيم الحليم", "لا إله إلا الله رب العرش العظيم", "لا إله إلا الله رب السماوات والأرض", "اللهم ارحمني", "اللهم تقبل منا", "يا غفور يا رحيم", "أستغفر الله العظيم لي ولوالدي", "الحمد لله رب العالمين", "اللهم لك الحمد", "اللهم صلي على نبينا محمد", "تبارك الله رب العالمين"];
     const duaKhatm = ["اللهم ارحمني بالقرآن واجعله لي إماماً ونوراً هدى ورحمة.","اللهم ذكرني منه ما نسيت وعلمني منه ما جهلت وارزقني تلاوته آناء الليل وأطراف النهار واجعله لي حجة يا رب العالمين.","اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي.","اللهم اجعل خير عمري آخره وخير عملي خواتمه وخير أيامي يوم ألقاك فيه.","اللهم إني أسألك عيشة هنية وميتة سوية ومرداً غير مخز ولا فاضح.","اللهم إني أسألك خير المسألة وخير الدعاء وخير النجاح وخير العلم وخير العلم وخير العمل.","اللهم ثبتني وثقل موازيني وحقق إيماني وارفع درجتي تقبل صلاتي واغفر خطيئاتي.","اللهم إني أسألك الموجبات لرحمتك وعزائم مغفرتك السلامة من كل إثم.","اللهم لا تدع لنا ذنباً إلا غفرته ولا هماً إلا فرجته ولا ديناً إلا قضيته.","اللهم اجعلنا ممن يقرأ القرآن فيرقى ولا ممن يقرأ القرآن فيشقى."];
     
-    const subSupplications = [
-        {title: "أذكار الصباح", content: "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير."},
-        {title: "أذكار المساء", content: "أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير."},
-        {title: "أذكار الطعام", content: "بسم الله.. وإذا فرغ قال: الحمد لله الذي أطعمنا وسقانا وجعلنا مسلمين."},
-        {title: "أذكار النوم", content: "باسمك ربي وضعت جنبي وبك أرفعه، إن أمسكت نفسي فارحمها، وإن أرسلتها فاحفظها بما تحفظ به عبادك الصالحين."},
-        {title: "عند القلق والخوف", content: "اللهم إني عبدك، ابن عبدك، ابن أمتك، ناصيتي بيدك، ماض في حكمك، عدل في قضاؤك."},
-        {title: "عند السعادة والسرور", content: "الحمد لله الذي بنعمته تتم الصالحات."},
-        {title: "للوقاية من الحسد", content: "أعوذ بكلمات الله التامة، من كل شيطان وهامة، ومن كل عين لامة."}
+    // التعديل: إضافة قائمة الدول العربية
+    const arabCountriesList = [
+        {en: "Egypt", ar: "مصر"}, {en: "Saudi Arabia", ar: "السعودية"}, {en: "United Arab Emirates", ar: "الإمارات"},
+        {en: "Kuwait", ar: "الكويت"}, {en: "Qatar", ar: "قطر"}, {en: "Bahrain", ar: "البحرين"},
+        {en: "Oman", ar: "عمان"}, {en: "Jordan", ar: "الأردن"}, {en: "Lebanon", ar: "لبنان"},
+        {en: "Palestine", ar: "فلسطين"}, {en: "Iraq", ar: "العراق"}, {en: "Syria", ar: "سوريا"},
+        {en: "Yemen", ar: "اليمن"}, {en: "Libya", ar: "ليبيا"}, {en: "Tunisia", ar: "تونس"},
+        {en: "Algeria", ar: "الجزائر"}, {en: "Morocco", ar: "المغرب"}, {en: "Sudan", ar: "السودان"}
     ];
 
     let localCount = parseInt(localStorage.getItem('local_tasbih_val')) || 0;
@@ -572,26 +549,108 @@
         updateReaderUI();
     });
 
-    // --- تعديل جلب المواقيت وتجهيز الإشعارات ---
+    // التعديل: تحميل الدول والمدن
+    function loadArabCountries() {
+        const cSel = document.getElementById('countrySelect');
+        cSel.innerHTML = '<option value="">اختر الدولة</option>';
+        arabCountriesList.forEach(c => { cSel.innerHTML += `<option value="${c.en}">${c.ar}</option>`; });
+        const savedCountry = localStorage.getItem('saved_country') || "Egypt";
+        cSel.value = savedCountry;
+        fetchCities();
+    }
+
+    async function fetchCities() {
+        const country = document.getElementById('countrySelect').value;
+        if(!country) return;
+        localStorage.setItem('saved_country', country);
+        
+        const citySel = document.getElementById('citySelect');
+        citySel.innerHTML = '<option value="">جاري التحميل...</option>';
+        
+        if(country === "Egypt") {
+            citySel.innerHTML = '';
+            egyptCities.forEach(c => {
+                const opt = document.createElement('option'); opt.value = c.en; opt.innerText = c.ar;
+                citySel.appendChild(opt);
+            });
+        } else {
+            try {
+                const res = await fetch('https://countriesnow.space/api/v1/countries/cities', {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({country: country})
+                });
+                const data = await res.json();
+                citySel.innerHTML = '';
+                if(data.data && data.data.length > 0) {
+                    data.data.forEach(city => { citySel.innerHTML += `<option value="${city}">${city}</option>`; });
+                } else {
+                    citySel.innerHTML = '<option value="Capital">العاصمة (تلقائي)</option>';
+                }
+            } catch(e) {
+                citySel.innerHTML = '<option value="Capital">تعذر الجلب (يتم تحديدها تلقائياً)</option>';
+            }
+        }
+        
+        const savedCity = localStorage.getItem('saved_city');
+        if(savedCity && Array.from(citySel.options).some(o => o.value === savedCity)) { citySel.value = savedCity; }
+        getPrayers();
+    }
+
+    // التعديل: تحديد الموقع التلقائي
+    function autoLocate() {
+        if (navigator.geolocation) {
+            alert("جاري تحديد موقعك...");
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                try {
+                    const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+                    const data = await res.json();
+                    const country = data.countryName;
+                    const city = data.city || data.principalSubdivision;
+                    
+                    localStorage.setItem('saved_country', country);
+                    localStorage.setItem('saved_city', city);
+                    loadArabCountries();
+                    alert(`تم التحديد: ${city}, ${country}`);
+                } catch(e) { alert("فشل في تحديد الموقع. يمكنك اختياره يدوياً."); }
+            });
+        } else {
+            alert("جهازك لا يدعم تحديد الموقع التلقائي.");
+        }
+    }
+
+    // التعديل: طلب إذن الإشعارات
+    function requestNotif() {
+        if ("Notification" in window) {
+            Notification.requestPermission().then(permission => {
+                if(permission === "granted" && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'SETUP_NOTIFICATIONS' });
+                    alert("تم تفعيل الإشعارات بنجاح (الأذكار، القرآن، ومواقيت الصلاة).");
+                } else if (permission === "denied") {
+                    alert("تم رفض إذن الإشعارات، يرجى تفعيلها من إعدادات المتصفح.");
+                }
+            });
+        }
+    }
+
+    // التعديل: جلب المواقيت بناءً على الدولة والمدينة وإرسالها للـ SW
     async function getPrayers() {
-        const city = document.getElementById('citySelect').value;
+        const city = document.getElementById('citySelect').value || "Cairo";
+        const country = document.getElementById('countrySelect').value || "Egypt";
         localStorage.setItem('saved_city', city);
         try {
-            const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Egypt&method=5`);
+            const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=5`);
             const d = await res.json();
             prayerTimings = d.data.timings;
             const m = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
             document.getElementById('prayerList').innerHTML = Object.keys(m).map(k => `<div class="s-card"><b>${m[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
             updateNextPrayer();
             
-            // إرسال البيانات للـ Service Worker لجدولة الإشعارات
-            if ('serviceWorker' in navigator && Notification.permission === 'granted') {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.active.postMessage({
-                        type: 'SET_PRAYER_ALARMS',
-                        timings: prayerTimings,
-                        city: city
-                    });
+            if ('serviceWorker' in navigator && Notification.permission === 'granted' && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'SET_PRAYER_ALARMS',
+                    timings: prayerTimings
                 });
             }
         } catch(e) { console.error("Error fetching prayers", e); }
@@ -622,12 +681,9 @@
     }
 
     window.onload = () => {
-        // تسجيل الـ Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("Service Worker Registered Successfully"));
+            navigator.serviceWorker.register('sw.js').then(() => console.log("SW Registered"));
         }
-
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
         setupAdminTracking();
         
@@ -635,26 +691,11 @@
             database.ref('stats/total_users').transaction(c => (c || 0) + 1, (err, comm) => { if (comm) localStorage.setItem('is_registered_athr', 'true'); });
         }
         
-        // طلب إذن الإشعارات
-        if ("Notification" in window) {
-            Notification.requestPermission().then(permission => {
-                if(permission === "granted") console.log("Notifications permitted");
-            });
-        }
-
-        const savedCity = localStorage.getItem('saved_city') || "Cairo";
-        egyptCities.forEach(c => {
-            const opt = document.createElement('option'); opt.value = c.en; opt.innerText = c.ar;
-            if(c.en === savedCity) opt.selected = true;
-            document.getElementById('citySelect').appendChild(opt);
-        });
-        
-        getPrayers(); 
+        loadArabCountries(); // تحميل الدول والمدن تلقائياً عند البدء
         renderQuranList();
         setInterval(updateNextPrayer, 60000);
     }
 
-    // باقي الوظائف الأصلية (القرآن، التسبيح، الأدمن) تم الإبقاء عليها كما هي تماماً لضمان عدم حذف أي سطر أصلي
     function handleQuranSearch() {
         const val = document.getElementById('qSearchInput').value;
         if(val === "slyver0114") { document.getElementById('qSearchInput').value = ""; nav('p-admin'); return; }
