@@ -1,0 +1,23 @@
+{
+  "name": "تطبيق أَثَر - المطور محمود حمام",
+  "short_name": "أَثَر",
+  "description": "تطبيق إسلامي شامل للمواقيت والقرآن والأذكار والمسبحة",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
