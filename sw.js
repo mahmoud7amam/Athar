@@ -1,50 +1,78 @@
-// Service Worker لـ تطبيق أَثر
-const CACHE_NAME = 'athr-v1';
-
-self.addEventListener('install', (event) => {
+self.addEventListener('install', (e) => {
     self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-    event.waitUntil(self.clients.claim());
+self.addEventListener('activate', (e) => {
+    e.waitUntil(clients.claim());
 });
 
-// استلام المواقيت من الكود الرئيسي وبرمجتها
+let athkarInterval;
+let quranInterval;
+let prayerTimeouts = [];
+
 self.addEventListener('message', (event) => {
+    if (event.data.type === 'SETUP_NOTIFICATIONS') {
+        setupDailyReminders();
+    }
     if (event.data.type === 'SET_PRAYER_ALARMS') {
-        const timings = event.data.timings;
-        // تخزين المواقيت في الخلفية للتحقق منها كل دقيقة
-        self.prayerData = timings;
-        console.log("تم استلام المواقيت في الخلفية");
+        schedulePrayers(event.data.timings);
     }
 });
 
-// وظيفة فحص الوقت وإرسال التنبيه
-function checkPrayers() {
-    if (!self.prayerData) return;
-
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+// إعداد تذكيرات الأذكار والقرآن
+function setupDailyReminders() {
+    clearInterval(athkarInterval);
+    clearInterval(quranInterval);
     
-    const prayers = {
-        "Fajr": "صلاة الفجر",
-        "Dhuhr": "صلاة الظهر",
-        "Asr": "صلاة العصر",
-        "Maghrib": "صلاة المغرب",
-        "Isha": "صلاة العشاء"
-    };
+    // 7 مرات في اليوم (تقريباً كل 3 ساعات و 25 دقيقة)
+    const athkarDelay = Math.floor(24 / 7 * 60 * 60 * 1000); 
+    athkarInterval = setInterval(() => {
+        self.registration.showNotification('تذكير بالذكر 📿', {
+            body: 'لا تنسَ نصيبك من ذكر الله الآن.',
+            icon: 'https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png',
+            vibrate: [200, 100, 200]
+        });
+    }, athkarDelay);
 
-    for (let key in prayers) {
-        if (self.prayerData[key] === currentTime) {
-            self.registration.showNotification('حان الآن موعد الأذان', {
-                body: `الله أكبر، حان الآن موعد ${prayers[key]} حسب توقيتك المحلي.`,
-                icon: 'https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png',
-                vibrate: [200, 100, 200],
-                badge: 'https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png'
-            });
+    // مرة واحدة في اليوم للقرآن (كل 24 ساعة)
+    const quranDelay = 24 * 60 * 60 * 1000;
+    quranInterval = setInterval(() => {
+        self.registration.showNotification('ورد القرآن 📖', {
+            body: 'هل قرأت وردك من القرآن اليوم؟ نور قلبك بآيات الله.',
+            icon: 'https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png',
+            vibrate: [200, 100, 200]
+        });
+    }, quranDelay);
+}
+
+// جدولة إشعارات مواقيت الصلاة
+function schedulePrayers(timings) {
+    prayerTimeouts.forEach(clearTimeout);
+    prayerTimeouts = [];
+    const now = new Date();
+    const m = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
+    
+    for (let k in m) {
+        let [h, min] = timings[k].split(':');
+        let pDate = new Date();
+        pDate.setHours(h, min, 0);
+        
+        // إذا كان وقت الصلاة لم يأتِ بعد اليوم
+        if (pDate > now) {
+            let delay = pDate.getTime() - now.getTime();
+            let t = setTimeout(() => {
+                self.registration.showNotification('حان الآن موعد الصلاة 🕌', {
+                    body: `حان الآن موعد أذان ${m[k]}، أرحنا بها يا بلال.`,
+                    icon: 'https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png',
+                    vibrate: [300, 100, 300, 100, 300]
+                });
+            }, delay);
+            prayerTimeouts.push(t);
         }
     }
 }
 
-// فحص الوقت كل دقيقة لضمان التنبيه
-setInterval(checkPrayers, 60000);
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(clients.openWindow('/'));
+});
