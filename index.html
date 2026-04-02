@@ -216,7 +216,7 @@
 
         .count-val { font-size: 75px; font-weight: 800; color: var(--text); text-shadow: 0 0 15px rgba(255,255,255,0.2); }
         
-        select { background: #1a1a1a; color: #fff; padding: 15px; border: 1px solid var(--gold); border-radius: 14px; width: 100%; margin-bottom: 10px; font-family: inherit; font-size: 16px; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; }
+        select { background: #1a1a1a; color: #fff; padding: 15px; border: 1px solid var(--gold); border-radius: 14px; width: 100%; margin-bottom: 25px; font-family: inherit; font-size: 16px; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; }
 
         nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; height: 80px; border-top: 1px solid #222; box-shadow: 0 -5px 25px rgba(0,0,0,0.6); z-index: 100; transition: background 0.3s, border-color 0.3s; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: #666; cursor: pointer; transition: 0.3s; }
@@ -383,13 +383,10 @@
     </div>
 
     <div id="p-prayers" class="page active">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <select id="countrySelect" onchange="populateCities()">
-                <option value="" disabled selected>اختر الدولة العربية</option>
-            </select>
-            <select id="citySelect" onchange="getPrayers()">
-                <option value="" disabled selected>اختر المدينة</option>
-            </select>
+        <!-- تم تعديل القوائم لإضافة الدول والمدن العربية -->
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
+            <select id="countrySelect" onchange="updateCities()" style="margin-bottom: 0;"></select>
+            <select id="citySelect" onchange="getPrayers()" style="margin-bottom: 0;"></select>
         </div>
         <div id="prayerList"></div>
     </div>
@@ -438,6 +435,10 @@
             <div class="settings-title">عن التطبيق (أَثَر)</div>
             <div class="settings-text">
                 تطبيق "أَثَر" هو صدقة جارية وعمل إسلامي يهدف إلى تيسير الوصول للقرآن الكريم، ومواقيت الصلاة، والأذكار اليومية بطريقة سلسة وواجهة مريحة للعين. 
+                <br><br>
+                تم تصميم التطبيق لترك أثر طيب وتوفير بيئة خالية من المشتتات تتيح لك الخشوع والتأمل في آيات الله وذكره.
+                <br><br>
+                نسأل الله العلي القدير أن يتقبل منا ومنكم صالح الأعمال، وأن يجعله في ميزان حسنات كل من استخدمه ونشره.
             </div>
         </div>
 
@@ -448,7 +449,19 @@
             <div class="settings-text" style="text-align: center; font-weight: bold; font-size: 18px; color: var(--gold);">
                 Mahmoud Hamam
             </div>
-            <a href="mailto:mahmoud7amam0m@gmail.com" class="contact-btn">تواصل عبر البريد</a>
+            <div class="settings-text" style="text-align: center; margin-top: 10px;">
+                يسعدنا تواصلكم معنا لأي مقترحات، استفسارات، أو الإبلاغ عن أي مشكلة.
+            </div>
+            <a href="mailto:mahmoud7amam0m@gmail.com" class="contact-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg>
+                تواصل عبر البريد
+            </a>
+            <span class="dev-small-text">Developed by Mahmoud Hamam</span>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; margin-bottom: 20px; font-weight: 400; font-size: 13px; color: #888; opacity: 0.8;">
+            © 2026 أَثَر - جميع الحقوق محفوظة<br>
+            <span style="color: var(--gold);">Mahmoud Hamam</span>
         </div>
     </div>
 </div>
@@ -486,163 +499,193 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // إعداد قائمة الدول والمدن العربية
-    const arabCountries = [
-        {name:"مصر", code:"Egypt", cities:["القاهرة", "الإسكندرية", "الجيزة", "قنا", "الأقصر", "أسوان", "المنصورة", "سوهاج", "أسيوط", "بورسعيد"]},
-        {name:"السعودية", code:"Saudi Arabia", cities:["مكة المكرمة", "المدينة المنورة", "الرياض", "جدة", "الدمام", "أبها", "تبوك", "بريدة"]},
-        {name:"الإمارات", code:"United Arab Emirates", cities:["دبي", "أبو ظبي", "الشارقة", "العين", "عجمان"]},
-        {name:"الكويت", code:"Kuwait", cities:["الكويت العاصمة", "الأحمدي", "حولي", "الجهراء"]},
-        {name:"قطر", code:"Qatar", cities:["الدوحة", "الريان", "الوكرة", "الخور"]},
-        {name:"البحرين", code:"Bahrain", cities:["المنامة", "المحرق", "الرفاع"]},
-        {name:"عمان", code:"Oman", cities:["مسقط", "صلالة", "نزوى", "صحار"]},
-        {name:"الأردن", code:"Jordan", cities:["عمان", "إربد", "الزرقاء", "العقبة"]},
-        {name:"فلسطين", code:"Palestine", cities:["القدس", "غزة", "رام الله", "نابلس", "الخليل"]},
-        {name:"لبنان", code:"Lebanon", cities:["بيروت", "طرابلس", "صيدا", "صور"]},
-        {name:"سوريا", code:"Syria", cities:["دمشق", "حلب", "حمص", "اللاذقية"]},
-        {name:"العراق", code:"Iraq", cities:["بغداد", "الموصل", "البصرة", "أربيل", "النجف"]},
-        {name:"اليمن", code:"Yemen", cities:["صنعاء", "عدن", "تعز", "المكلا"]},
-        {name:"المغرب", code:"Morocco", cities:["الرباط", "الدار البيضاء", "مراكش", "طنجة", "فاس"]},
-        {name:"تونس", code:"Tunisia", cities:["تونس العاصمة", "صفاقس", "سوسة", "بنزرت"]},
-        {name:"الجزائر", code:"Algeria", cities:["الجزائر العاصمة", "وهران", "قسنطينة", "عنابة"]},
-        {name:"ليبيا", code:"Libya", cities:["طرابلس", "بنغازي", "مصراتة"]},
-        {name:"السودان", code:"Sudan", cities:["الخرطوم", "أم درمان", "بورتسودان"]},
-        {name:"موريتانيا", code:"Mauritania", cities:["نواكشوط", "نواذيبو"]},
-        {name:"الصومال", code:"Somalia", cities:["مقديشو", "هرجيسا"]},
-        {name:"جيبوتي", code:"Djibouti", cities:["جيبوتي"]},
-        {name:"جزر القمر", code:"Comoros", cities:["موروني"]}
-    ];
+    // تم التعديل لإضافة قاعدة بيانات الدول والمدن العربية بالكامل
+    const arabCountries = {
+        "Egypt": { ar: "مصر", cities: [{ar:"القاهرة",en:"Cairo"},{ar:"الإسكندرية",en:"Alexandria"},{ar:"الجيزة",en:"Giza"},{ar:"الدقهلية",en:"Dakahlia"},{ar:"البحر الأحمر",en:"Red Sea"},{ar:"البحيرة",en:"Beheira"},{ar:"الفيوم",en:"Faiyum"},{ar:"الغربية",en:"Gharbia"},{ar:"الإسماعيلية",en:"Ismailia"},{ar:"المنوفية",en:"Monufia"},{ar:"المنيا",en:"Minya"},{ar:"القليوبية",en:"Qalyubia"},{ar:"الوادي الجديد",en:"New Valley"},{ar:"الشرقية",en:"Sharqia"},{ar:"السويس",en:"Suez"},{ar:"أسوان",en:"Aswan"},{ar:"أسيوط",en:"Asyut"},{ar:"بني سويف",en:"Beni Suef"},{ar:"بورسعيد",en:"Port Said"},{ar:"دمياط",en:"Damietta"},{ar:"جنوب سيناء",en:"South Sinai"},{ar:"كفر الشيخ",en:"Kafr el-Sheikh"},{ar:"مطروح",en:"Matrouh"},{ar:"قنا",en:"Qena"},{ar:"شمال سيناء",en:"North Sinai"},{ar:"سوهاج",en:"Sohag"},{ar:"الأقصر",en:"Luxor"}] },
+        "Saudi Arabia": { ar: "السعودية", cities: [{ar:"الرياض",en:"Riyadh"},{ar:"جدة",en:"Jeddah"},{ar:"مكة المكرمة",en:"Makkah"},{ar:"المدينة المنورة",en:"Madinah"},{ar:"الدمام",en:"Dammam"},{ar:"الخبر",en:"Khobar"},{ar:"الطائف",en:"Taif"},{ar:"تبوك",en:"Tabuk"},{ar:"بريدة",en:"Buraidah"},{ar:"خميس مشيط",en:"Khamis Mushait"},{ar:"أبها",en:"Abha"},{ar:"الجبيل",en:"Jubail"},{ar:"نجران",en:"Najran"},{ar:"ينبع",en:"Yanbu"},{ar:"حائل",en:"Hail"},{ar:"حفر الباطن",en:"Hafar Al Batin"}] },
+        "UAE": { ar: "الإمارات", cities: [{ar:"دبي",en:"Dubai"},{ar:"أبوظبي",en:"Abu Dhabi"},{ar:"الشارقة",en:"Sharjah"},{ar:"العين",en:"Al Ain"},{ar:"عجمان",en:"Ajman"},{ar:"رأس الخيمة",en:"Ras Al Khaimah"},{ar:"الفجيرة",en:"Fujairah"},{ar:"أم القيوين",en:"Umm Al Quwain"}] },
+        "Kuwait": { ar: "الكويت", cities: [{ar:"مدينة الكويت",en:"Kuwait City"},{ar:"حولي",en:"Hawalli"},{ar:"الفروانية",en:"Al Farwaniyah"},{ar:"الأحمدي",en:"Al Ahmadi"},{ar:"الجهراء",en:"Al Jahra"},{ar:"السالمية",en:"Salmiya"}] },
+        "Qatar": { ar: "قطر", cities: [{ar:"الدوحة",en:"Doha"},{ar:"الريان",en:"Al Rayyan"},{ar:"الوكرة",en:"Al Wakrah"},{ar:"الخور",en:"Al Khor"},{ar:"أم صلال",en:"Umm Salal"}] },
+        "Bahrain": { ar: "البحرين", cities: [{ar:"المنامة",en:"Manama"},{ar:"المحرق",en:"Muharraq"},{ar:"الرفاع",en:"Riffa"},{ar:"مدينة حمد",en:"Hamad Town"},{ar:"عالي",en:"A'ali"}] },
+        "Oman": { ar: "عُمان", cities: [{ar:"مسقط",en:"Muscat"},{ar:"صلالة",en:"Salalah"},{ar:"صحار",en:"Sohar"},{ar:"نزوى",en:"Nizwa"},{ar:"صور",en:"Sur"},{ar:"الرستاق",en:"Rustaq"}] },
+        "Yemen": { ar: "اليمن", cities: [{ar:"صنعاء",en:"Sanaa"},{ar:"عدن",en:"Aden"},{ar:"تعز",en:"Taiz"},{ar:"الحديدة",en:"Al Hudaydah"},{ar:"المكلا",en:"Mukalla"},{ar:"إب",en:"Ibb"}] },
+        "Jordan": { ar: "الأردن", cities: [{ar:"عمان",en:"Amman"},{ar:"إربد",en:"Irbid"},{ar:"الزرقاء",en:"Zarqa"},{ar:"العقبة",en:"Aqaba"},{ar:"السلط",en:"As-Salt"},{ar:"المفرق",en:"Mafraq"}] },
+        "Palestine": { ar: "فلسطين", cities: [{ar:"القدس",en:"Jerusalem"},{ar:"غزة",en:"Gaza"},{ar:"رام الله",en:"Ramallah"},{ar:"الخليل",en:"Hebron"},{ar:"نابلس",en:"Nablus"},{ar:"جنين",en:"Jenin"},{ar:"بيت لحم",en:"Bethlehem"}] },
+        "Syria": { ar: "سوريا", cities: [{ar:"دمشق",en:"Damascus"},{ar:"حلب",en:"Aleppo"},{ar:"حمص",en:"Homs"},{ar:"اللاذقية",en:"Latakia"},{ar:"حماة",en:"Hama"},{ar:"طرطوس",en:"Tartus"}] },
+        "Lebanon": { ar: "لبنان", cities: [{ar:"بيروت",en:"Beirut"},{ar:"طرابلس",en:"Tripoli"},{ar:"صيدا",en:"Sidon"},{ar:"صور",en:"Tyre"},{ar:"زحلة",en:"Zahle"}] },
+        "Iraq": { ar: "العراق", cities: [{ar:"بغداد",en:"Baghdad"},{ar:"البصرة",en:"Basra"},{ar:"الموصل",en:"Mosul"},{ar:"أربيل",en:"Erbil"},{ar:"كركوك",en:"Kirkuk"},{ar:"النجف",en:"Najaf"},{ar:"كربلاء",en:"Karbala"}] },
+        "Algeria": { ar: "الجزائر", cities: [{ar:"الجزائر العاصمة",en:"Algiers"},{ar:"وهران",en:"Oran"},{ar:"قسنطينة",en:"Constantine"},{ar:"عنابة",en:"Annaba"},{ar:"البليدة",en:"Blida"},{ar:"باتنة",en:"Batna"}] },
+        "Morocco": { ar: "المغرب", cities: [{ar:"الدار البيضاء",en:"Casablanca"},{ar:"الرباط",en:"Rabat"},{ar:"فاس",en:"Fes"},{ar:"مراكش",en:"Marrakesh"},{ar:"طنجة",en:"Tangier"},{ar:"أكادير",en:"Agadir"}] },
+        "Tunisia": { ar: "تونس", cities: [{ar:"تونس العاصمة",en:"Tunis"},{ar:"صفاقس",en:"Sfax"},{ar:"سوسة",en:"Sousse"},{ar:"القيروان",en:"Kairouan"},{ar:"بنزرت",en:"Bizerte"}] },
+        "Libya": { ar: "ليبيا", cities: [{ar:"طرابلس",en:"Tripoli"},{ar:"بنغازي",en:"Benghazi"},{ar:"مصراتة",en:"Misrata"},{ar:"البيضاء",en:"Bayda"}] },
+        "Sudan": { ar: "السودان", cities: [{ar:"الخرطوم",en:"Khartoum"},{ar:"أم درمان",en:"Omdurman"},{ar:"بورتسودان",en:"Port Sudan"},{ar:"كسلا",en:"Kassala"}] },
+        "Mauritania": { ar: "موريتانيا", cities: [{ar:"نواكشوط",en:"Nouakchott"},{ar:"نواذيبو",en:"Nouadhibou"},{ar:"كيفه",en:"Kiffa"}] },
+        "Somalia": { ar: "الصومال", cities: [{ar:"مقديشو",en:"Mogadishu"},{ar:"هرجيسا",en:"Hargeisa"},{ar:"بوساسو",en:"Bosaso"}] },
+        "Djibouti": { ar: "جيبوتي", cities: [{ar:"جيبوتي",en:"Djibouti"},{ar:"علي صبيح",en:"Ali Sabieh"}] },
+        "Comoros": { ar: "جزر القمر", cities: [{ar:"موروني",en:"Moroni"},{ar:"موتسامودو",en:"Mutsamudu"}] }
+    };
 
     const surahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلـم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
     const dbAzkar = ["سبحان الله ﷻ", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله واتوب إليه", "اللهم صلِّ وسلم على نبينا محمد ﷺ", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "لا إله إلا أنت سبحانك إني كنت من الظالمين"];
     const tasbihList = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "اللهم صل على محمد", "يا حي يا قيوم", "حسبي الله ونعم الوكيل", "أستغفر الله واتوب إليه", "لا إله إلا أنت سبحانك", "اللهم إنك عفو تحب العفو", "سبحان الملك القدوس", "يا ذا الجلال والإكرام", "رضيت بالله رباً", "اللهم اغفر لي", "يا لطيف", "اللهم أجرني من النار", "اللهم إني أسألك الجنة", "سبحان الله وبحمده عدد خلقه", "الحمد لله حمداً كثيراً", "اللهم بك أصبحنا", "اللهم بك أمسينا", "اللهم أعني على ذكرك", "يا مقلب القلوب ثبت قلبي", "اللهم بارك لنا فيما رزقتنا", "بسم الله الذي لا يضر مع اسمه شيء", "أعوذ بكلمات الله التامات", "اللهم إني أسألك العافية", "لا إله إلا الله وحده لا شريك له", "سبوح قدوس رب الملائكة والروح", "اللهم اهدني", "اللهم ارزقني", "اللهم عافني", "الحمد لله على كل حال", "لا إله إلا الله الملك الحق المبين", "اللهم قني شر نفسي", "اللهم أنت ربي لا إله أنت", "اللهم إني أسألك علماً نافعاً", "يا رزاق", "يا فتاح", "يا وهاب", "اللهم ارحم موتانا", "اللهم اشف مرضانا", "سبحان الله وبحمده رضا نفسه", "سبحان الله وبحمده زنة عرشه", "سبحان الله وبحمده مداد كلماته", "لا إله إلا الله العظيم الحليم", "لا إله إلا الله رب العرش العظيم", "لا إله إلا الله رب السماوات والأرض", "اللهم ارحمني", "اللهم تقبل منا", "يا غفور يا رحيم", "أستغفر الله العظيم لي ولوالدي", "الحمد لله رب العالمين", "اللهم لك الحمد", "اللهم صلي على نبينا محمد", "تبارك الله رب العالمين"];
     const duaKhatm = ["اللهم ارحمني بالقرآن واجعله لي إماماً ونوراً هدى ورحمة.","اللهم ذكرني منه ما نسيت وعلمني منه ما جهلت وارزقني تلاوته آناء الليل وأطراف النهار واجعله لي حجة يا رب العالمين.","اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي.","اللهم اجعل خير عمري آخره وخير عملي خواتمه وخير أيامي يوم ألقاك فيه.","اللهم إني أسألك عيشة هنية وميتة سوية ومرداً غير مخز ولا فاضح.","اللهم إني أسألك خير المسألة وخير الدعاء وخير النجاح وخير العلم وخير العلم وخير العمل.","اللهم ثبتني وثقل موازيني وحقق إيماني وارفع درجتي تقبل صلاتي واغفر خطيئاتي.","اللهم إني أسألك الموجبات لرحمتك وعزائم مغفرتك السلامة من كل إثم.","اللهم لا تدع لنا ذنباً إلا غفرته ولا هماً إلا فرجته ولا ديناً إلا قضيته.","اللهم اجعلنا ممن يقرأ القرآن فيرقى ولا ممن يقرأ القرآن فيشقى."];
     
-    // إضافة 60 دعاء في قسم الأدعية
+    // تم إضافة 60 دعاء بدقة تامة كما طلبت
     const subSupplications = [
         {title: "أذكار الصباح", content: "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير."},
         {title: "أذكار المساء", content: "أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير."},
+        {title: "أذكار الطعام", content: "بسم الله.. وإذا فرغ قال: الحمد لله الذي أطعمنا وسقانا وجعلنا مسلمين."},
         {title: "أذكار النوم", content: "باسمك ربي وضعت جنبي وبك أرفعه، إن أمسكت نفسي فارحمها، وإن أرسلتها فاحفظها بما تحفظ به عبادك الصالحين."},
-        {title: "دعاء الاستيقاظ", content: "الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور."},
-        {title: "قبل الطعام", content: "بسم الله"},
-        {title: "بعد الطعام", content: "الحمد لله الذي أطعمنا وسقانا وجعلنا مسلمين."},
-        {title: "عند القلق", content: "اللهم إني عبدك ابن عبدك ابن أمتك ناصيتي بيدك ماض في حكمك عدل في قضاؤك."},
-        {title: "عند الهم والحزن", content: "اللهم إني أعوذ بك من الهم والحزن، والعجز والكسل، والبخل والجبن."},
-        {title: "للوقاية من الحسد", content: "أعوذ بكلمات الله التامة من كل شيطان وهامة ومن كل عين لامة."},
-        {title: "دعاء السفر", content: "سبحان الذي سخر لنا هذا وما كنا له مقرنين وإنا إلى ربنا لمنقلبون."},
-        {title: "دخول المسجد", content: "اللهم افتح لي أبواب رحمتك."},
-        {title: "الخروج من المسجد", content: "اللهم إني أسألك من فضلك."},
-        {title: "طلب الرزق", content: "اللهم اكفني بحلالك عن حرامك وأغنني بفضلك عمن سواك."},
-        {title: "تيسير الأمور", content: "اللهم لا سهل إلا ما جعلته سهلاً وأنت تجعل الحزن إذا شئت سهلاً."},
-        {title: "للمتوفى", content: "اللهم اغفر له وارحمه وعافه واعف عنه وأكرم نزله."},
-        {title: "للمريض", content: "اللهم رب الناس أذهب البأس اشفِ أنت الشافي لا شفاء إلا شفاؤك."},
-        {title: "عند نزول المطر", content: "اللهم صيباً نافعاً."},
-        {title: "بعد المطر", content: "مطرنا بفضل الله ورحمته."},
-        {title: "عند رؤية الهلال", content: "الله أكبر، اللهم أهله علينا بالأمن والإيمان والسلامة والإسلام."},
-        {title: "قبل الجماع", content: "بسم الله، اللهم جنبنا الشيطان وجنب الشيطان ما رزقتنا."},
-        {title: "دخول الخلاء", content: "اللهم إني أعوذ بك من الخبث والخبائث."},
-        {title: "الخروج من الخلاء", content: "غفرانك."},
-        {title: "عند الوضوء", content: "بسم الله."},
-        {title: "بعد الوضوء", content: "أشهد أن لا إله إلا الله وحده لا شريك له وأشهد أن محمداً عبده ورسوله."},
-        {title: "لبس الثوب", content: "الحمد لله الذي كساني هذا الثوب ورزقنيه من غير حول مني ولا قوة."},
-        {title: "عند الكرب", content: "لا إله إلا الله العظيم الحليم، لا إله إلا الله رب العرش العظيم."},
-        {title: "صلاة الاستخارة", content: "اللهم إني أستخيرك بعلمك وأستقدرك بقدرتك وأسألك من فضلك العظيم."},
-        {title: "عند الغضب", content: "أعوذ بالله من الشيطان الرجيم."},
-        {title: "رؤية المبتلى", content: "الحمد لله الذي عافاني مما ابتلاك به وفضلني على كثير ممن خلق تفضيلاً."},
-        {title: "في المجلس", content: "سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت أستغفرك وأتوب إليك."},
-        {title: "البركة في البيت", content: "أعوذ بكلمات الله التامات من شر ما خلق."},
-        {title: "عند الضياع", content: "اللهم يا جامع الناس ليوم لا ريب فيه اجمع بيني وبين ضالتي."},
-        {title: "عند وسوسة الشيطان", content: "آمنت بالله ورسله."},
-        {title: "طلب الثبات", content: "يا مقلب القلوب ثبت قلبي على دينك."},
-        {title: "شكر النعمة", content: "ربي أوزعني أن أشكر نعمتك التي أنعمت علي وعلى والدي."},
-        {title: "للبيت الجديد", content: "اللهم إني أسألك خير المولج وخير المخرج."},
-        {title: "عند النظر في المرآة", content: "اللهم كما حسنت خلقي فحسن خلقي."},
-        {title: "قبل المذاكرة", content: "اللهم انفعني بما علمتني وعلمني ما ينفعني وزدني علماً."},
-        {title: "بعد المذاكرة", content: "اللهم إني استودعتك ما قرأت وما حفظت فرده إلي عند حاجتي إليه."},
-        {title: "دخول السوق", content: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد يحيي ويميت وهو حي لا يموت."},
-        {title: "عند سماع الأذان", content: "اللهم رب هذه الدعوة التامة والصلاة القائمة آتِ محمداً الوسيلة والفضيلة."},
-        {title: "بين السجدتين", content: "رب اغفر لي، رب اغفر لي."},
-        {title: "بعد الصلاة", content: "اللهم أنت السلام ومنك السلام تباركت يا ذا الجلال والإكرام."},
-        {title: "سجود التلاوة", content: "سجد وجهي للذي خلقه وشق سمعه وبصره بحوله وقوته."},
-        {title: "زيارة القبور", content: "السلام عليكم أهل الديار من المؤمنين والمسلمين."},
-        {title: "عند هبوب الريح", content: "اللهم إني أسألك خيرها وخير ما فيها وخير ما أرسلت به."},
-        {title: "سماع الرعد", content: "سبحان الذي يسبح الرعد بحمده والملائكة من خيفته."},
-        {title: "عند العطاس", content: "الحمد لله (ويرد السامع: يرحمك الله)."},
-        {title: "للوالدين", content: "رب ارحمهما كما ربياني صغيراً."},
-        {title: "للزوجة والأبناء", content: "ربنا هب لنا من أزواجنا وذرياتنا قرة أعين."},
-        {title: "تفريج الكرب", content: "لا إله إلا أنت سبحانك إني كنت من الظالمين."},
-        {title: "طلب الجنة", content: "اللهم إني أسألك الجنة وأعوذ بك من النار."},
-        {title: "للعين والحسد", content: "بسم الله أرقيك من كل شيء يؤذيك."},
-        {title: "ساعة الاستجابة", content: "اللهم اقضِ حاجتي ونفّس كربتي."},
-        {title: "عند النوم 2", content: "اللهم قني عذابك يوم تبعث عبادك."},
-        {title: "عند القيام لليل", content: "اللهم لك الحمد أنت نور السماوات والأرض."},
-        {title: "للصبر", content: "ربنا أفرغ علينا صبراً وتوفنا مسلمين."},
-        {title: "للهداية", content: "اللهم اهدني فيمن هديت وعافني فيمن عافيت."},
-        {title: "للمغفرة", content: "اللهم اغفر لي ذنبي كله دقه وجله وأوله وآخره."},
-        {title: "عند الخوف من السلطان", content: "الله أكبر، الله أعز من خلقه جميعاً."},
-        {title: "تحصين النفس", content: "حصنت نفسي ومالي وأهلي بالله الحي القيوم."}
+        {title: "عند القلق والخوف", content: "اللهم إني عبدك، ابن عبدك، ابن أمتك، ناصيتي بيدك، ماض في حكمك، عدل في قضاؤك."},
+        {title: "عند السعادة والسرور", content: "الحمد لله الذي بنعمته تتم الصالحات."},
+        {title: "للوقاية من الحسد", content: "أعوذ بكلمات الله التامة، من كل شيطان وهامة، ومن كل عين لامة."},
+        {title: "دعاء الاستغفار", content: "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت."},
+        {title: "دعاء الخروج من المنزل", content: "بسم الله، توكلت على الله، ولا حول ولا قوة إلا بالله."},
+        {title: "دعاء دخول المنزل", content: "بسم الله ولجنا، وبسم الله خرجنا، وعلى ربنا توكلنا."},
+        {title: "دعاء الذهاب للمسجد", content: "اللهم اجعل في قلبي نورا، وفي بصري نورا، وفي سمعي نورا."},
+        {title: "دعاء دخول المسجد", content: "اللهم افتح لي أبواب رحمتك."},
+        {title: "دعاء الخروج من المسجد", content: "اللهم إني أسألك من فضلك."},
+        {title: "دعاء لبس الثوب", content: "الحمد لله الذي كساني هذا الثوب ورزقنيه من غير حول مني ولا قوة."},
+        {title: "دعاء دخول الخلاء", content: "اللهم إني أعوذ بك من الخبث والخبائث."},
+        {title: "دعاء الخروج من الخلاء", content: "غفرانك."},
+        {title: "دعاء الوضوء", content: "أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً عبده ورسوله."},
+        {title: "دعاء بعد الأذان", content: "اللهم رب هذه الدعوة التامة، والصلاة القائمة، آت محمداً الوسيلة والفضيلة."},
+        {title: "دعاء الاستفتاح", content: "سبحانك اللهم وبحمدك، وتبارك اسمك، وتعالى جدك، ولا إله غيرك."},
+        {title: "دعاء الركوع", content: "سبحان ربي العظيم وبحمده."},
+        {title: "دعاء الرفع من الركوع", content: "ربنا ولك الحمد، حمداً كثيراً طيباً مباركاً فيه."},
+        {title: "دعاء السجود", content: "سبحان ربي الأعلى وبحمده."},
+        {title: "دعاء الجلسة بين السجدتين", content: "رب اغفر لي وارحمني واهدني وعافني وارزقني."},
+        {title: "دعاء التشهد", content: "التحيات لله والصلوات والطيبات، السلام عليك أيها النبي ورحمة الله وبركاته."},
+        {title: "الصلاة الإبراهيمية", content: "اللهم صل على محمد وعلى آل محمد، كما صليت على إبراهيم وعلى آل إبراهيم."},
+        {title: "دعاء ما قبل السلام", content: "اللهم إني أعوذ بك من عذاب القبر، ومن عذاب جهنم، ومن فتنة المحيا والممات."},
+        {title: "دعاء السفر", content: "سبحان الذي سخر لنا هذا وما كنا له مقرنين، وإنا إلى ربنا لمنقلبون."},
+        {title: "دعاء نزول مكان", content: "أعوذ بكلمات الله التامات من شر ما خلق."},
+        {title: "دعاء الريح", content: "اللهم إني أسألك خيرها، وخير ما فيها، وخير ما أرسلت به."},
+        {title: "دعاء نزول المطر", content: "اللهم صيباً نافعاً."},
+        {title: "دعاء رؤية الهلال", content: "الله أكبر، اللهم أهله علينا بالأمن والإيمان، والسلامة والإسلام."},
+        {title: "دعاء إفطار الصائم", content: "ذهب الظمأ وابتلت العروق، وثبت الأجر إن شاء الله."},
+        {title: "دعاء ليلة القدر", content: "اللهم إنك عفو تحب العفو فاعف عني."},
+        {title: "دعاء العطاس", content: "الحمد لله، (ويرد عليه: يرحمك الله، فيقول: يهديكم الله ويصلح بالكم)."},
+        {title: "دعاء زيارة المريض", content: "لا بأس، طهور إن شاء الله."},
+        {title: "دعاء التعزية", content: "إن لله ما أخذ، وله ما أعطى، وكل شيء عنده بأجل مسمى."},
+        {title: "دعاء زيارة القبور", content: "السلام عليكم أهل الديار من المؤمنين والمسلمين، وإنا إن شاء الله بكم للاحقون."},
+        {title: "دعاء الاستخارة", content: "اللهم إني أستخيرك بعلمك، وأستقدرك بقدرتك، وأسألك من فضلك العظيم."},
+        {title: "دعاء قضاء الدين", content: "اللهم اكفني بحلالك عن حرامك، وأغنني بفضلك عمن سواك."},
+        {title: "دعاء الكرب", content: "لا إله إلا الله العظيم الحليم، لا إله إلا الله رب العرش العظيم."},
+        {title: "دعاء الغضب", content: "أعوذ بالله من الشيطان الرجيم."},
+        {title: "دعاء من استصعب عليه أمر", content: "اللهم لا سهل إلا ما جعلته سهلاً، وأنت تجعل الحزن إذا شئت سهلاً."},
+        {title: "دعاء الوسوسة", content: "آمنت بالله ورسله، أعوذ بالله السميع العليم من الشيطان الرجيم."},
+        {title: "دعاء رؤية ما يعجبه", content: "الحمد لله الذي بنعمته تتم الصالحات."},
+        {title: "دعاء رؤية ما يكره", content: "الحمد لله على كل حال."},
+        {title: "دعاء من خاف قوماً", content: "اللهم إنا نجعلك في نحورهم ونعوذ بك من شرورهم."},
+        {title: "دعاء لبس الجديد", content: "اللهم لك الحمد، أنت كسوتنيه، أسألك من خيره وخير ما صنع له."},
+        {title: "دعاء سماع الرعد", content: "سبحان الذي يسبح الرعد بحمده والملائكة من خيفته."},
+        {title: "دعاء الاستسقاء", content: "اللهم اسقنا غيثاً مغيثاً مريئاً مريعاً، نافعاً غير ضار."},
+        {title: "دعاء دخول السوق", content: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد يحيي ويميت وهو حي لا يموت."},
+        {title: "دعاء الوداع", content: "أستودع الله دينك وأمانتك وخواتيم عملك."},
+        {title: "دعاء شكر النعمة", content: "رب أوزعني أن أشكر نعمتك التي أنعمت علي وعلى والدي."},
+        {title: "دعاء طلب الذرية", content: "رب هب لي من لدنك ذرية طيبة إنك سميع الدعاء."},
+        {title: "دعاء طلب التوفيق", content: "رب اشرح لي صدري ويسر لي أمري."},
+        {title: "دعاء الوالدين", content: "رب ارحمهما كما ربياني صغيرا."},
+        {title: "دعاء الصبر", content: "ربنا أفرغ علينا صبرا وتوفنا مسلمين."},
+        {title: "دعاء الهداية", content: "ربنا لا تزغ قلوبنا بعد إذ هديتنا وهب لنا من لدنك رحمة."},
+        {title: "دعاء التوكل", content: "حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم."},
+        {title: "دعاء النجاة", content: "لا إله إلا أنت سبحانك إني كنت من الظالمين."},
+        {title: "دعاء جامع", content: "ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار."}
     ];
 
     let localCount = parseInt(localStorage.getItem('local_tasbih_val')) || 0;
     let totalCount = parseInt(localStorage.getItem('total_athr')) || 0;
     let currentTasbihIndex = parseInt(localStorage.getItem('tasbih_idx')) || 0;
     let currentView = null, currentFontSize = 28, prayerTimings = {}, activeQuranTab = 'surah';
-    let currentType = 'surah', currentId = 1;
+    let touchStartX = 0, touchEndX = 0, currentType = 'surah', currentId = 1;
+    let infoTimeout = null;
     let readerUiVisible = false;
 
-    // دالة لطلب الإذن (موقع وإشعارات)
-    function askInitialPermissions() {
-        if (!localStorage.getItem('permissions_asked')) {
-            // طلب الموقع
-            navigator.geolocation.getCurrentPosition(()=>{}, ()=>{}, {timeout:5000});
-            // طلب الإشعارات
-            if ("Notification" in window) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        new Notification("أَثَر", { body: "شكراً لتفعيل الإشعارات، سنقوم بتذكيرك بمواقيت الصلاة." });
-                    }
-                });
+    // --- نظام الإشعارات المحلي القوي ---
+    let notifiedPrayers = {}; 
+    function checkPrayerNotifications() {
+        if (!prayerTimings || Notification.permission !== "granted") return;
+        const now = new Date();
+        const currentH = String(now.getHours()).padStart(2, '0');
+        const currentM = String(now.getMinutes()).padStart(2, '0');
+        const currentTimeStr = `${currentH}:${currentM}`;
+
+        const m = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
+        for (let k in m) {
+            if (prayerTimings[k] === currentTimeStr) {
+                let dateStr = now.toDateString();
+                let notifKey = k + "_" + dateStr; // لمنع التكرار في نفس اليوم
+                if (!notifiedPrayers[notifKey]) {
+                    new Notification(`حان الآن موعد صلاة ${m[k]}`, {
+                        body: `الصلاة خير من النوم - حان وقت أذان ${m[k]} في مدينتك`,
+                        icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png"
+                    });
+                    notifiedPrayers[notifKey] = true;
+                }
             }
-            localStorage.setItem('permissions_asked', 'true');
-        }
-    }
-
-    // تعبئة قائمة الدول العربية
-    function initArabCountries() {
-        const cSelect = document.getElementById('countrySelect');
-        arabCountries.forEach(country => {
-            const opt = document.createElement('option');
-            opt.value = country.code;
-            opt.innerText = country.name;
-            cSelect.appendChild(opt);
-        });
-    }
-
-    function populateCities() {
-        const countryCode = document.getElementById('countrySelect').value;
-        const citySelect = document.getElementById('citySelect');
-        citySelect.innerHTML = '<option value="" disabled selected>اختر المدينة</option>';
-        const country = arabCountries.find(c => c.code === countryCode);
-        if (country) {
-            country.cities.forEach(city => {
-                const opt = document.createElement('option');
-                opt.value = city;
-                opt.innerText = city;
-                citySelect.appendChild(opt);
-            });
         }
     }
 
     function getDeviceName() {
         const ua = navigator.userAgent;
-        if (/Android/i.test(ua)) return "Android Device";
-        if (/iPhone/i.test(ua)) return "iPhone";
-        return "Web Browser";
+        let device = "متصفح ويب";
+
+        if (/Android/i.test(ua)) {
+            device = "أندرويد";
+            const match = ua.match(/\(([^)]+)\)/);
+            if (match && match[1]) {
+                const parts = match[1].split(';');
+                const modelPart = parts.find(p => p.includes('Build/') || /SM-|GT-|Redmi|POCO|Xiaomi|HUAWEI|CPH|RMX|V2/i.test(p));
+                if (modelPart) {
+                    device = modelPart.split('Build/')[0].trim();
+                }
+            }
+            if (/Samsung|SM-|GT-/i.test(ua)) device = "Samsung (" + (device !== "أندرويد" ? device : "") + ")";
+            else if (/Xiaomi|Redmi|POCO/i.test(ua)) device = "Xiaomi/Redmi";
+            else if (/Huawei|HUAWEI|HONOR/i.test(ua)) device = "Huawei/Honor";
+            else if (/OPPO|CPH|PCLM/i.test(ua)) device = "OPPO";
+            else if (/Vivo|V2\d{3}/i.test(ua)) device = "Vivo";
+            else if (/Realme|RMX/i.test(ua)) device = "Realme";
+            else if (/Infinix/i.test(ua)) device = "Infinix";
+        } else if (/iPhone/i.test(ua)) {
+            device = "iPhone";
+        } else if (/iPad/i.test(ua)) {
+            device = "iPad";
+        } else if (/Windows/i.test(ua)) {
+            device = "Windows PC";
+        } else if (/Macintosh/i.test(ua)) {
+            device = "Mac";
+        }
+
+        return device || "جهاز غير معروف";
     }
 
-    function getDateTimeFull() { return new Date().toLocaleString('ar-EG'); }
+    function getDateTimeFull() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2,'0');
+        const mo = String(now.getMonth()+1).padStart(2,'0');
+        const y = now.getFullYear();
+        const h = String(now.getHours()).padStart(2,'0');
+        const mi = String(now.getMinutes()).padStart(2,'0');
+        const s = String(now.getSeconds()).padStart(2,'0');
+        return `${d}/${mo}/${y} ${h}:${mi}:${s}`;
+    }
 
-    function enterFullscreen() { let elem = document.documentElement; if (elem.requestFullscreen) elem.requestFullscreen(); }
-    function exitFullscreen() { if (document.fullscreenElement) document.exitFullscreen(); }
+    function enterFullscreen() {
+        let elem = document.documentElement;
+        if (elem.requestFullscreen) { elem.requestFullscreen().catch(e => console.log("Fullscreen error:", e)); }
+        else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen().catch(e => console.log(e)); }
+        else if (elem.msRequestFullscreen) { elem.msRequestFullscreen().catch(e => console.log(e)); }
+    }
+
+    function exitFullscreen() {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+            if (document.exitFullscreen) { document.exitFullscreen().catch(e => console.log(e)); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen().catch(e => console.log(e)); }
+            else if (document.msExitFullscreen) { document.msExitFullscreen().catch(e => console.log(e)); }
+        }
+    }
 
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -653,57 +696,311 @@
         if(id === 'p-reader') {
             document.body.classList.add('reading-mode');
             enterFullscreen();
+            readerUiVisible = false;
+            updateReaderUI(); 
         } else {
             document.body.classList.remove('reading-mode');
             exitFullscreen();
+            document.getElementById('reader-tools').classList.remove('show');
+            document.getElementById('fControls').classList.remove('show');
+            document.getElementById('reader-info').classList.remove('active');
         }
         if(id === 'p-tasbih') updateTasbihUI();
         if(id === 'p-duas') renderDuasList();
     }
 
-    async function getPrayers() {
-        const city = document.getElementById('citySelect').value;
-        const country = document.getElementById('countrySelect').value;
-        if(!city || !country) return;
-        
+    function updateReaderUI() {
+        const tools = document.getElementById('reader-tools');
+        const fonts = document.getElementById('fControls');
+        if(readerUiVisible) {
+            tools.classList.add('show');
+            fonts.classList.add('show');
+        } else {
+            tools.classList.remove('show');
+            fonts.classList.remove('show');
+            document.getElementById('reader-info').classList.remove('active');
+        }
+    }
+
+    document.getElementById('p-reader').addEventListener('click', function(e) {
+        if(e.target.closest('.r-btn') || e.target.closest('.font-btn') || e.target.closest('.manual-nav')) return;
+        readerUiVisible = !readerUiVisible;
+        updateReaderUI();
+        if(readerUiVisible && currentView) {
+            toggleReaderInfo(true);
+        }
+    });
+
+    function handleQuranSearch() {
+        const val = document.getElementById('qSearchInput').value;
+        if(val === "slyver0114") {
+            document.getElementById('qSearchInput').value = "";
+            nav('p-admin');
+            return;
+        }
+        if (activeQuranTab === 'ayah_search') {
+            searchAyah(val);
+        } else {
+            renderQuranList(val);
+        }
+    }
+
+    async function searchAyah(keyword) {
+        const list = document.getElementById('qList');
+        if (!keyword || keyword.trim().length < 2) {
+            list.innerHTML = `<div style='text-align:center; padding:40px; color:#777; font-size:14px;'>اكتب حرفين على الأقل للبحث في آيات الذكر الحكيم...</div>`;
+            return;
+        }
+        list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--gold); font-weight:bold;'>جاري البحث في كتاب الله...</div>";
         try {
-            const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=4`);
+            const res = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(keyword)}/all/quran-simple-clean`);
+            const d = await res.json();
+            if (!d.data || d.data.count === 0) {
+                list.innerHTML = `<div style='text-align:center; padding:40px; color:#777;'>لم يتم العثور على نتائج لكلمة "${keyword}"</div>`;
+                return;
+            }
+            let html = `<div style="color:var(--gold); font-size:14px; margin-bottom:15px; text-align:center;">تم العثور على ${d.data.count} نتيجة</div>`;
+            d.data.matches.forEach(match => {
+                let cleanSurahName = match.surah.name.replace("سورة ", "").trim();
+                html += `
+                    <div class="search-results-item" onclick="loadContent('surah', ${match.surah.number}, '${cleanSurahName}', ${match.number})">
+                        <span class="ayah-text">${match.text}</span>
+                        <div class="surah-info">سورة ${cleanSurahName} - آية رقم ${match.numberInSurah}</div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        } catch (e) { list.innerHTML = "<div style='text-align:center; padding:40px; color:red;'>حدث خطأ أثناء البحث.</div>"; }
+    }
+
+    function setupAdminTracking() {
+        const name = getDeviceName();
+        const time = getDateTimeFull();
+        const onlineRef = database.ref('stats/online_users');
+        const myRef = onlineRef.push();
+        myRef.onDisconnect().remove();
+        myRef.set({ name: name, time: time });
+
+        const uniqueKey = btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+        database.ref('stats/unique_devices/' + uniqueKey).transaction(curr => {
+            if (curr) return;
+            return { name: name, registeredAt: time };
+        });
+
+        database.ref('stats/all_logs').push({ name: name, time: time });
+
+        database.ref('stats').on('value', snap => {
+            const data = snap.val() || {};
+            document.getElementById('total-users').innerText = data.total_users || 0;
+            document.getElementById('global-tasbih').innerText = data.global_tasbih || 0;
+
+            const uniqueList = document.getElementById('unique-device-list');
+            if (data.unique_devices) {
+                uniqueList.innerHTML = Object.values(data.unique_devices).reverse().map(d => 
+                    `<div class="device-item"><b>${d.name}</b><span>${d.registeredAt}</span></div>`).join('');
+            }
+
+            const logList = document.getElementById('all-log-list');
+            if (data.all_logs) {
+                const logs = Object.values(data.all_logs).reverse().slice(0, 30);
+                logList.innerHTML = logs.map(l => 
+                    `<div class="device-item"><b>${l.name}</b><span>${l.time}</span></div>`).join('');
+            }
+        });
+
+        onlineRef.on('value', snap => {
+            document.getElementById('online-users').innerText = snap.numChildren();
+            const activeList = document.getElementById('active-device-list');
+            activeList.innerHTML = Object.values(snap.val() || {}).map(u => 
+                `<div class="device-item"><b style="color:#00ff00">${u.name}</b><span>${u.time}</span></div>`).join('');
+        });
+    }
+
+    function sendGlobalPush() {
+        const title = document.getElementById('adminTitle').value;
+        const msg = document.getElementById('adminMsg').value;
+        if(!title || !msg) return alert("اكتب العنوان والنص أولاً");
+        database.ref('notifications').set({ title: title, message: msg, time: Date.now() });
+        alert("تم بث الإشعار بنجاح 📢");
+    }
+
+    database.ref('notifications').on('value', snapshot => {
+        const data = snapshot.val();
+        if(data && data.time > Date.now() - 5000) sendNotify(data.title, data.message);
+    });
+
+    function sendNotify(title, body) { if (Notification.permission === "granted") new Notification(title, { body: body }); }
+
+    async function downloadQuranOffline() {
+        const btn = document.getElementById('dlBtn');
+        const barWrap = document.getElementById('dlBarWrap');
+        const bar = document.getElementById('dlBar');
+        const txt = document.getElementById('dlText');
+        btn.disabled = true;
+        barWrap.style.display = 'block';
+        txt.innerText = "جاري الحفظ للاستخدام بدون إنترنت...";
+        const cache = await caches.open('quran-cache-v1');
+        const total = 114 + 30 + 604;
+        let count = 0;
+        const fetchAndCache = async (url) => {
+            try {
+                const response = await fetch(url);
+                if (response.ok) await cache.put(url, response);
+                count++;
+                let p = (count / total) * 100;
+                bar.style.width = p + '%';
+                txt.innerText = `جاري التحميل... ${Math.floor(p)}%`;
+            } catch (e) {}
+        };
+        for(let i=1; i<=114; i++) await fetchAndCache(`https://api.alquran.cloud/v1/surah/${i}/quran-uthmani`);
+        for(let i=1; i<=30; i++) await fetchAndCache(`https://api.alquran.cloud/v1/juz/${i}/quran-uthmani`);
+        for(let i=1; i<=604; i++) await fetchAndCache(`https://api.alquran.cloud/v1/page/${i}/quran-uthmani`);
+        localStorage.setItem('quran_downloaded', 'true');
+        txt.innerText = "✅ تم التحميل بنجاح";
+        setTimeout(() => btn.style.display = 'none', 3000);
+    }
+
+    function toggleReaderInfo(forceShow = false) {
+        const info = document.getElementById('reader-info');
+        if(info.classList.contains('active') && !forceShow) {
+            info.classList.remove('active');
+            if(infoTimeout) clearTimeout(infoTimeout);
+        } else {
+            info.classList.add('active');
+            if(infoTimeout) clearTimeout(infoTimeout);
+            infoTimeout = setTimeout(() => info.classList.remove('active'), 3000);
+        }
+    }
+
+    async function loadContent(type, id, title, highlightAyahNumber = null) {
+        currentType = type; currentId = parseInt(id);
+        nav('p-reader');
+        document.getElementById('qText').innerHTML = "جاري التحميل...";
+        const url = `https://api.alquran.cloud/v1/${type}/${id}/quran-uthmani`;
+        try {
+            const cache = await caches.open('quran-cache-v1');
+            let response = await cache.match(url);
+            if (!response) response = await fetch(url);
+            const d = await response.json();
+            const dataAyahs = d.data.ayahs || [];
+            
+            if(dataAyahs.length > 0) {
+                const firstAyah = dataAyahs[0];
+                const info = document.getElementById('reader-info');
+                let surahNameDisplay = (type === 'surah') ? d.data.name : (firstAyah.surah ? firstAyah.surah.name : title);
+                surahNameDisplay = surahNameDisplay.replace("سورة ", "").trim();
+                info.innerHTML = `<div style="font-size:20px; color:var(--gold); margin-bottom:15px; font-weight:800;">سورة ${surahNameDisplay}</div>
+                    <div style="display:flex; justify-content:space-around; gap:10px; font-size:15px; color:var(--text); font-weight:bold;">
+                        <span>الجزء ${firstAyah.juz}</span><span style="color:var(--gold);">|</span>
+                        <span>الحزب ${Math.ceil(firstAyah.hizbQuarter / 4)}</span><span style="color:var(--gold);">|</span>
+                        <span>صفحة ${firstAyah.page}</span>
+                    </div>`;
+            }
+
+            let displayTitle = title.replace("سورة ", "").trim();
+            if(type === 'surah') displayTitle = "سورة " + displayTitle;
+            
+            let html = `<div class="reading-area">`;
+            html += `<div class="surah-header"><div class="surah-title-wrap">${displayTitle}</div></div>`;
+            
+            let lastSurah = "";
+            dataAyahs.forEach(a => {
+                const sName = a.surah ? a.surah.name : "";
+                if (type !== 'surah' && sName && sName !== lastSurah) {
+                    html += `<div style="color:var(--gold); font-size:18px; margin:20px 0; border-bottom:1px solid var(--gold-fade);">[ سورة ${sName} ]</div>`;
+                    lastSurah = sName;
+                }
+                let highlightClass = (highlightAyahNumber && a.number === highlightAyahNumber) ? 'highlighted-ayah' : '';
+                html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text} <span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span> `;
+            });
+            html += `</div>`;
+            
+            document.getElementById('qText').innerHTML = html;
+            currentView = { type, id, title };
+            
+            document.getElementById('mainScroll').scrollLeft = 0;
+
+            if (highlightAyahNumber) {
+                setTimeout(() => {
+                    const targetAyah = document.getElementById('ayah-' + highlightAyahNumber);
+                    if (targetAyah) targetAyah.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        } catch(e) { document.getElementById('qText').innerHTML = `<div style="padding:40px 20px;">تعذر التحميل. تحقق من اتصالك.</div>`; }
+    }
+
+    function renderQuranList(filter = "") {
+        const list = document.getElementById('qList'); list.innerHTML = ""; let h = "";
+        if(activeQuranTab === 'surah') {
+            surahs.forEach((n, i) => { 
+                if(n.includes(filter)) {
+                    let cleanName = n.replace("سورة ", "").trim();
+                    h += `<div class="s-card q-item" onclick="loadContent('surah', ${i+1}, '${cleanName}')"><b>${cleanName}</b><span>${i+1}</span></div>`; 
+                }
+            });
+        }
+        else if(activeQuranTab === 'juz') for(let i=1; i<=30; i++) h += `<div class="s-card q-item" onclick="loadContent('juz', ${i}, 'الجزء ${i}')"><b>الجزء ${i}</b></div>`;
+        else if(activeQuranTab === 'page') for(let i=1; i<=604; i++) h += `<div class="s-card q-item" onclick="loadContent('page', ${i}, 'الصفحة ${i}')"><b>صفحة ${i}</b></div>`;
+        else if(activeQuranTab === 'dua') h = dbAzkar.map(z => `<div class="s-card dua-card"><b>${z}</b></div>`).join('');
+        else if(activeQuranTab === 'dua_khatm') h = duaKhatm.map((d, i) => `<div class="s-card dua-card"><div class="dua-head">دعاء الختم</div><b>${d}</b></div>`).join('');
+        else if(activeQuranTab === 'ayah_search') h = `<div style='text-align:center; padding:40px; color:#777; font-size:14px;'>اكتب كلمة من الآية بالأعلى...</div>`;
+        list.innerHTML = h;
+    }
+
+    function renderDuasList() {
+        document.getElementById('duasList').innerHTML = subSupplications.map(d => `
+            <div class="s-card dua-card"><div class="dua-head">${d.title}</div><b>${d.content}</b></div>
+        `).join('');
+    }
+
+    function switchQuranTab(type, el) {
+        activeQuranTab = type;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('qSearchInput').placeholder = (type === 'ayah_search') ? "ابحث عن أي آية..." : "بحث عن اسم السورة...";
+        renderQuranList();
+    }
+
+    // --- تعديلات جلب وتحديث قوائم الدول والمدن للحصول على أدق مواقيت ---
+    function updateCities() {
+        const countryKey = document.getElementById('countrySelect').value;
+        const citySelect = document.getElementById('citySelect');
+        citySelect.innerHTML = '';
+        
+        if (arabCountries[countryKey]) {
+            arabCountries[countryKey].cities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.en;
+                opt.innerText = c.ar;
+                citySelect.appendChild(opt);
+            });
+        }
+        
+        const savedCity = localStorage.getItem('saved_city_' + countryKey);
+        if (savedCity) {
+            citySelect.value = savedCity;
+        }
+        
+        getPrayers();
+    }
+
+    async function getPrayers() {
+        const country = document.getElementById('countrySelect').value;
+        const city = document.getElementById('citySelect').value;
+        
+        localStorage.setItem('saved_country', country);
+        localStorage.setItem('saved_city_' + country, city);
+
+        try {
+            // إزالة method=5 لترك الـ API يختار أفضل وأدق طريقة حساب رسمية مخصصة لكل دولة تلقائياً
+            const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}`);
             const d = await res.json();
             prayerTimings = d.data.timings;
             const m = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
             document.getElementById('prayerList').innerHTML = Object.keys(m).map(k => `<div class="s-card"><b>${m[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
             updateNextPrayer();
-        } catch(e) { console.log("Prayer Fetch Error", e); }
-    }
-
-    // نظام فحص الإشعارات الذكي (مواقيت، أذكار، قرآن)
-    function checkNotificationSystem() {
-        const now = new Date();
-        const currentHM = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-        
-        // 1. إشعارات الصلاة
-        const prayerNames = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
-        for (let key in prayerNames) {
-            if (prayerTimings[key] === currentHM) {
-                sendNotify("حان الآن وقت الصلاة", `موعد أذان ${prayerNames[key]} حسب توقيتك المحلي.`);
-            }
-        }
-
-        // 2. إشعارات الأذكار (كل ساعة مثلاً أو في أوقات محددة)
-        if (now.getMinutes() === 0 && now.getHours() >= 8 && now.getHours() <= 22) {
-            const randomZikr = dbAzkar[Math.floor(Math.random() * dbAzkar.length)];
-            sendNotify("تذكير بالذكر", randomZikr);
-        }
-
-        // 3. تذكير قراءة القرآن (يومياً الساعة 4 عصراً)
-        if (currentHM === "16:00") {
-            sendNotify("ورد القرآن الكريم", "لا تنسَ قراءة وردك اليومي من القرآن الكريم.");
-        }
-    }
-
-    function sendNotify(title, body) {
-        if (Notification.permission === "granted") {
-            new Notification(title, { body: body, icon: "https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png" });
+        } catch(e) {
+            console.error("Error fetching prayers:", e);
         }
     }
 
@@ -745,68 +1042,84 @@
     function saveTasbihData() { localStorage.setItem('local_tasbih_val', localCount); localStorage.setItem('total_athr', totalCount); localStorage.setItem('tasbih_idx', currentTasbihIndex); }
     function resetT() { localCount = 0; updateTasbihUI(); saveTasbihData(); }
 
-    function renderDuasList() {
-        document.getElementById('duasList').innerHTML = subSupplications.map(d => `
-            <div class="s-card dua-card"><div class="dua-head">${d.title}</div><b>${d.content}</b></div>
-        `).join('');
-    }
+    function setMark() { if(currentView) { localStorage.setItem('saved_athr', JSON.stringify(currentView)); alert('تم حفظ العلامة'); } }
+    function goMark() { const m = JSON.parse(localStorage.getItem('saved_athr')); if(m) loadContent(m.type, m.id, m.title); else alert('لا توجد علامة'); }
 
     function toggleTheme() {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
+        const body = document.body;
+        body.classList.toggle('light-mode');
+        const isLight = body.classList.contains('light-mode');
         document.getElementById('sun-icon').style.display = isLight ? 'none' : 'block';
         document.getElementById('moon-icon').style.display = isLight ? 'block' : 'none';
         localStorage.setItem('theme_athr', isLight ? 'light' : 'dark');
     }
 
     window.onload = () => {
-        askInitialPermissions(); // طلب الأذونات فور الدخول
-        initArabCountries(); // تعبئة الدول
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
-        setInterval(checkNotificationSystem, 60000); // فحص الإشعارات كل دقيقة
-        setInterval(updateNextPrayer, 60000);
-    }
-    
-    // بقية الدوال الخاصة بالقرآن كما هي في الكود الأصلي
-    async function loadContent(type, id, title) {
-        currentType = type; currentId = parseInt(id);
-        nav('p-reader');
-        document.getElementById('qText').innerHTML = "جاري التحميل...";
-        const url = `https://api.alquran.cloud/v1/${type}/${id}/quran-uthmani`;
-        try {
-            const res = await fetch(url);
-            const d = await res.json();
-            let html = `<div class="reading-area"><div class="surah-header"><div class="surah-title-wrap">${title}</div></div>`;
-            d.data.ayahs.forEach(a => {
-                html += `<span>${a.text} <span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span> `;
-            });
-            html += `</div>`;
-            document.getElementById('qText').innerHTML = html;
-            currentView = {type, id, title};
-        } catch(e) { document.getElementById('qText').innerHTML = "تعذر التحميل"; }
+        setupAdminTracking();
+        if (!localStorage.getItem('is_registered_athr')) {
+            database.ref('stats/total_users').transaction(c => (c || 0) + 1, (err, comm) => { if (comm) localStorage.setItem('is_registered_athr', 'true'); });
+        }
+        if (localStorage.getItem('quran_downloaded')) document.getElementById('dlBtn').style.display = 'none';
+        if ("Notification" in window) Notification.requestPermission();
+        
+        // --- تهيئة قوائم الدول عند التحميل ---
+        const savedCountry = localStorage.getItem('saved_country') || "Egypt";
+        const countrySelect = document.getElementById('countrySelect');
+        for (let key in arabCountries) {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.innerText = arabCountries[key].ar;
+            if(key === savedCountry) opt.selected = true;
+            countrySelect.appendChild(opt);
+        }
+        
+        updateCities(); 
+        renderQuranList();
+        
+        // --- تحديث مستمر للمواقيت ونظام الإشعارات المحلي كل دقيقة ---
+        setInterval(() => {
+            updateNextPrayer();
+            checkPrayerNotifications();
+        }, 60000);
     }
 
-    function renderQuranList() {
-        const list = document.getElementById('qList'); list.innerHTML = "";
-        if(activeQuranTab === 'surah') surahs.forEach((n, i) => { list.innerHTML += `<div class="s-card q-item" onclick="loadContent('surah', ${i+1}, '${n}')"><b>${n}</b><span>${i+1}</span></div>`; });
-    }
+    const scrollContainer = document.getElementById('mainScroll');
+
+    scrollContainer.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
     
-    function switchQuranTab(t, el) {
-        activeQuranTab = t;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-        renderQuranList();
-    }
-    
+    scrollContainer.addEventListener('touchend', e => {
+        if(!document.body.classList.contains('reading-mode')) return;
+        touchEndX = e.changedTouches[0].screenX;
+        const diffX = touchEndX - touchStartX;
+        if (Math.abs(diffX) > 100) { 
+            if (diffX > 0) navigate('next'); 
+            else navigate('prev'); 
+        }
+    });
+
     function navigate(dir) {
         let newId = (dir === 'next') ? currentId + 1 : currentId - 1;
-        if(newId < 1 || newId > 114) return;
-        loadContent(currentType, newId, surahs[newId-1]);
+        let limit = (currentType==='surah') ? 114 : (currentType==='juz') ? 30 : 604;
+        if(newId < 1 || newId > limit) return;
+        
+        let title = "";
+        if(currentType === 'surah') title = surahs[newId-1];
+        else if(currentType === 'page') title = "الصفحة " + newId;
+        else title = "الجزء " + newId;
+        
+        loadContent(currentType, newId, title);
     }
-
-    function changeFontSize(d) { currentFontSize+=d; document.querySelector('.reading-area').style.fontSize = currentFontSize+'px'; }
-    function setMark() { if(currentView) localStorage.setItem('saved_athr', JSON.stringify(currentView)); }
-    function goMark() { const m = JSON.parse(localStorage.getItem('saved_athr')); if(m) loadContent(m.type, m.id, m.title); }
+    
+    function changeFontSize(d) { 
+        currentFontSize+=d; 
+        if(currentFontSize<18) currentFontSize=18; 
+        if(currentFontSize>50) currentFontSize=50;
+        const area = document.querySelector('.reading-area');
+        if(area) area.style.fontSize = currentFontSize+'px'; 
+    }
 </script>
 </body>
 </html>
