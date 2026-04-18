@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>أَثَر - المطور محمود حمام</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -33,7 +34,6 @@
         .mark-btn svg { fill: var(--gold); width: 28px; height: 28px; filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4)); }
         .mark-btn:active { transform: scale(0.9); }
 
-        /* تعديل: إضافة مسافة سفلية كبيرة لضمان ظهور آخر الدعاء ومواقيت الصلاة */
         .container { height: calc(100vh - 170px); overflow-y: auto; padding: 15px 15px 100px 15px; scroll-behavior: smooth; transition: all 0.3s ease; box-sizing: border-box; }
         .page { display: none; } .active { display: block; }
 
@@ -46,7 +46,7 @@
             height: 100vh !important; 
             padding: 0 !important; 
             margin: 0; 
-            overflow-y: auto !important; /* تعديل لضمان قراءة السورة كاملة للأسفل */
+            overflow-y: auto !important;
             overflow-x: hidden !important;   
             scroll-behavior: smooth;
             display: block;
@@ -82,8 +82,6 @@
         }
         #reader-info.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-        /* تم حذف استايلات manual-nav لأننا سنحذف الأزرار من الـ HTML */
-
         .search-wrap { margin-bottom: 15px; display: none; }
         .search-input { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; border-radius: 10px; color: #fff; font-family: inherit; outline: none; box-sizing: border-box; transition: 0.3s; }
         .search-input:focus { border-color: var(--gold); box-shadow: 0 0 10px var(--gold-fade); }
@@ -96,12 +94,11 @@
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); 
         }
 
-        /* تعديل منطقة القراءة لحل مشكلة اختفاء الآيات والمسافات الزائدة */
         .reading-area { 
-            line-height: 1.8; /* زيادة المسافة بين السطور لجمالية القراءة */
+            line-height: 1.8; 
             font-size: 28px; 
-            text-align: center; /* حل مشكلة المسافات الزائدة بجعل النص ممركزاً بدلاً من justify */
-            padding: 40px 20px 120px 20px; /* إضافة مسافة سفلية كبيرة */
+            text-align: center; 
+            padding: 40px 20px 120px 20px; 
             color: var(--text); 
             font-family: 'Amiri', serif; 
             transition: font-size 0.2s; 
@@ -275,8 +272,6 @@
 
 <div id="reader-info"></div>
 
-<!-- تم حذف الأزرار manual-nav كما طلبت -->
-
 <header>
     <div onclick="goMark()" class="mark-btn" title="الذهاب للعلامة المحفوظة">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
@@ -437,6 +432,17 @@
     const firebaseConfig = { databaseURL: "https://gootff-dcc2a-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+
+    // --------------------------------------------------------
+    // إضافة المطور: كود تسجيل الـ Service Worker لتعمل الإشعارات
+    // --------------------------------------------------------
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Athar SW: تم التسجيل بنجاح'))
+                .catch(err => console.log('Athar SW: فشل التسجيل', err));
+        });
+    }
 
     const arabCountries = {
         "Egypt": { ar: "مصر", cities: [{ar:"القاهرة",en:"Cairo"},{ar:"الإسكندرية",en:"Alexandria"},{ar:"الجيزة",en:"Giza"},{ar:"الدقهلية",en:"Dakahlia"},{ar:"البحر الأحمر",en:"Red Sea"},{ar:"البحيرة",en:"Beheira"},{ar:"الفيوم",en:"Faiyum"},{ar:"الغربية",en:"Gharbia"},{ar:"الإسماعيلية",en:"Ismailia"},{ar:"المنوفية",en:"Monufia"},{ar:"المنيا",en:"Minya"},{ar:"القليوبية",en:"Qalyubia"},{ar:"الوادي الجديد",en:"New Valley"},{ar:"الشرقية",en:"Sharqia"},{ar:"السويس",en:"Suez"},{ar:"أسوان",en:"Aswan"},{ar:"أسيوط",en:"Asyut"},{ar:"بني سويف",en:"Beni Suef"},{ar:"بورسعيد",en:"Port Said"},{ar:"دمياط",en:"Damietta"},{ar:"جنوب سيناء",en:"South Sinai"},{ar:"كفر الشيخ",en:"Kafr el-Sheikh"},{ar:"مطروح",en:"Matrouh"},{ar:"قنا",en:"Qena"},{ar:"شمال سيناء",en:"North Sinai"},{ar:"سوهاج",en:"Sohag"},{ar:"الأقصر",en:"Luxor"}] },
@@ -790,7 +796,6 @@
             document.getElementById('qText').innerHTML = html;
             currentView = { type, id, title };
             
-            // إعادة التمرير للأعلى عند فتح سورة جديدة
             document.getElementById('mainScroll').scrollTop = 0;
 
         } catch(e) { document.getElementById('qText').innerHTML = `<div style="padding:40px;">حدث خطأ. تحقق من الإنترنت.</div>`; }
@@ -954,4 +959,4 @@
     }
 </script>
 </body>
-        </html>
+</html>
