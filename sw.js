@@ -1,78 +1,29 @@
-const CACHE_NAME = 'athar-cache-v2';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-  // يمكنك إضافة المزيد من الملفات هنا لتعمل بدون إنترنت
-];
+// استدعاء مكتبات فايربيز الخاصة بالـ Service Worker
+importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js');
 
-// 1. التثبيت وتخزين الملفات
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('Athar SW: تم تخزين الملفات');
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-});
+// إعدادات مشروعك
+const firebaseConfig = {
+    projectId: "gootff-dcc2a",
+    messagingSenderId: "1027459267887",
+    appId: "1:1027459267887:android:ecb608f8a39f58e8bf75da"
+    // ملاحظة: إذا واجهت خطأ، قد تحتاج لإضافة apiKey الخاص بالويب هنا
+};
 
-// 2. التفعيل وحذف الكاش القديم
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
-  );
-});
+// تهيئة فايربيز داخل الـ SW
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
 
-// 3. جلب البيانات (العمل أوفلاين)
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
-});
-
-// 4. استقبال إشعارات الـ Push (في الخلفية)
-self.addEventListener('push', (event) => {
-  let data = { title: 'أَثَر', body: 'تنبيه جديد!' };
+// استقبال الإشعارات في الخلفية
+messaging.onBackgroundMessage(function(payload) {
+  console.log('Athar SW: رسالة في الخلفية ', payload);
   
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data.body = event.data.text();
-    }
-  }
-
-  const options = {
-    body: data.body,
+  const notificationTitle = payload.notification.title || 'إشعار من تطبيق أَثَر';
+  const notificationOptions = {
+    body: payload.notification.body,
     icon: 'icon-192.png',
-    badge: 'icon-192.png',
-    vibrate: [200, 100, 200],
-    data: {
-      url: './index.html' // الصفحة التي ستفتح عند الضغط على الإشعار
-    }
+    badge: 'icon-192.png'
   };
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
-});
-
-// 5. التفاعل عند الضغط على الإشعار
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
