@@ -6,8 +6,11 @@
     <title>أَثَر - المطور محمود حمام</title>
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+    
     <style>
         :root { 
             --gold: #D4AF37; 
@@ -429,9 +432,54 @@
 </nav>
 
 <script>
-    const firebaseConfig = { databaseURL: "https://gootff-dcc2a-default-rtdb.firebaseio.com/" };
+    // تعديل بيانات مشروعك وإضافة إعدادات الـ App ID وغيرها
+    const firebaseConfig = { 
+        databaseURL: "https://gootff-dcc2a-default-rtdb.firebaseio.com/",
+        projectId: "gootff-dcc2a",
+        messagingSenderId: "1027459267887",
+        appId: "1:1027459267887:android:ecb608f8a39f58e8bf75da"
+        // ملاحظة: عادة فايربيز للويب يتطلب apiKey، إذا واجهت مشكلة تأكد من إضافته هنا
+    };
+    
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    
+    // تهيئة خدمة الرسائل
+    const messaging = firebase.messaging();
+
+    // دالة لطلب الصلاحية وتوليد التوكن باستخدام الـ Key pair الخاص بك
+    function requestPushPermission() {
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                console.log('Athar: تم السماح بالإشعارات.');
+                messaging.getToken({
+                    vapidKey: "BCnVK9Yqt6EwwWJpW4GRQQetASsKOJqa_oTDIruAjIGGWLYWc4Yw9jGFyj-KndtKVcjrOp8ZMAMXG64RKPpI7Ok"
+                }).then((currentToken) => {
+                    if (currentToken) {
+                        console.log('FCM Token:', currentToken);
+                        // يمكنك هنا إرسال الـ Token إلى الداتابيز لتخزينه إذا أردت استهداف المستخدم لاحقاً
+                    } else {
+                        console.log('لم يتم توليد Token.');
+                    }
+                }).catch((err) => {
+                    console.log('خطأ أثناء جلب الـ Token: ', err);
+                });
+            } else {
+                console.log('تم رفض صلاحية الإشعارات.');
+            }
+        });
+    }
+
+    // الاستماع للإشعارات في الـ Foreground (وقت تصفح التطبيق)
+    messaging.onMessage((payload) => {
+        console.log('رسالة جديدة (وقت النشاط): ', payload);
+        const title = payload.notification.title || "تنبيه جديد";
+        const options = {
+            body: payload.notification.body,
+            icon: "icon-192.png"
+        };
+        new Notification(title, options);
+    });
 
     // --------------------------------------------------------
     // إضافة المطور: كود تسجيل الـ Service Worker لتعمل الإشعارات
@@ -439,7 +487,13 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Athar SW: تم التسجيل بنجاح'))
+                .then(reg => {
+                    console.log('Athar SW: تم التسجيل بنجاح');
+                    // ربط الفايربيز بالـ SW الخاص بك
+                    messaging.useServiceWorker(reg);
+                    // طلب الصلاحية بعد تسجيل الـ SW بنجاح
+                    requestPushPermission();
+                })
                 .catch(err => console.log('Athar SW: فشل التسجيل', err));
         });
     }
@@ -561,7 +615,7 @@
                 if (!notifiedPrayers[notifKey]) {
                     new Notification(`حان الآن موعد صلاة ${m[k]}`, {
                         body: `الصلاة خير من النوم - حان وقت أذان ${m[k]} في مدينتك`,
-                        icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png"
+                        icon: "icon-192.png"
                     });
                     notifiedPrayers[notifKey] = true;
                 }
@@ -720,7 +774,7 @@
         if(data && data.time > Date.now() - 5000) sendNotify(data.title, data.message);
     });
 
-    function sendNotify(title, body) { if (Notification.permission === "granted") new Notification(title, { body: body }); }
+    function sendNotify(title, body) { if (Notification.permission === "granted") new Notification(title, { body: body, icon: "icon-192.png" }); }
 
     async function downloadQuranOffline() {
         const btn = document.getElementById('dlBtn');
