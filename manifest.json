@@ -1,23 +1,21 @@
 {
-  "short_name": "Athar",
-  "name": "تطبيق أَثَر - المطور محمود حمام",
-  "description": "تطبيق إسلامي للقرآن والمواقيت والأذكار",
+  "name": "أَثَر - المطور محمود حمام",
+  "short_name": "أَثَر",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
       "src": "icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ],
-  "start_url": "./index.html",
-  "display": "standalone",
-  "theme_color": "#D4AF37",
-  "background_color": "#000000",
-  "lang": "ar",
-  "dir": "rtl"
+  ]
 }
