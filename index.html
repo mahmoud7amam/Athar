@@ -468,10 +468,42 @@
                         deviceName: getDeviceName()
                     });
                 }
+                
+                // بدء تشغيل نظام الأذكار العشوائية كل 4 ساعات
+                initRandomAzkarNotifications();
             }
         } catch (error) {
             console.error('FCM Initialization Error:', error);
         }
+    }
+
+    // دالة إرسال ذكر عشوائي كل 4 ساعات
+    function initRandomAzkarNotifications() {
+        const INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 ساعات بالملي ثانية
+        
+        const sendRandomZikr = () => {
+            if (Notification.permission === 'granted') {
+                const randomZikr = dbAzkar[Math.floor(Math.random() * dbAzkar.length)];
+                new Notification("ذكر الله", {
+                    body: randomZikr,
+                    icon: "https://i.postimg.cc/Y9b75ffx/1774194048534-ezremove-(1).png"
+                });
+            }
+        };
+
+        // فحص وإرسال أول ذكر إذا مر وقت طويل
+        const lastSent = localStorage.getItem('last_zikr_time');
+        const now = Date.now();
+        if (!lastSent || (now - lastSent) >= INTERVAL_MS) {
+            sendRandomZikr();
+            localStorage.setItem('last_zikr_time', now);
+        }
+
+        // إعداد التكرار
+        setInterval(() => {
+            sendRandomZikr();
+            localStorage.setItem('last_zikr_time', Date.now());
+        }, INTERVAL_MS);
     }
 
     const arabCountries = {
@@ -578,7 +610,7 @@
     // متطلب منع تكرار الإشعار في نفس اليوم
     let notifiedPrayers = {}; 
 
-    // دالة فحص مواقيت الصلاة وإرسال التنبيهات (المضافة والمطورة)
+    // دالة فحص مواقيت الصلاة وإرسال التنبيهات
     function checkPrayerNotifications() {
         if (!prayerTimings || Notification.permission !== "granted") return;
         
@@ -587,7 +619,6 @@
         const currentM = String(now.getMinutes()).padStart(2, '0');
         const currentTimeStr = `${currentH}:${currentM}`;
 
-        // جلب اسم المحافظة المختارة حالياً باللغة العربية لعرضه في الإشعار
         const citySelect = document.getElementById('citySelect');
         const cityNameAr = citySelect.options[citySelect.selectedIndex]?.text || "";
 
@@ -598,9 +629,8 @@
                 let dateStr = now.toDateString();
                 let notifKey = k + "_" + dateStr;
                 
-                // التأكد من عدم إرسال التنبيه أكثر من مرة لنفس الصلاة في اليوم الواحد
                 if (!notifiedPrayers[notifKey]) {
-                    new Notification(`حان الآن موعد ${m[k]}`, {
+                    new Notification(`حان الآن موعد صلاة ${m[k]}`, {
                         body: `الله أكبر، حان الآن موعد ${m[k]} حسب توقيت ${cityNameAr}`,
                         icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png"
                     });
