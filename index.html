@@ -430,7 +430,6 @@
 </nav>
 
 <script>
-    // الإعدادات الأصلية لمحمود
     const firebaseConfig = { 
         apiKey: "AIzaSyBzaEUrY6MX38n3s7KcIfcx2mhqQbOCfCY",
         projectId: "gootff-dcc2a",
@@ -443,7 +442,6 @@
     const database = firebase.database();
     const messaging = firebase.messaging();
 
-    // دالة تهيئة الإشعارات المحسنة (المعدلة)
     async function initNotifications() {
         if (!('serviceWorker' in navigator)) return;
 
@@ -454,12 +452,7 @@
             }
 
             if (permission === 'granted') {
-                console.log('تم منح إذن الإشعارات.');
-                
-                // تسجيل باستخدام مسار نسبي لضمان التوافق مع GitHub Pages
                 const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
-                
-                // تأكيد الجاهزية قبل طلب التوكن
                 await navigator.serviceWorker.ready;
 
                 const token = await messaging.getToken({ 
@@ -468,7 +461,6 @@
                 });
                 
                 if (token) {
-                    console.log('Token ready:', token);
                     const deviceKey = btoa(navigator.userAgent).substring(0,20);
                     database.ref('fcm_tokens/' + deviceKey).set({
                         token: token,
@@ -583,11 +575,13 @@
     let infoTimeout = null;
     let readerUiVisible = false;
 
+    // متطلب منع تكرار الإشعار في نفس اليوم
     let notifiedPrayers = {}; 
 
-    // --- الوظيفة المعدلة حسب طلب محمود ---
+    // دالة فحص مواقيت الصلاة وإرسال التنبيهات (المضافة والمطورة)
     function checkPrayerNotifications() {
         if (!prayerTimings || Notification.permission !== "granted") return;
+        
         const now = new Date();
         const currentH = String(now.getHours()).padStart(2, '0');
         const currentM = String(now.getMinutes()).padStart(2, '0');
@@ -598,12 +592,14 @@
         const cityNameAr = citySelect.options[citySelect.selectedIndex]?.text || "";
 
         const m = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
+        
         for (let k in m) {
             if (prayerTimings[k] === currentTimeStr) {
                 let dateStr = now.toDateString();
                 let notifKey = k + "_" + dateStr;
+                
+                // التأكد من عدم إرسال التنبيه أكثر من مرة لنفس الصلاة في اليوم الواحد
                 if (!notifiedPrayers[notifKey]) {
-                    // اعتماد النموذج الرسمي المطلوب
                     new Notification(`حان الآن موعد ${m[k]}`, {
                         body: `الله أكبر، حان الآن موعد ${m[k]} حسب توقيت ${cityNameAr}`,
                         icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png"
@@ -960,7 +956,6 @@
     window.onload = () => {
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
         setupAdminTracking();
-        
         initNotifications();
 
         if (!localStorage.getItem('is_registered_athr')) {
@@ -981,7 +976,12 @@
         
         updateCities(savedCity);
         renderQuranList();
-        setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); }, 60000);
+        
+        // فحص التنبيهات كل دقيقة وتحديث الوقت المتبقي
+        setInterval(() => { 
+            updateNextPrayer(); 
+            checkPrayerNotifications(); 
+        }, 60000);
     }
 
     const scrollContainer = document.getElementById('mainScroll');
