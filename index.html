@@ -98,7 +98,7 @@
         .reading-area { 
             line-height: 1.8; 
             font-size: 28px; 
-            text-align: center; 
+            text-align: justify; /* تعديل محمود: جعل النص متناسق ومنظم مثل المصحف الحقيقي */
             padding: 40px 20px 120px 20px; 
             color: var(--text); 
             font-family: 'Amiri', serif; 
@@ -106,6 +106,7 @@
             width: 100%;
             box-sizing: border-box;
             margin: 0; 
+            direction: rtl;
         }
         
         .surah-header { 
@@ -252,8 +253,8 @@
             font-weight: bold;
         }
         .device-list { margin-top: 15px; background: #000; padding: 10px; border-radius: 10px; border: 1px solid #333; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 11px; text-align: left; }
-        .device-item { color: #aaa; border-bottom: 1px solid #222; padding: 5px 0; display: flex; justify-content: space-between; direction: ltr; align-items: center; }
-        .device-item b { color: var(--gold); margin-right: 5px; font-size: 12px; }
+        .device-item { color: #aaa; border-bottom: 1px solid #222; padding: 5px 0; display: flex; justify-content: space-between; direction: rtl; align-items: center; } /* تعديل محمود: direction: rtl للوحة التحكم */
+        .device-item b { color: var(--gold); margin-left: 10px; font-size: 12px; }
         .device-item span { font-size: 9px; opacity: 0.7; }
     </style>
 </head>
@@ -469,7 +470,6 @@
                     });
                 }
                 
-                // بدء تشغيل نظام الأذكار العشوائية كل 4 ساعات
                 initRandomAzkarNotifications();
             }
         } catch (error) {
@@ -477,9 +477,8 @@
         }
     }
 
-    // دالة إرسال ذكر عشوائي كل 4 ساعات
     function initRandomAzkarNotifications() {
-        const INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 ساعات بالملي ثانية
+        const INTERVAL_MS = 4 * 60 * 60 * 1000; 
         
         const sendRandomZikr = () => {
             if (Notification.permission === 'granted') {
@@ -491,7 +490,6 @@
             }
         };
 
-        // فحص وإرسال أول ذكر إذا مر وقت طويل
         const lastSent = localStorage.getItem('last_zikr_time');
         const now = Date.now();
         if (!lastSent || (now - lastSent) >= INTERVAL_MS) {
@@ -499,7 +497,6 @@
             localStorage.setItem('last_zikr_time', now);
         }
 
-        // إعداد التكرار
         setInterval(() => {
             sendRandomZikr();
             localStorage.setItem('last_zikr_time', Date.now());
@@ -607,10 +604,8 @@
     let infoTimeout = null;
     let readerUiVisible = false;
 
-    // متطلب منع تكرار الإشعار في نفس اليوم
     let notifiedPrayers = {}; 
 
-    // دالة فحص مواقيت الصلاة وإرسال التنبيهات
     function checkPrayerNotifications() {
         if (!prayerTimings || Notification.permission !== "granted") return;
         
@@ -661,10 +656,12 @@
         const d = String(now.getDate()).padStart(2,'0');
         const mo = String(now.getMonth()+1).padStart(2,'0');
         const y = now.getFullYear();
-        const h = String(now.getHours()).padStart(2,'0');
+        let h = now.getHours();
+        const ampm = h >= 12 ? 'م' : 'ص';
+        h = h % 12;
+        h = h ? h : 12; 
         const mi = String(now.getMinutes()).padStart(2,'0');
-        const s = String(now.getSeconds()).padStart(2,'0');
-        return `${d}/${mo}/${y} ${h}:${mi}:${s}`;
+        return `${d}/${mo}/${y} | ${h}:${mi} ${ampm}`;
     }
 
     function enterFullscreen() {
@@ -756,25 +753,54 @@
         } catch (e) { list.innerHTML = "<div style='text-align:center; padding:40px; color:red;'>خطأ في البحث.</div>"; }
     }
 
+    // تعديل محمود: نظام التتبع الكامل ولوحة التحكم المحدثة
     function setupAdminTracking() {
         const name = getDeviceName();
         const time = getDateTimeFull();
-        const onlineRef = database.ref('stats/online_users');
+
+        // 1. المستخدمين النشطين الآن
+        const onlineRef = database.ref('app_stats/online_users');
         const myRef = onlineRef.push();
         myRef.onDisconnect().remove();
         myRef.set({ name: name, time: time });
 
+        // 2. الأجهزة المسجلة (مرة واحدة فقط)
         const uniqueKey = btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
-        database.ref('stats/unique_devices/' + uniqueKey).transaction(curr => {
-            if (curr) return;
+        database.ref('app_stats/unique_devices/' + uniqueKey).transaction(curr => {
+            if (curr) return curr; // لا تقم بتعديله إذا كان مسجلاً بالفعل
             return { name: name, registeredAt: time };
         });
 
-        database.ref('stats/all_logs').push({ name: name, time: time });
-        database.ref('stats').on('value', snap => {
+        // 3. سجل التكرار (كل دخول وخروج)
+        database.ref('app_stats/all_logs').push({ name: name, time: time });
+
+        // 4. استرجاع البيانات للوحة التحكم
+        database.ref('app_stats').on('value', snap => {
             const data = snap.val() || {};
-            document.getElementById('total-users').innerText = data.total_users || 0;
+            
+            // التسبيحات
             document.getElementById('global-tasbih').innerText = data.global_tasbih || 0;
+
+            // المتصلين الآن
+            const onlineUsers = data.online_users || {};
+            document.getElementById('online-users').innerText = Object.keys(onlineUsers).length;
+            document.getElementById('active-device-list').innerHTML = Object.values(onlineUsers).map(u => 
+                `<div class="device-item"><b>${u.name}</b><span style="color:var(--gold);">متصل الآن 🟢</span></div>`
+            ).join('');
+
+            // المسجلين (فريد)
+            const uniqueDevices = data.unique_devices || {};
+            document.getElementById('total-users').innerText = Object.keys(uniqueDevices).length;
+            document.getElementById('unique-device-list').innerHTML = Object.values(uniqueDevices).map(u => 
+                `<div class="device-item"><b>${u.name}</b><span>${u.registeredAt}</span></div>`
+            ).join('');
+
+            // سجل الدخول (تكرار)
+            const allLogs = data.all_logs || {};
+            const logsArray = Object.values(allLogs).reverse().slice(0, 150); // عرض أحدث 150 حركة
+            document.getElementById('all-log-list').innerHTML = logsArray.map(u => 
+                `<div class="device-item"><b>${u.name}</b><span>${u.time}</span></div>`
+            ).join('');
         });
     }
 
@@ -860,7 +886,8 @@
             
             dataAyahs.forEach(a => {
                 let highlightClass = (highlightAyahNumber && a.number === highlightAyahNumber) ? 'highlighted-ayah' : '';
-                html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text} <span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span> `;
+                // تعديل محمود: إزالة المسافات العشوائية وربط الآية برقمها بـ &nbsp; لعدم ترك مسافات غير منظمة
+                html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text}&nbsp;<span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span>&nbsp; `;
             });
             html += `</div>`;
             
@@ -961,7 +988,8 @@
         localCount++; totalCount++;
         if (localCount >= 33) { localCount = 0; currentTasbihIndex++; if (currentTasbihIndex >= tasbihList.length) currentTasbihIndex = 0; }
         updateTasbihUI(); saveTasbihData();
-        database.ref('stats/global_tasbih').transaction(c => (c || 0) + 1);
+        // تعديل محمود: مسار التسبيح الجديد
+        database.ref('app_stats/global_tasbih').transaction(c => (c || 0) + 1);
     }
     function updateTasbihUI() {
         document.getElementById('zikr-text').innerText = tasbihList[currentTasbihIndex];
@@ -988,8 +1016,9 @@
         setupAdminTracking();
         initNotifications();
 
-        if (!localStorage.getItem('is_registered_athr')) {
-            database.ref('stats/total_users').transaction(c => (c || 0) + 1, (err, comm) => { if (comm) localStorage.setItem('is_registered_athr', 'true'); });
+        // تعديل محمود: إجبار الجميع على التسجيل من جديد في القائمة الفريدة
+        if (!localStorage.getItem('is_registered_athr_v2')) {
+            localStorage.setItem('is_registered_athr_v2', 'true');
         }
         if (localStorage.getItem('quran_downloaded')) document.getElementById('dlBtn').style.display = 'none';
         
@@ -1007,7 +1036,6 @@
         updateCities(savedCity);
         renderQuranList();
         
-        // فحص التنبيهات كل دقيقة وتحديث الوقت المتبقي
         setInterval(() => { 
             updateNextPrayer(); 
             checkPrayerNotifications(); 
