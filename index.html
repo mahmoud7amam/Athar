@@ -643,11 +643,14 @@
             const match = ua.match(/\(([^)]+)\)/);
             if (match && match[1]) {
                 const parts = match[1].split(';');
-                const modelPart = parts.find(p => p.includes('Build/') || /SM-|GT-|Redmi|POCO|Xiaomi|HUAWEI|CPH|RMX|V2/i.test(p));
+                // تعديل محمود: التقاط أسماء الموبايلات الشهيرة لظهورها بدقة في اللوحة
+                const modelPart = parts.find(p => p.includes('Build/') || /SM-|GT-|Redmi|POCO|Xiaomi|HUAWEI|CPH|RMX|V2|Infinix|TECNO|itel|Oppo|Vivo/i.test(p));
                 if (modelPart) { device = modelPart.split('Build/')[0].trim(); }
             }
         } else if (/iPhone/i.test(ua)) { device = "iPhone"; }
+        else if (/iPad/i.test(ua)) { device = "iPad"; }
         else if (/Windows/i.test(ua)) { device = "Windows PC"; }
+        else if (/Mac OS X/i.test(ua)) { device = "Mac"; }
         return device || "جهاز غير معروف";
     }
 
@@ -742,9 +745,10 @@
             let html = `<div style="color:var(--gold); font-size:14px; margin-bottom:15px; text-align:center;">تم العثور على ${d.data.count} نتيجة</div>`;
             d.data.matches.forEach(match => {
                 let cleanSurahName = match.surah.name.replace("سورة ", "").trim();
+                let cleanText = match.text.replace(/\s+/g, ' ').trim(); // تعديل محمود: تنظيف وتنسيق المسافات العشوائية
                 html += `
                     <div class="search-results-item" onclick="loadContent('surah', ${match.surah.number}, '${cleanSurahName}', ${match.number})">
-                        <span class="ayah-text">${match.text}</span>
+                        <span class="ayah-text">${cleanText}</span>
                         <div class="surah-info">سورة ${cleanSurahName} - آية ${match.numberInSurah}</div>
                     </div>
                 `;
@@ -893,7 +897,18 @@
             
             document.getElementById('qText').innerHTML = html;
             currentView = { type, id, title };
-            document.getElementById('mainScroll').scrollTop = 0;
+
+            // تعديل محمود: النزول التلقائي للآية المختارة وتلوينها بالأحمر
+            if (highlightAyahNumber) {
+                setTimeout(() => {
+                    const targetAyah = document.getElementById('ayah-' + highlightAyahNumber);
+                    if (targetAyah) {
+                        targetAyah.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 150);
+            } else {
+                document.getElementById('mainScroll').scrollTop = 0;
+            }
 
         } catch(e) { document.getElementById('qText').innerHTML = `<div style="padding:40px;">حدث خطأ. تحقق من الإنترنت.</div>`; }
     }
