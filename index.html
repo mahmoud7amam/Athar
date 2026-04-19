@@ -584,6 +584,8 @@
     let readerUiVisible = false;
 
     let notifiedPrayers = {}; 
+
+    // --- الوظيفة المعدلة حسب طلب محمود ---
     function checkPrayerNotifications() {
         if (!prayerTimings || Notification.permission !== "granted") return;
         const now = new Date();
@@ -591,14 +593,19 @@
         const currentM = String(now.getMinutes()).padStart(2, '0');
         const currentTimeStr = `${currentH}:${currentM}`;
 
+        // جلب اسم المحافظة المختارة حالياً باللغة العربية لعرضه في الإشعار
+        const citySelect = document.getElementById('citySelect');
+        const cityNameAr = citySelect.options[citySelect.selectedIndex]?.text || "";
+
         const m = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
         for (let k in m) {
             if (prayerTimings[k] === currentTimeStr) {
                 let dateStr = now.toDateString();
                 let notifKey = k + "_" + dateStr;
                 if (!notifiedPrayers[notifKey]) {
-                    new Notification(`حان الآن موعد صلاة ${m[k]}`, {
-                        body: `الصلاة خير من النوم - حان وقت أذان ${m[k]} في مدينتك`,
+                    // اعتماد النموذج الرسمي المطلوب
+                    new Notification(`حان الآن موعد ${m[k]}`, {
+                        body: `الله أكبر، حان الآن موعد ${m[k]} حسب توقيت ${cityNameAr}`,
                         icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png"
                     });
                     notifiedPrayers[notifKey] = true;
@@ -870,7 +877,7 @@
 
     function updateCities(savedCity = null) {
         const countryKey = document.getElementById('countrySelect').value;
-        localStorage.setItem('saved_country', countryKey); // تم إضافة الحفظ هنا
+        localStorage.setItem('saved_country', countryKey);
         
         const citySelect = document.getElementById('citySelect');
         citySelect.innerHTML = '';
@@ -878,7 +885,7 @@
             arabCountries[countryKey].cities.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.en; opt.innerText = c.ar;
-                if(savedCity && c.en === savedCity) opt.selected = true; // تم التعديل لتحديد المدينة المحفوظة
+                if(savedCity && c.en === savedCity) opt.selected = true;
                 citySelect.appendChild(opt);
             });
         }
@@ -888,7 +895,7 @@
     async function getPrayers() {
         const country = document.getElementById('countrySelect').value;
         const city = document.getElementById('citySelect').value;
-        localStorage.setItem('saved_city', city); // تم إضافة الحفظ هنا
+        localStorage.setItem('saved_city', city);
         
         try {
             const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}`);
@@ -954,7 +961,6 @@
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
         setupAdminTracking();
         
-        // تشغيل تهيئة الإشعارات المحسنة
         initNotifications();
 
         if (!localStorage.getItem('is_registered_athr')) {
@@ -962,7 +968,6 @@
         }
         if (localStorage.getItem('quran_downloaded')) document.getElementById('dlBtn').style.display = 'none';
         
-        // --- التعديل هنا لجلب الدولة والمحافظة المحفوظين ---
         const savedCountry = localStorage.getItem('saved_country') || "Egypt";
         const savedCity = localStorage.getItem('saved_city') || null; 
         
@@ -974,7 +979,7 @@
             countrySelect.appendChild(opt);
         }
         
-        updateCities(savedCity); // تمرير المحافظة اللي جبناها من الذاكرة
+        updateCities(savedCity);
         renderQuranList();
         setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); }, 60000);
     }
