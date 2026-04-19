@@ -451,10 +451,17 @@
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
                 console.log('Notification permission granted.');
-                // الحصول على التوكن باستخدام Key pair الخاص بك
+                
+                // إضافة تسجيل الـ Service Worker من مسار المستودع /Athar/
+                const registration = await navigator.serviceWorker.register('/Athar/firebase-messaging-sw.js');
+                console.log('تم تسجيل Service Worker بنجاح:', registration.scope);
+
+                // الحصول على التوكن وتمرير التسجيل الجديد للفايربيس
                 const token = await messaging.getToken({ 
-                    vapidKey: 'BCnVK9Yqt6EwwWJpW4GRQQetASsKOJqa_oTDIruAjIGGWLYWc4Yw9jGFyj-KndtKVcjrOp8ZMAMXG64RKPpI7Ok' 
+                    vapidKey: 'BCnVK9Yqt6EwwWJpW4GRQQetASsKOJqa_oTDIruAjIGGWLYWc4Yw9jGFyj-KndtKVcjrOp8ZMAMXG64RKPpI7Ok',
+                    serviceWorkerRegistration: registration
                 });
+                
                 if (token) {
                     console.log('FCM Token:', token);
                     // حفظ التوكن في قاعدة البيانات لربطه بالجهاز
@@ -485,7 +492,7 @@
         "Palestine": { ar: "فلسطين", cities: [{ar:"القدس",en:"Jerusalem"},{ar:"غزة",en:"Gaza"},{ar:"رام الله",en:"Ramallah"},{ar:"الخليل",en:"Hebron"},{ar:"نابلس",en:"Nablus"},{ar:"جنين",en:"Jenin"},{ar:"بيت لحم",en:"Bethlehem"}] },
         "Syria": { ar: "سوريا", cities: [{ar:"دمشق",en:"Damascus"},{ar:"حلب",en:"Aleppo"},{ar:"حمص",en:"Homs"},{ar:"اللاذقية",en:"Latakia"},{ar:"حماة",en:"Hama"},{ar:"طرطوس",en:"Tartus"}] },
         "Lebanon": { ar: "لبنان", cities: [{ar:"بيروت",en:"Beirut"},{ar:"طرابلس",en:"Tripoli"},{ar:"صيدا",en:"Sidon"},{ar:"صور",en:"Tyre"},{ar:"زحلة",en:"Zahle"}] },
-        "Iraq": { ar: "العراق", cities: [{ar:"بغداد",en:"Baghdad"},{ar:"البصرة",en:"Basra"},{ar:"الموصل",en:"Mosul"},{ar:"أربيل",en:"Erbil"},{ar:"كركوك",en:"Kirkuk"},{ar:"النجف",en:"Najaf"},{ar:"كربلاء",en:"Karbala"}] },
+        "Iraq": { ar: "العراق", cities: [{ar:"بغداد",en:"Baghdad"},{ar:"البصرة",en:"Mosul"},{ar:"الموصل",en:"Mosul"},{ar:"أربيل",en:"Erbil"},{ar:"كركوك",en:"Kirkuk"},{ar:"النجف",en:"Najaf"},{ar:"كربلاء",en:"Karbala"}] },
         "Algeria": { ar: "الجزائر", cities: [{ar:"الجزائر العاصمة",en:"Algiers"},{ar:"وهران",en:"Oran"},{ar:"قسنطينة",en:"Constantine"},{ar:"عنابة",en:"Annaba"},{ar:"البليدة",en:"Blida"},{ar:"باتنة",en:"Batna"}] },
         "Morocco": { ar: "المغرب", cities: [{ar:"الدار البيضاء",en:"Casablanca"},{ar:"الرباط",en:"Rabat"},{ar:"فاس",en:"Fes"},{ar:"مراكش",en:"Marrakesh"},{ar:"طنجة",en:"Tangier"},{ar:"أكادير",en:"Agadir"}] },
         "Tunisia": { ar: "تونس", cities: [{ar:"تونس العاصمة",en:"Tunis"},{ar:"صفاقس",en:"Sfax"},{ar:"سوسة",en:"Sousse"},{ar:"القيروان",en:"Kairouan"},{ar:"بنزرت",en:"Bizerte"}] },
@@ -990,4 +997,3 @@
 </script>
 </body>
 </html>
-
