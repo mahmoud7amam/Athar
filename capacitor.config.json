@@ -1,0 +1,9 @@
+{
+  "appId": "com.athar.app",
+  "appName": "Athar",
+  "webDir": "www",
+  "server": {
+    "url": "https://athar-silk.vercel.app/",
+    "cleartext": true
+  }
+}
