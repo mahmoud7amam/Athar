@@ -868,14 +868,17 @@
         renderQuranList();
     }
 
-    function updateCities() {
+    function updateCities(savedCity = null) {
         const countryKey = document.getElementById('countrySelect').value;
+        localStorage.setItem('saved_country', countryKey); // تم إضافة الحفظ هنا
+        
         const citySelect = document.getElementById('citySelect');
         citySelect.innerHTML = '';
         if (arabCountries[countryKey]) {
             arabCountries[countryKey].cities.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.en; opt.innerText = c.ar;
+                if(savedCity && c.en === savedCity) opt.selected = true; // تم التعديل لتحديد المدينة المحفوظة
                 citySelect.appendChild(opt);
             });
         }
@@ -885,6 +888,8 @@
     async function getPrayers() {
         const country = document.getElementById('countrySelect').value;
         const city = document.getElementById('citySelect').value;
+        localStorage.setItem('saved_city', city); // تم إضافة الحفظ هنا
+        
         try {
             const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}`);
             const d = await res.json();
@@ -957,7 +962,10 @@
         }
         if (localStorage.getItem('quran_downloaded')) document.getElementById('dlBtn').style.display = 'none';
         
+        // --- التعديل هنا لجلب الدولة والمحافظة المحفوظين ---
         const savedCountry = localStorage.getItem('saved_country') || "Egypt";
+        const savedCity = localStorage.getItem('saved_city') || null; 
+        
         const countrySelect = document.getElementById('countrySelect');
         for (let key in arabCountries) {
             const opt = document.createElement('option');
@@ -965,7 +973,8 @@
             if(key === savedCountry) opt.selected = true;
             countrySelect.appendChild(opt);
         }
-        updateCities(); 
+        
+        updateCities(savedCity); // تمرير المحافظة اللي جبناها من الذاكرة
         renderQuranList();
         setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); }, 60000);
     }
