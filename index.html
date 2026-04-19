@@ -430,7 +430,7 @@
 </nav>
 
 <script>
-    // تحديث الإعدادات ببياناتك الجديدة يا محمود
+    // الإعدادات الأصلية لمحمود
     const firebaseConfig = { 
         apiKey: "AIzaSyBzaEUrY6MX38n3s7KcIfcx2mhqQbOCfCY",
         projectId: "gootff-dcc2a",
@@ -441,41 +441,44 @@
     
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    
-    // تعريف نظام المراسلة (FCM)
     const messaging = firebase.messaging();
 
-    // دالة تهيئة الإشعارات وطلب الإذن
+    // دالة تهيئة الإشعارات المحسنة (المعدلة)
     async function initNotifications() {
-        try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                console.log('Notification permission granted.');
-                
-                // إضافة تسجيل الـ Service Worker من مسار المستودع /Athar/
-                const registration = await navigator.serviceWorker.register('/Athar/firebase-messaging-sw.js');
-                console.log('تم تسجيل Service Worker بنجاح:', registration.scope);
+        if (!('serviceWorker' in navigator)) return;
 
-                // الحصول على التوكن وتمرير التسجيل الجديد للفايربيس
+        try {
+            let permission = Notification.permission;
+            if (permission === 'default') {
+                permission = await Notification.requestPermission();
+            }
+
+            if (permission === 'granted') {
+                console.log('تم منح إذن الإشعارات.');
+                
+                // تسجيل باستخدام مسار نسبي لضمان التوافق مع GitHub Pages
+                const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+                
+                // تأكيد الجاهزية قبل طلب التوكن
+                await navigator.serviceWorker.ready;
+
                 const token = await messaging.getToken({ 
                     vapidKey: 'BCnVK9Yqt6EwwWJpW4GRQQetASsKOJqa_oTDIruAjIGGWLYWc4Yw9jGFyj-KndtKVcjrOp8ZMAMXG64RKPpI7Ok',
                     serviceWorkerRegistration: registration
                 });
                 
                 if (token) {
-                    console.log('FCM Token:', token);
-                    // حفظ التوكن في قاعدة البيانات لربطه بالجهاز
+                    console.log('Token ready:', token);
                     const deviceKey = btoa(navigator.userAgent).substring(0,20);
                     database.ref('fcm_tokens/' + deviceKey).set({
                         token: token,
-                        lastSeen: Date.now()
+                        lastSeen: Date.now(),
+                        deviceName: getDeviceName()
                     });
                 }
-            } else {
-                console.warn('Unable to get permission to notify.');
             }
         } catch (error) {
-            console.error('Error during FCM initialization:', error);
+            console.error('FCM Initialization Error:', error);
         }
     }
 
@@ -946,7 +949,7 @@
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
         setupAdminTracking();
         
-        // تشغيل نظام الإشعارات فور تحميل الصفحة
+        // تشغيل تهيئة الإشعارات المحسنة
         initNotifications();
 
         if (!localStorage.getItem('is_registered_athr')) {
