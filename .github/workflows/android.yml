@@ -17,13 +17,11 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          # بنعمل إعداد للمشروع جوه سيرفر جيتهاب
-          npx cap init Athar com.mahmoud.athar --web-dir .
-          npx cap add android
-
-      - name: Sync Web Code
-        run: npx cap copy android
+          npm install
+          npm install @capacitor/android
+          # تحديث ملفات الأندرويد بناءً على الكود بتاعك
+          npx cap add android || true 
+          npx cap sync android
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -31,7 +29,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Build APK
+      - name: Build APK with Gradle
         run: |
           cd android
           chmod +x gradlew
@@ -40,5 +38,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-App
+          name: Athar-App-Final
           path: android/app/build/outputs/apk/debug/app-debug.apk
