@@ -1,5 +1,7 @@
-name: Athar APK Builder
-on: [push]
+name: Build Athar APK
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   build:
@@ -8,18 +10,35 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build APK
-        uses: omar139506/pwa-to-apk@main
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          # رابط موقعك على فيرسل
-          url: "https://athar-silk.vercel.app/"
-          # اسم صورتك اللي قلت لي عليه
-          icon: "icon-512.png"
-          # اسم التطبيق
-          name: "Athar"
+          node-version: 18
+
+      - name: Install Dependencies
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          # بنعمل إعداد للمشروع جوه سيرفر جيتهاب
+          npx cap init Athar com.mahmoud.athar --web-dir .
+          npx cap add android
+
+      - name: Sync Web Code
+        run: npx cap copy android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Athar-App
-          path: ./*.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
