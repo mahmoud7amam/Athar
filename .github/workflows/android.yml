@@ -1,7 +1,5 @@
 name: Build Athar APK
-on:
-  push:
-    branches: [ main ]
+on: [push]
 
 jobs:
   build:
@@ -10,33 +8,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Build Android APK
+        # أداة سريعة لتحويل الـ PWA/Web إلى APK
+        uses: jason-v-edu/pwa-to-apk-action@v1
         with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: |
-          npm install
-          npm install @capacitor/android
-          # تحديث ملفات الأندرويد بناءً على الكود بتاعك
-          npx cap add android || true 
-          npx cap sync android
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Build APK with Gradle
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          url: "https://athar-project.vercel.app" # رابط فيرسل بتاعك
+          name: "Athar"
+          icon: "icon-512.png"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-App-Final
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Athar-App
+          path: ./*.apk
