@@ -8,13 +8,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build Android APK
-        # أداة سريعة لتحويل الـ PWA/Web إلى APK
-        uses: jason-v-edu/pwa-to-apk-action@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          url: "https://athar-project.vercel.app" # رابط فيرسل بتاعك
-          name: "Athar"
-          icon: "icon-512.png"
+          node-version: 18
+
+      - name: Install Bubblewrap
+        # بننزل أداة جوجل الرسمية لتحويل الويب لتطبيقات
+        run: npm install -g @bubblewrap/cli
+
+      - name: Build APK
+        # هنا بنستخدم رابط فيرسل وصورتك الـ 512 عشان نطلع الـ APK
+        run: |
+          bubblewrap init --manifest=https://athar-project.vercel.app/manifest.json --status=v4
+          bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
