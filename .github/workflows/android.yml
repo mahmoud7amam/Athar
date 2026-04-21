@@ -19,7 +19,7 @@ jobs:
       - name: Build APK (Non-Interactive)
         # الكود ده بيجاوب "Yes" على كل أسئلة الأداة أوتوماتيك
         run: |
-          yes | bubblewrap init --manifest=https://athar-project.vercel.app/manifest.json
+          yes | bubblewrap init --manifest=https://athar-silk.vercel.app/
           yes | bubblewrap build --skipConfig
 
       - name: Upload APK
