@@ -1,7 +1,7 @@
 name: Build Athar APK
 on:
   push:
-    branches: [ main ]
+    branches: [ main ] # تأكد لو master غيرها
 
 jobs:
   build:
@@ -10,16 +10,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build Web to APK
-        # بنستخدم أكشن مستقر بياخد الرابط ويحوله
-        uses: funnyzak/pwa-to-apk-action@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          app_name: "Athar"
-          # حطينا اسم صورتك الحقيقي هنا
-          icon_path: "icon-512.png" 
-          # رابط مشروعك على فيرسل
-          web_url: "https://athar-silk.vercel.app/"
+          node-version: '20'
 
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Build Process
+        run: |
+          # الأوامر دي بتبني التطبيق يدوياً
+          # تأكد إن عندك ملف manifest.json في المشروع
+          bubblewrap init --manifest=https://athar-project.vercel.app/manifest.json --status=v4
+          bubblewrap build --skipConfig
+          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
