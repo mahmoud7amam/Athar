@@ -1,29 +1,31 @@
 name: Build Athar APK
 on:
   push:
-    branches: [ main ] # تأكد إن اسم الفرع عندك main أو master
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Build Android APK
-        uses: eliasmendesbr/simple2app-action@v1.0.1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          # اسم التطبيق اللي هيظهر على الموبايل
-          app_name: "Athar"
-          # اسم الحزمة (Package Name)
-          app_bundle_id: "com.mahmoud.athar"
-          # رابط الأيقونة (لو عندك ملف icon.png في المشروع حط اسمه هنا)
-          app_icon_path: "icon-512.png"
-          # الملف الرئيسي بتاعك
-          index_file: "index.html"
+          node-version: '20'
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Build APK
+        # هنا بنستخدم محرك جوجل لتحويل الـ HTML لتطبيق
+        run: |
+          bubblewrap init --manifest=https://athar-project.vercel.app/manifest.json --status=v4
+          bubblewrap build --skipConfig
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: Athar-Release
+          name: Athar-App
           path: ./*.apk
