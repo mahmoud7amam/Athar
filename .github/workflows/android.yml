@@ -14,17 +14,17 @@ jobs:
           node-version: 18
 
       - name: Install Bubblewrap
-        # بننزل أداة جوجل الرسمية لتحويل الويب لتطبيقات
         run: npm install -g @bubblewrap/cli
 
-      - name: Build APK
-        # هنا بنستخدم رابط فيرسل وصورتك الـ 512 عشان نطلع الـ APK
+      - name: Build APK (Non-Interactive)
+        # الكود ده بيجاوب "Yes" على كل أسئلة الأداة أوتوماتيك
         run: |
-          bubblewrap init --manifest=https://athar-project.vercel.app/manifest.json --status=v4
-          bubblewrap build --skipConfig
+          yes | bubblewrap init --manifest=https://athar-project.vercel.app/manifest.json
+          yes | bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Athar-App
+          # هنا بنرفع أي ملف APK ناتج عن العملية
           path: ./*.apk
