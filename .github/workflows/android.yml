@@ -16,14 +16,14 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Build APK (Force Yes)
-        # الأمر ده بيجاوب بـ Enter و Yes على كل حاجة مهما كانت
+      - name: Build APK (Force Approval)
+        # أمر yes بيخلي السيرفر يوافق على كل الشروط أوتوماتيك
         run: |
-          printf '\n' | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
-          printf 'y\ny\ny\ny\n' | bubblewrap build --skipConfig
+          yes | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
+          yes | bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-App
+          name: Athar-Ready-APK
           path: ./*.apk
