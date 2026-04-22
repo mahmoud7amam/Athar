@@ -8,16 +8,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build APK from PWA
-        uses: larsmarius/pwa-to-apk-action@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          # الرابط الجديد بتاعك
-          url: "https://athar-silk.vercel.app/"
-          # اسم التطبيق (خلينا نكتبه بالانجليزي هنا عشان الـ File System بس)
-          name: "Athar"
-          # صورة الايكون
-          icon: "icon-512.png"
+          node-version: 18
 
+      - name: Install Bubblewrap CLI
+        run: npm install -g @bubblewrap/cli
+
+      - name: Initialize and Build APK
+        # هنا بنستخدم الرابط بتاعك وبنجاوب على الأسئلة أوتوماتيك بكلمة yes
+        run: |
+          yes | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4
+          yes | bubblewrap build --skipConfig
+          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
