@@ -17,19 +17,47 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Pre-Configure Bubblewrap
-        # هنا بنعلم السيرفر إزاي يجاوب على الأسئلة من غير ما تظهر
+      - name: System Configuration
+        # بنعرف الأداة أماكن الأندرويد من غير ما تسأل
         run: |
           mkdir -p ~/.bubblewrap
-          # بنكتب ملف الإعدادات يدوي عشان يتخطى سؤال "فين الـ SDK" وسؤال "أنزل الجافا؟"
-          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"/usr/local/lib/android/sdk\"}" > ~/.bubblewrap/config.json
-          
-      - name: Build APK
-        # هنا بنستخدم أمر الموافقة على الشروط الرسمي من جوجل قبل ما نبدأ
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
+
+      - name: Generate Security Key
+        # بنعمل مفتاح أمان للتطبيق (زي اللي بيتعمل لأي تطبيق احترافي) عشان الأداة متطلبهوش
         run: |
-          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction
-          bubblewrap build --skipConfig
+          keytool -genkey -v -keystore my-key.keystore -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Mahmoud, OU=Athar, O=Athar, L=Qena, S=Qena, C=EG"
+
+      - name: Bypass Init (Create Manifest)
+        # هنا إحنا بنجاوب على كل أسئلة الأداة سلفاً في الملف ده (اسم الموقع، والألوان، والأيقونات)
+        run: |
+          cat <<EOF > twa-manifest.json
+          {
+            "packageId": "com.mahmoud.athar",
+            "host": "athar-silk.vercel.app",
+            "name": "Athar",
+            "launcherName": "Athar",
+            "display": "standalone",
+            "themeColor": "#D4AF37",
+            "navigationColor": "#000000",
+            "backgroundColor": "#000000",
+            "startUrl": "/",
+            "iconUrl": "https://athar-silk.vercel.app/icon-512.png",
+            "maskableIconUrl": "https://athar-silk.vercel.app/icon-512.png",
+            "appVersion": "1.0.0",
+            "signingKey": {
+              "path": "./my-key.keystore",
+              "alias": "my-alias"
+            },
+            "fallbackType": "customtabs",
+            "features": {}
+          }
+          EOF
+
+      - name: Build APK
+        # بندخل على البناء فوراً وبنديله الباسوورد بتاع مفتاح الأمان أوتوماتيك (123456)
+        run: |
+          echo -e "123456\n123456\n" | bubblewrap build
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
