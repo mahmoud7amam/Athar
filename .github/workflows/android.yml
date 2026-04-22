@@ -17,26 +17,27 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Prepare Config
+      - name: Setup Config
         run: |
           mkdir -p ~/.bubblewrap
           echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
           keytool -genkey -v -keystore my-key.keystore -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Mahmoud, OU=Athar, O=Athar, L=Qena, S=Qena, C=EG"
 
-      - name: Build APK
+      - name: Build APK (Safe Method)
         run: |
-          bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
+          # بنعمل init وبناخد البيانات أوتوماتيك
+          bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction
+          
+          # بنعدل سطر المفتاح في الملف اللي اتعمل عشان يقرأ المفتاح بتاعنا
+          sed -i 's/"path": ".*"/"path": ".\/my-key.keystore"/' twa-manifest.json
+          sed -i 's/"alias": ".*"/"alias": "my-alias"/' twa-manifest.json
+          
+          # البناء مع تجاهل الأخطاء البسيطة
           echo -e "123456\n123456\n" | bubblewrap build --skipConfig
-
-      - name: Catch Any APK
-        # هنا بنخلي السيرفر يدور في كل الفولدرات ويجمع أي ملف APK طلع ويحطه في مكان واحد
-        run: |
-          mkdir -p output
-          find . -name "*.apk" -exec cp {} output/ \;
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-Final-Package
-          # بنرفع الفولدر اللي جمعنا فيه كل الـ APK اللي السيرفر "خباه" مننا
-          path: output/
+          name: Athar-App
+          # هنا بنخليه يرفع أي ملف APK يلاقيه في أي مكان في المشروع
+          path: "**/*.apk"
