@@ -13,18 +13,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Google Bubblewrap
-        # بننزل أداة جوجل الرسمية مباشرة من سيرفرات npm
+      - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Build APK
-        # الأوامر دي بتعمل الـ APK بناءً على رابط موقعك والـ manifest
+      - name: Build APK (Force Yes)
+        # الأمر ده بيجاوب بـ Enter و Yes على كل حاجة مهما كانت
         run: |
-          bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction
-          bubblewrap build --skipConfig
+          printf '\n' | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
+          printf 'y\ny\ny\ny\n' | bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-App-Package
+          name: Athar-App
           path: ./*.apk
