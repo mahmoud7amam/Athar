@@ -8,22 +8,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          node-version: 20
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Build APK (Smart Approval)
+      - name: Fake Configuration (Skip Questions)
+        # هنا بنعمل ملف الإعدادات يدوي عشان الأداة متسألش عن الجافا أو الـ SDK
         run: |
-          # بنستخدم أمر بيدي وقت للسيرفر يجاوب بـ Enter و Yes من غير جنون الـ 16 ألف حرف
-          echo -e "\n\ny\ny\ny\ny\ny\ny\n" | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
-          echo -e "y\ny\ny\ny\ny\ny\n" | bubblewrap build --skipConfig
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"/usr/local/lib/android/sdk\"}" > ~/.bubblewrap/config.json
+
+      - name: Build APK
+        # بنستخدم --no-interaction وبنديله الأوامر اللي تخليه يبني فوراً
+        run: |
+          bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction
+          bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-Success-APK
+          name: Athar-App
           path: ./*.apk
