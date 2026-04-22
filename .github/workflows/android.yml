@@ -17,24 +17,26 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Setup Config
+      - name: Prepare Config
         run: |
           mkdir -p ~/.bubblewrap
           echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
-
-      - name: Generate Key
-        run: |
           keytool -genkey -v -keystore my-key.keystore -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Mahmoud, OU=Athar, O=Athar, L=Qena, S=Qena, C=EG"
 
-      - name: Build APK (Force Build)
+      - name: Build APK
         run: |
-          # محاولة الـ init مع تجاهل أي خطأ في الثيم أو الأيقونات
           bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
-          # البدء في البناء مباشرة مع إرسال الباسوورد
-          echo -e "123456\n123456\n" | bubblewrap build --skipConfig || echo "Attempting build again..."
+          echo -e "123456\n123456\n" | bubblewrap build --skipConfig
+
+      - name: Catch Any APK
+        # هنا بنخلي السيرفر يدور في كل الفولدرات ويجمع أي ملف APK طلع ويحطه في مكان واحد
+        run: |
+          mkdir -p output
+          find . -name "*.apk" -exec cp {} output/ \;
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-App
-          path: ./*.apk
+          name: Athar-Final-Package
+          # بنرفع الفولدر اللي جمعنا فيه كل الـ APK اللي السيرفر "خباه" مننا
+          path: output/
