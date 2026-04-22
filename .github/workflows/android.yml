@@ -14,18 +14,22 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        # الأكشن ده بيظبط كل أدوات الأندرويد وبيوافق على الشروط لوحده
-        uses: android-actions/setup-android@v3
-
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Initialize and Build
-        # هنرجع للطريقة المضمونة مع أمر yes الهادي عشان نعدي أي سؤال مفاجئ
+      - name: Pre-Configure Bubblewrap
+        # هنا بنعلم السيرفر إزاي يجاوب على الأسئلة من غير ما تظهر
         run: |
-          echo "y" | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
-          echo "y" | bubblewrap build --skipConfig
+          mkdir -p ~/.bubblewrap
+          # بنكتب ملف الإعدادات يدوي عشان يتخطى سؤال "فين الـ SDK" وسؤال "أنزل الجافا؟"
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"/usr/local/lib/android/sdk\"}" > ~/.bubblewrap/config.json
+          
+      - name: Build APK
+        # هنا بنستخدم أمر الموافقة على الشروط الرسمي من جوجل قبل ما نبدأ
+        run: |
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction
+          bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
