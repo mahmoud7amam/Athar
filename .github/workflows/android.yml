@@ -16,14 +16,14 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Build APK (Force Approval)
-        # أمر yes بيخلي السيرفر يوافق على كل الشروط أوتوماتيك
+      - name: Build APK (Smart Approval)
         run: |
-          yes | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
-          yes | bubblewrap build --skipConfig
+          # بنستخدم أمر بيدي وقت للسيرفر يجاوب بـ Enter و Yes من غير جنون الـ 16 ألف حرف
+          echo -e "\n\ny\ny\ny\ny\ny\ny\n" | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
+          echo -e "y\ny\ny\ny\ny\ny\n" | bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-Ready-APK
+          name: Athar-Success-APK
           path: ./*.apk
