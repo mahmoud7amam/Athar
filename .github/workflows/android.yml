@@ -14,46 +14,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup Android SDK
+        # الأكشن ده بيظبط كل أدوات الأندرويد وبيوافق على الشروط لوحده
+        uses: android-actions/setup-android@v3
+
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Manual TWA Config (The Cyber Hack)
-        # هنا إحنا بنصنع ملف الإعدادات اللي الأداة بتدور عليه عشان متسألش
+      - name: Initialize and Build
+        # هنرجع للطريقة المضمونة مع أمر yes الهادي عشان نعدي أي سؤال مفاجئ
         run: |
-          mkdir -p ~/.bubblewrap
-          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"/usr/local/lib/android/sdk\"}" > ~/.bubblewrap/config.json
-          
-          # بنصنع ملف المشروع فوراً عشان نتخطى خطوة الـ init المزعجة
-          cat <<EOF > twa-manifest.json
-          {
-            "packageId": "com.mahmoud.athar",
-            "host": "athar-silk.vercel.app",
-            "name": "Athar",
-            "launcherName": "Athar",
-            "display": "standalone",
-            "themeColor": "#D4AF37",
-            "navigationColor": "#000000",
-            "backgroundColor": "#000000",
-            "startUrl": "/",
-            "iconUrl": "https://athar-silk.vercel.app/icon-512.png",
-            "maskableIconUrl": "https://athar-silk.vercel.app/icon-512.png",
-            "appVersion": "1.0.0",
-            "signingKey": {
-              "path": "./my-release-key.keystore",
-              "alias": "my-key-alias"
-            }
-          }
-          EOF
-
-      - name: Build APK
-        # هنا بنبني فوراً وبنوافق على رخصة الـ SDK بأمر صريح
-        run: |
-          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
-          yes | sdkmanager --licenses
-          bubblewrap build --skipConfig
+          echo "y" | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction || true
+          echo "y" | bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-Final-APK
+          name: Athar-App
           path: ./*.apk
