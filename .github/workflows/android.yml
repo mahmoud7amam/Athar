@@ -21,23 +21,45 @@ jobs:
         run: |
           mkdir -p ~/.bubblewrap
           echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
+          
+          # إنشاء المفتاح
           keytool -genkey -v -keystore my-key.keystore -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Mahmoud, OU=Athar, O=Athar, L=Qena, S=Qena, C=EG"
 
-      - name: Build APK (Safe Method)
+          # إنشاء ملف المانيفست كامل يدوياً عشان نلغي خطوة الـ init
+          cat <<EOF > twa-manifest.json
+          {
+            "packageId": "com.mahmoud.athar",
+            "host": "athar-silk.vercel.app",
+            "name": "Athar",
+            "launcherName": "Athar",
+            "display": "standalone",
+            "themeColor": "#D4AF37",
+            "navigationColor": "#000000",
+            "backgroundColor": "#000000",
+            "startUrl": "/",
+            "iconUrl": "https://athar-silk.vercel.app/icon-512.png",
+            "maskableIconUrl": "https://athar-silk.vercel.app/icon-512.png",
+            "appVersion": "1.0.0",
+            "signingKey": {
+              "path": "./my-key.keystore",
+              "alias": "my-alias"
+            },
+            "generatorApp": "bubblewrap-cli",
+            "webManifestUrl": "https://athar-silk.vercel.app/manifest.json",
+            "fallbackType": "customtabs",
+            "features": {},
+            "alphaDependencies": { "enabled": false }
+          }
+          EOF
+
+      - name: Build APK
+        # استخدام --skipConfig عشان نضمن إنه ميحاولش يسأل عن الـ SDK
         run: |
-          # بنعمل init وبناخد البيانات أوتوماتيك
-          bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4 --no-interaction
-          
-          # بنعدل سطر المفتاح في الملف اللي اتعمل عشان يقرأ المفتاح بتاعنا
-          sed -i 's/"path": ".*"/"path": ".\/my-key.keystore"/' twa-manifest.json
-          sed -i 's/"alias": ".*"/"alias": "my-alias"/' twa-manifest.json
-          
-          # البناء مع تجاهل الأخطاء البسيطة
           echo -e "123456\n123456\n" | bubblewrap build --skipConfig
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Athar-App
-          # هنا بنخليه يرفع أي ملف APK يلاقيه في أي مكان في المشروع
+          # البحث عن أي ملف APK في أي مكان (المسار الأشهر هو app/build/outputs/apk/release/)
           path: "**/*.apk"
