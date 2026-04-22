@@ -8,22 +8,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Build Android APK
+        # أداة متطورة جداً وسريعة ومخصصة للأندرويد
+        uses: pwa-builder/pwa-auth-action@v3
         with:
-          node-version: 18
+          # رابط موقعك
+          url: "https://athar-silk.vercel.app/"
+          # اسم التطبيق بالانجليزي عشان السيستم
+          name: "Athar App"
+          # دي أهم حتة: بتخلي الأكشن ميسألش عن الـ Keys
+          signing-key: "none"
 
-      - name: Install Bubblewrap CLI
-        run: npm install -g @bubblewrap/cli
-
-      - name: Initialize and Build APK
-        # هنا بنستخدم الرابط بتاعك وبنجاوب على الأسئلة أوتوماتيك بكلمة yes
-        run: |
-          yes | bubblewrap init --manifest=https://athar-silk.vercel.app/manifest.json --status=v4
-          yes | bubblewrap build --skipConfig
-          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Athar-App
+          name: Athar-Ready-APK
           path: ./*.apk
