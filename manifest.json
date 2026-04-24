@@ -1,12 +1,21 @@
 {
-  "name": "أَثَر | Athar",
-  "short_name": "أثر",
-  "description": "مشروع إسلامي يهدف إلى بيئة خالية من المشتتات",
+  "name": "أَثَر - المطور محمود حمام",
+  "short_name": "أَثَر",
+  "description": "تطبيق إسلامي شامل للقرآن الكريم ومواقيت الصلاة والأذكار",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#D4AF37",
+  "dir": "rtl",
+  "lang": "ar",
   "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
