@@ -1,21 +1,17 @@
 {
-  "name": "Athar | أَثَـرٌ",
-  "short_name": "Athar | أَثَـرٌ",
+  "name": "أَثَر | Athar",
+  "short_name": "أثر",
+  "description": "مشروع إسلامي يهدف إلى بيئة خالية من المشتتات",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#D4AF37",
-  "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
