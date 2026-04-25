@@ -15,17 +15,26 @@ jobs:
       - name: Install Dependencies
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
         
-      - name: Build APK
+      - name: Capacitor Sync
         run: |
-          # إنشاء مجلد ويب وهمي لأن Capacitor يحتاجه للبدء
+          # إنشاء مجلد ويب وهمي ليرضى Capacitor بالعمل
           mkdir -p www
-          # التأكد من إضافة منصة أندرويد فقط إذا لم تكن موجودة
-          if [ ! -d "android" ]; then
+          # التأكد من وجود ملف الإعدادات
+          if [ ! -f "capacitor.config.json" ]; then
+            echo '{"appId":"com.athar.app","appName":"Athar","webDir":"www","server":{"url":"https://your-site.vercel.app","cleartext":true}}' > capacitor.config.json
+          fi
+          # الحل الذكي: إذا المجلد موجود اعمل sync، إذا لا اعمل add
+          if [ -d "android" ]; then
+            echo "Android folder exists, syncing..."
+            npx cap sync android
+          else
+            echo "Android folder missing, adding..."
             npx cap add android
           fi
-          # تحديث ملفات المنصة برابط Vercel
-          npx cap sync android
-          # بناء التطبيق
+          
+      - name: Build APK
+        run: |
+          chmod +x android/gradlew
           cd android && ./gradlew assembleDebug
           
       - name: Upload APK
