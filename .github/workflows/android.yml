@@ -20,73 +20,227 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses || true
 
-      - name: Install Bubblewrap CLI
-        run: npm install -g @bubblewrap/cli
+      - name: Install build tools and platforms
+        run: |
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
+      # ── توليد Keystore ────────────────────────────────────────────────────────
       - name: Generate Keystore
         run: |
           keytool -genkeypair -v \
             -keystore $RUNNER_TEMP/release.jks \
             -alias release \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass android123 \
-            -keypass android123 \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass android123 -keypass android123 \
             -dname "CN=AtharQurani, OU=App, O=App, L=Cairo, S=Cairo, C=EG"
 
-      - name: Configure Bubblewrap
+      # ── بناء مشروع Android TWA من الصفر بدون bubblewrap init ────────────────
+      - name: Create Android TWA project
         run: |
-          mkdir -p $HOME/.bubblewrap
-          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_SDK_ROOT\"}" \
-            > $HOME/.bubblewrap/config.json
-          echo "Config saved:"
-          cat $HOME/.bubblewrap/config.json
+          mkdir -p twa-app/app/src/main/res/values
+          mkdir -p twa-app/app/src/main/res/xml
+          mkdir -p twa-app/app/src/main/res/drawable
+          mkdir -p twa-app/app/src/main/java/com/atharqurani/app
+          mkdir -p twa-app/gradle/wrapper
 
-      # الحل: نعمل المجلد مسبقاً ونبعت "y" لأي سؤال
-      - name: Init TWA project with Bubblewrap
+          # settings.gradle
+          cat > twa-app/settings.gradle << 'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "AtharQurani"
+          include ':app'
+          EOF
+
+          # build.gradle (root)
+          cat > twa-app/build.gradle << 'EOF'
+          plugins {
+              id 'com.android.application' version '8.2.2' apply false
+          }
+          EOF
+
+          # app/build.gradle
+          cat > twa-app/app/build.gradle << 'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+          android {
+              namespace 'com.atharqurani.app'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "com.atharqurani.app"
+                  minSdk 19
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0.0"
+              }
+              signingConfigs {
+                  release {
+                      storeFile file(System.getenv("KEYSTORE_PATH"))
+                      storePassword "android123"
+                      keyAlias "release"
+                      keyPassword "android123"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                      minifyEnabled false
+                  }
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_1_8
+                  targetCompatibility JavaVersion.VERSION_1_8
+              }
+          }
+          dependencies {
+              implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+          }
+          EOF
+
+          # gradle-wrapper.properties
+          cat > twa-app/gradle/wrapper/gradle-wrapper.properties << 'EOF'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-bin.zip
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          EOF
+
+          # gradlew script
+          curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradlew \
+            -o twa-app/gradlew || \
+          cat > twa-app/gradlew << 'GRADLEW'
+          #!/bin/sh
+          exec gradle "$@"
+          GRADLEW
+          chmod +x twa-app/gradlew
+
+          # AndroidManifest.xml
+          cat > twa-app/app/src/main/AndroidManifest.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET"/>
+              <application
+                  android:label="@string/app_name"
+                  android:theme="@style/Theme.AppCompat.NoActionBar"
+                  android:icon="@mipmap/ic_launcher"
+                  android:supportsRtl="true"
+                  android:allowBackup="true">
+                  <activity
+                      android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+                      android:exported="true">
+                      <meta-data
+                          android:name="android.support.customtabs.trusted.DEFAULT_URL"
+                          android:value="https://athar-silk.vercel.app/" />
+                      <meta-data
+                          android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
+                          android:resource="@color/colorPrimary" />
+                      <meta-data
+                          android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR"
+                          android:resource="@color/colorPrimary" />
+                      <meta-data
+                          android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
+                          android:resource="@drawable/splash" />
+                      <meta-data
+                          android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
+                          android:resource="@color/backgroundColor" />
+                      <meta-data
+                          android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
+                          android:value="300" />
+                      <meta-data
+                          android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
+                          android:value="com.atharqurani.app.fileprovider" />
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                      <intent-filter android:autoVerify="true">
+                          <action android:name="android.intent.action.VIEW"/>
+                          <category android:name="android.intent.category.DEFAULT"/>
+                          <category android:name="android.intent.category.BROWSABLE"/>
+                          <data android:scheme="https"
+                                android:host="athar-silk.vercel.app"/>
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          # strings.xml
+          cat > twa-app/app/src/main/res/values/strings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <string name="app_name">أثر القرآني</string>
+          </resources>
+          EOF
+
+          # colors.xml
+          cat > twa-app/app/src/main/res/values/colors.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <color name="colorPrimary">#1a1a2e</color>
+              <color name="backgroundColor">#ffffff</color>
+          </resources>
+          EOF
+
+          # splash drawable (بسيط)
+          cat > twa-app/app/src/main/res/drawable/splash.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+              <item android:drawable="@color/backgroundColor"/>
+          </layer-list>
+          EOF
+
+          # أيقونة launcher بسيطة
+          mkdir -p twa-app/app/src/main/res/mipmap-hdpi
+          mkdir -p twa-app/app/src/main/res/mipmap-mdpi
+          mkdir -p twa-app/app/src/main/res/mipmap-xhdpi
+          mkdir -p twa-app/app/src/main/res/mipmap-xxhdpi
+          
+          # نحمل الأيقونة من الموقع
+          curl -sL "https://athar-silk.vercel.app/icons/icon-512x512.png" \
+            -o twa-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png 2>/dev/null || \
+          curl -sL "https://via.placeholder.com/144/1a1a2e/ffffff.png" \
+            -o twa-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          
+          cp twa-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png \
+             twa-app/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp twa-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png \
+             twa-app/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp twa-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png \
+             twa-app/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+
+      # ── Build APK ─────────────────────────────────────────────────────────────
+      - name: Build Release APK
         run: |
-          mkdir -p twa-project
-          printf 'y\n' | bubblewrap init \
-            --manifest "https://athar-silk.vercel.app/manifest.json" \
-            --directory twa-project \
-            --skipPwaValidation
+          cd twa-app
+          ./gradlew assembleRelease --no-daemon --stacktrace
         env:
-          BUBBLEWRAP_DISABLE_TELEMETRY: "true"
+          KEYSTORE_PATH: ${{ runner.temp }}/release.jks
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
-      - name: Build APK with Bubblewrap
-        run: |
-          cd twa-project
-          printf 'n\n' | bubblewrap build \
-            --skipPwaValidation \
-            --signingKeyPath "$RUNNER_TEMP/release.jks" \
-            --signingKeyAlias "release" \
-            --signingKeyPassword "android123" \
-            --signingStorePassword "android123"
-        env:
-          BUBBLEWRAP_DISABLE_TELEMETRY: "true"
-
-      - name: Find APK
-        id: find_apk
-        run: |
-          APK=$(find . -name "*.apk" | head -n 1)
-          echo "Found: $APK"
-          echo "apk_path=$APK" >> $GITHUB_OUTPUT
-
-      - name: Upload APK as artifact
+      # ── رفع الـ APK ───────────────────────────────────────────────────────────
+      - name: Find and upload APK
         uses: actions/upload-artifact@v4
         with:
           name: athar-qurani-apk
-          path: ${{ steps.find_apk.outputs.apk_path }}
+          path: twa-app/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
