@@ -11,36 +11,29 @@ jobs:
 
     steps:
 
-      # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Java 17 ───────────────────────────────────────────────────────────
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      # ── 3. Node.js ───────────────────────────────────────────────────────────
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      # ── 4. Android SDK ───────────────────────────────────────────────────────
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      # ── 5. Accept Android licenses ───────────────────────────────────────────
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses || true
 
-      # ── 6. Install Bubblewrap ────────────────────────────────────────────────
       - name: Install Bubblewrap CLI
         run: npm install -g @bubblewrap/cli
 
-      # ── 7. توليد Keystore تلقائياً ───────────────────────────────────────────
       - name: Generate Keystore
         run: |
           keytool -genkeypair -v \
@@ -53,32 +46,29 @@ jobs:
             -keypass android123 \
             -dname "CN=AtharQurani, OU=App, O=App, L=Cairo, S=Cairo, C=EG"
 
-      # ── 8. Config Bubblewrap بمسار JDK صريح ─────────────────────────────────
       - name: Configure Bubblewrap
         run: |
           mkdir -p $HOME/.bubblewrap
-          cat > $HOME/.bubblewrap/config.json << BWEOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_SDK_ROOT"
-          }
-          BWEOF
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_SDK_ROOT\"}" \
+            > $HOME/.bubblewrap/config.json
+          echo "Config saved:"
+          cat $HOME/.bubblewrap/config.json
 
-      # ── 9. bubblewrap init (يولد المشروع + checksum تلقائياً) ────────────────
+      # الحل: نعمل المجلد مسبقاً ونبعت "y" لأي سؤال
       - name: Init TWA project with Bubblewrap
         run: |
-          bubblewrap init \
+          mkdir -p twa-project
+          printf 'y\n' | bubblewrap init \
             --manifest "https://athar-silk.vercel.app/manifest.json" \
             --directory twa-project \
             --skipPwaValidation
         env:
           BUBBLEWRAP_DISABLE_TELEMETRY: "true"
 
-      # ── 10. بناء الـ APK ─────────────────────────────────────────────────────
       - name: Build APK with Bubblewrap
         run: |
           cd twa-project
-          bubblewrap build \
+          printf 'n\n' | bubblewrap build \
             --skipPwaValidation \
             --signingKeyPath "$RUNNER_TEMP/release.jks" \
             --signingKeyAlias "release" \
@@ -87,7 +77,6 @@ jobs:
         env:
           BUBBLEWRAP_DISABLE_TELEMETRY: "true"
 
-      # ── 11. إيجاد الـ APK ────────────────────────────────────────────────────
       - name: Find APK
         id: find_apk
         run: |
@@ -95,7 +84,6 @@ jobs:
           echo "Found: $APK"
           echo "apk_path=$APK" >> $GITHUB_OUTPUT
 
-      # ── 12. رفع الـ APK ──────────────────────────────────────────────────────
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
