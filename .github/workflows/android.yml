@@ -1,13 +1,35 @@
-name: Build APK
-on: [push] # هيشتغل أول ما ترفع الكود
+name: Build Athar APK
+
+on:
+  push:
+    branches: [ "main" ] # هيشتغل تلقائياً أول ما ترفع أي حاجة على فرع main
+  workflow_dispatch: # وبيديك زرار تشغله يدوي لو حبيت
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
-      - name: Build APK
-        run: |
-          bubblewrap build --manifest=https://athar-silk.vercel.app/
-          # ملحوظة: غير الرابط لرابط مشروعك الحقيقي
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: gradle
+
+      # محرك بناء التطبيق (Webview-to-APK)
+      - name: Build Android APK
+        uses: val some-action-placeholder/web-to-app-action@v1 # استبدل بـ simple-apps/web-to-app-action@v1 لو فضلت تستخدمه
+        with:
+          app_name: 'أَثَـرٌ'
+          web_url: 'https://athar-silk.vercel.app/'
+          icon_path: 'icon-512.png'
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Athar-Release-APK
+          path: ./*.apk
