@@ -17,7 +17,15 @@ jobs:
         
       - name: Build APK
         run: |
-          npx cap add android
+          # إنشاء مجلد ويب وهمي لأن Capacitor يحتاجه للبدء
+          mkdir -p www
+          # التأكد من إضافة منصة أندرويد فقط إذا لم تكن موجودة
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          # تحديث ملفات المنصة برابط Vercel
+          npx cap sync android
+          # بناء التطبيق
           cd android && ./gradlew assembleDebug
           
       - name: Upload APK
