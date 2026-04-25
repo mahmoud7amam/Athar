@@ -53,67 +53,28 @@ jobs:
             -keypass android123 \
             -dname "CN=AtharQurani, OU=App, O=App, L=Cairo, S=Cairo, C=EG"
 
-      # ── 8. إنشاء twa-manifest.json ───────────────────────────────────────────
-      - name: Create TWA manifest
-        run: |
-          mkdir -p twa-project
-          cat > twa-project/twa-manifest.json << 'MANIFEST'
-          {
-            "packageId": "com.atharqurani.app",
-            "host": "athar-silk.vercel.app",
-            "name": "أثر القرآني",
-            "launcherName": "أثر القرآني",
-            "display": "standalone",
-            "orientation": "portrait",
-            "themeColor": "#1a1a2e",
-            "navigationColor": "#1a1a2e",
-            "navigationColorDark": "#1a1a2e",
-            "navigationDividerColor": "#1a1a2e",
-            "navigationDividerColorDark": "#1a1a2e",
-            "backgroundColor": "#ffffff",
-            "enableNotifications": false,
-            "startUrl": "/",
-            "iconUrl": "https://athar-silk.vercel.app/icons/icon-512x512.png",
-            "maskableIconUrl": "https://athar-silk.vercel.app/icons/icon-512x512.png",
-            "monochromeIconUrl": "https://athar-silk.vercel.app/icons/icon-512x512.png",
-            "appVersion": "1.0.0",
-            "appVersionCode": 1,
-            "signingKey": {
-              "path": "../release.jks",
-              "alias": "release"
-            },
-            "splashScreenFadeOutDuration": 300,
-            "enableSiteSettingsShortcut": true,
-            "isChromeOSOnly": false,
-            "isMetaQuest": false,
-            "fullScopeUrl": "https://athar-silk.vercel.app/",
-            "minSdkVersion": 19,
-            "targetSdkVersion": 34,
-            "generatorApp": "bubblewrap-cli",
-            "webManifestUrl": "https://athar-silk.vercel.app/manifest.json",
-            "shortcuts": [],
-            "features": {},
-            "alphaDependencies": { "enabled": false },
-            "additionalTrustedOrigins": [],
-            "retainedBundles": []
-          }
-          MANIFEST
-
-      # ── 9. بناء الـ APK ───────────────────────────────────────────────────────
-      # الحل: نكتب config لـ Bubblewrap مسبقاً عشان يعرف مسار JDK
-      # وبكده مش هيسأل أي سؤال تفاعلي
-      - name: Configure Bubblewrap JDK path
+      # ── 8. Config Bubblewrap بمسار JDK صريح ─────────────────────────────────
+      - name: Configure Bubblewrap
         run: |
           mkdir -p $HOME/.bubblewrap
-          cat > $HOME/.bubblewrap/config.json << EOF
+          cat > $HOME/.bubblewrap/config.json << BWEOF
           {
             "jdkPath": "$JAVA_HOME",
             "androidSdkPath": "$ANDROID_SDK_ROOT"
           }
-          EOF
-          echo "Bubblewrap config:"
-          cat $HOME/.bubblewrap/config.json
+          BWEOF
 
+      # ── 9. bubblewrap init (يولد المشروع + checksum تلقائياً) ────────────────
+      - name: Init TWA project with Bubblewrap
+        run: |
+          bubblewrap init \
+            --manifest "https://athar-silk.vercel.app/manifest.json" \
+            --directory twa-project \
+            --skipPwaValidation
+        env:
+          BUBBLEWRAP_DISABLE_TELEMETRY: "true"
+
+      # ── 10. بناء الـ APK ─────────────────────────────────────────────────────
       - name: Build APK with Bubblewrap
         run: |
           cd twa-project
@@ -125,9 +86,8 @@ jobs:
             --signingStorePassword "android123"
         env:
           BUBBLEWRAP_DISABLE_TELEMETRY: "true"
-          JAVA_HOME: ${{ env.JAVA_HOME }}
 
-      # ── 10. إيجاد الـ APK ────────────────────────────────────────────────────
+      # ── 11. إيجاد الـ APK ────────────────────────────────────────────────────
       - name: Find APK
         id: find_apk
         run: |
@@ -135,7 +95,7 @@ jobs:
           echo "Found: $APK"
           echo "apk_path=$APK" >> $GITHUB_OUTPUT
 
-      # ── 11. رفع الـ APK ──────────────────────────────────────────────────────
+      # ── 12. رفع الـ APK ──────────────────────────────────────────────────────
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
