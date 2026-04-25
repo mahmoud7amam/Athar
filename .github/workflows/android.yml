@@ -40,8 +40,8 @@ jobs:
       - name: Install Bubblewrap CLI
         run: npm install -g @bubblewrap/cli
 
-      # ── 7. توليد Keystore تلقائياً داخل الـ Action ───────────────────────────
-      - name: Generate Keystore automatically
+      # ── 7. توليد Keystore تلقائياً ───────────────────────────────────────────
+      - name: Generate Keystore
         run: |
           keytool -genkeypair -v \
             -keystore $RUNNER_TEMP/release.jks \
@@ -55,10 +55,8 @@ jobs:
 
       # ── 8. إنشاء twa-manifest.json ───────────────────────────────────────────
       #
-      #  ⚠️  غيّر القيم دي فقط قبل ما ترفع الملف:
-      #
-      #    YOUR_DOMAIN  →  مثل: athar-qurani.netlify.app
-      #                    أو:  username.github.io/repo-name
+      #  ⚠️  غيّر YOUR_DOMAIN بدومينك الحقيقي في 4 أماكن
+      #  مثال: athar-qurani.netlify.app
       #
       - name: Create TWA manifest
         run: |
@@ -105,11 +103,17 @@ jobs:
           }
           MANIFEST
 
-      # ── 9. بناء الـ APK ──────────────────────────────────────────────────────
+      # ── 9. بناء الـ APK (مع حل مشكلة السؤال التفاعلي) ───────────────────────
       - name: Build APK with Bubblewrap
         run: |
           cd twa-project
-          bubblewrap build \
+
+          # نحدد JAVA_HOME صراحةً عشان Bubblewrap ميسألش عن JDK
+          export JAVA_HOME=$JAVA_HOME_17_X64
+          export PATH=$JAVA_HOME/bin:$PATH
+
+          # echo "n" يرد تلقائياً على أي سؤال تفاعلي
+          echo "n" | bubblewrap build \
             --skipPwaValidation \
             --signingKeyPath "$RUNNER_TEMP/release.jks" \
             --signingKeyAlias "release" \
@@ -117,6 +121,7 @@ jobs:
             --signingStorePassword "android123"
         env:
           BUBBLEWRAP_DISABLE_TELEMETRY: "true"
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
 
       # ── 10. إيجاد الـ APK ────────────────────────────────────────────────────
       - name: Find APK
