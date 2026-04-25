@@ -54,17 +54,13 @@ jobs:
             -dname "CN=AtharQurani, OU=App, O=App, L=Cairo, S=Cairo, C=EG"
 
       # ── 8. إنشاء twa-manifest.json ───────────────────────────────────────────
-      #
-      #  ⚠️  غيّر YOUR_DOMAIN بدومينك الحقيقي في 4 أماكن
-      #  مثال: athar-qurani.netlify.app
-      #
       - name: Create TWA manifest
         run: |
           mkdir -p twa-project
           cat > twa-project/twa-manifest.json << 'MANIFEST'
           {
             "packageId": "com.atharqurani.app",
-            "host": "YOUR_DOMAIN",
+            "host": "athar-silk.vercel.app",
             "name": "أثر القرآني",
             "launcherName": "أثر القرآني",
             "display": "standalone",
@@ -77,9 +73,9 @@ jobs:
             "backgroundColor": "#ffffff",
             "enableNotifications": false,
             "startUrl": "/",
-            "iconUrl": "https://YOUR_DOMAIN/icons/icon-512x512.png",
-            "maskableIconUrl": "https://YOUR_DOMAIN/icons/icon-512x512.png",
-            "monochromeIconUrl": "https://YOUR_DOMAIN/icons/icon-512x512.png",
+            "iconUrl": "https://athar-silk.vercel.app/icons/icon-512x512.png",
+            "maskableIconUrl": "https://athar-silk.vercel.app/icons/icon-512x512.png",
+            "monochromeIconUrl": "https://athar-silk.vercel.app/icons/icon-512x512.png",
             "appVersion": "1.0.0",
             "appVersionCode": 1,
             "signingKey": {
@@ -90,7 +86,7 @@ jobs:
             "enableSiteSettingsShortcut": true,
             "isChromeOSOnly": false,
             "isMetaQuest": false,
-            "fullScopeUrl": "https://YOUR_DOMAIN/",
+            "fullScopeUrl": "https://athar-silk.vercel.app/",
             "minSdkVersion": 19,
             "targetSdkVersion": 34,
             "generatorApp": "bubblewrap-cli",
@@ -103,17 +99,25 @@ jobs:
           }
           MANIFEST
 
-      # ── 9. بناء الـ APK (مع حل مشكلة السؤال التفاعلي) ───────────────────────
+      # ── 9. بناء الـ APK ───────────────────────────────────────────────────────
+      # الحل: نكتب config لـ Bubblewrap مسبقاً عشان يعرف مسار JDK
+      # وبكده مش هيسأل أي سؤال تفاعلي
+      - name: Configure Bubblewrap JDK path
+        run: |
+          mkdir -p $HOME/.bubblewrap
+          cat > $HOME/.bubblewrap/config.json << EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_SDK_ROOT"
+          }
+          EOF
+          echo "Bubblewrap config:"
+          cat $HOME/.bubblewrap/config.json
+
       - name: Build APK with Bubblewrap
         run: |
           cd twa-project
-
-          # نحدد JAVA_HOME صراحةً عشان Bubblewrap ميسألش عن JDK
-          export JAVA_HOME=$JAVA_HOME_17_X64
-          export PATH=$JAVA_HOME/bin:$PATH
-
-          # echo "n" يرد تلقائياً على أي سؤال تفاعلي
-          echo "n" | bubblewrap build \
+          bubblewrap build \
             --skipPwaValidation \
             --signingKeyPath "$RUNNER_TEMP/release.jks" \
             --signingKeyAlias "release" \
@@ -121,7 +125,7 @@ jobs:
             --signingStorePassword "android123"
         env:
           BUBBLEWRAP_DISABLE_TELEMETRY: "true"
-          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
       # ── 10. إيجاد الـ APK ────────────────────────────────────────────────────
       - name: Find APK
