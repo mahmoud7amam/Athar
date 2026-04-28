@@ -1089,7 +1089,12 @@
   // ده اللي ناقص عندك
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
-  }
+  // شغل التطبيق سواء الصفحة حملت أو لسه
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+                                     }
 </script>
 </body>
 </html>
