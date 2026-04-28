@@ -1085,16 +1085,19 @@
         if(currentFontSize>50) currentFontSize=50;
         const area = document.querySelector('.reading-area');
         if(area) area.style.fontSize = currentFontSize+'px'; 
-    <script>
-  // ده اللي ناقص عندك
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  // شغل التطبيق سواء الصفحة حملت أو لسه
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
-                                     }
+    }
+
+    // ده اللي ناقص عندك
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+
+    // شغل التطبيق سواء الصفحة حملت أو لسه
+    if (document.readyState === 'loading') {
+        if (typeof initApp === 'function') document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+        if (typeof initApp === 'function') initApp();
+    }
 </script>
 </body>
 </html>
