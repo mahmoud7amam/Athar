@@ -1,1 +1,8 @@
-
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.Athar.Islamic",
+    "sha256_cert_fingerprints": ["13:A9:FD:9F:62:B5:AA:B0:3E:E2:F0:E2:BD:BF:8C:21:CE:D3:B6:FB:1F:1E:FF:F3:5C:F2:B0:12:83:C7:8E:2D"]
+  }
+}]
