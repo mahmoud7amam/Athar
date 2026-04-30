@@ -1,9 +1,0 @@
-{
-  "appId": "com.athar.app",
-  "appName": "Athar",
-  "webDir": "www",
-  "server": {
-    "url": "https://your-site.vercel.app",
-    "cleartext": true
-  }
-}
