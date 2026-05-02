@@ -25,15 +25,19 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim()); // يمسك الصفحات المفتوحة
 });
 
-// استقبال الإشعارات في الخلفية - ده بتاعك مظبوط
+// استقبال الإشعارات في الخلفية - تم تعديل المسارات لتطابق الـ manifest الجديد
 messaging.onBackgroundMessage(function(payload) {
   console.log('Athar SW: رسالة في الخلفية ', payload);
-  
+
   const notificationTitle = payload.notification.title || 'إشعار من تطبيق أَثَر';
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-192x192.png'
+    // تم تعديل المسار من /icons/icon-192x192.png إلى /icon-192.png ليطابق ملفاتك
+    icon: '/icon-192.png', 
+    badge: '/icon-192.png',
+    vibrate: [200, 100, 200], // إضافة اهتزاز بسيط للإشعار
+    tag: 'athar-notification', // لمنع تكرار الإشعارات
+    renotify: true
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
