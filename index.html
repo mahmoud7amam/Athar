@@ -1149,6 +1149,18 @@
     } else {
         if (typeof initApp === 'function') initApp();
     }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('Athar SW registered with scope: ', registration.scope);
+      }, function(err) {
+        console.log('Athar SW registration failed: ', err);
+      });
+    });
+  }
+
+
 </script>
 </body>
 </html>
