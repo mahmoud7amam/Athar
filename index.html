@@ -249,17 +249,6 @@
         .contact-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--gold-metal); color: #000; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 15px; width: 100%; box-sizing: border-box; transition: 0.3s; }
         .contact-btn:active { transform: scale(0.97); }
 
-        /* تعديل محمود: تصميم زر الدعم المربع */
-        .support-wrapper { display: flex; justify-content: center; margin-bottom: 20px; }
-        .support-btn-square { 
-            width: 45px; height: 45px; background: var(--gold-metal); border: none; 
-            border-radius: 10px; cursor: pointer; display: flex; align-items: center; 
-            justify-content: center; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); 
-            transition: 0.3s; 
-        }
-        .support-btn-square:active { transform: scale(0.9); }
-        .support-btn-square svg { width: 24px; height: 24px; fill: #000; }
-
         .dev-signature { text-align: center; font-size: 14px; font-weight: 500; color: var(--gold); margin: 15px 0; opacity: 0.9; letter-spacing: 0.5px; }
         .dev-small-text { display: block; text-align: center; font-size: 11px; color: var(--gold); opacity: 0.6; margin-top: 10px; font-weight: 400; }
 
@@ -397,22 +386,6 @@
     </div>
 
     <div id="p-settings" class="page">
-        <div class="support-wrapper">
-            <button class="support-btn-square" onclick="showSupportMsg()" title="دعم المطور">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            </button>
-        </div>
-
-        <div class="settings-section" style="border: 2px solid var(--gold); background: rgba(212, 175, 55, 0.05);">
-            <div class="settings-title">دعم استمرار التطبيق 🚀</div>
-            <div class="settings-text" style="text-align: center; margin-bottom: 15px;">
-                يمكنك دعمنا مجاناً من خلال الضغط على الزر أدناه ومتابعة المحتوى الإعلاني للحظات. هذا يساعدنا على تطوير "أَثَر" وابقائه مجانياً.
-            </div>
-            <button onclick="window.open('https://www.profitablecpmratenetwork.com/jwzhp76p?key=de0e8fdce89dbd164bd630565a526578', '_blank')" class="admin-btn">
-                اضغط هنا لدعم التطبيق (إعلان) ✨
-            </button>
-        </div>
-
         <div class="settings-section">
             <div class="settings-title">عن التطبيق (أَثَر)</div>
             <div class="settings-text">
@@ -488,13 +461,6 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const messaging = firebase.messaging();
-
-    // تعديل محمود: دالة إظهار رسالة الدعم + دمج Smartlink
-    function showSupportMsg() {
-        // فتح رابط الإعلانات (Smartlink) في نافذة جديدة
-        window.open('');
-        alert("اعتذر من الاعلان لكن شكرا لك لدعمي لانه يساعدني في تطوير التطبيق ولا تنسي الصلاة علي النبي محمد 🤍");
-    }
 
     async function initNotifications() {
         if (!('serviceWorker' in navigator)) return;
@@ -575,7 +541,7 @@
         "Tunisia": { ar: "تونس", cities: [{ar:"تونس العاصمة",en:"Tunis"},{ar:"صفاقس",en:"Sfax"},{ar:"سوسة",en:"Sousse"},{ar:"القيروان",en:"Kairouan"},{ar:"بنزرت",en:"Bizerte"}] },
         "Libya": { ar: "ليبيا", cities: [{ar:"طرابلس",en:"Tripoli"},{ar:"بنغازي",en:"Benghazi"},{ar:"مصراتة",en:"Misrata"},{ar:"البيضاء",en:"Bayda"}] },
         "Sudan": { ar: "السودان", cities: [{ar:"الخرطوم",en:"Khartoum"},{ar:"أم درمان",en:"Omdurman"},{ar:"بورتسودان",en:"Port Sudan"},{ar:"كسلا",en:"Kassala"}] },
-        "Mauritania": { ar: "موريتانيا", cities: [{ar:"نواكشوط",en:"Nouakchott"},{ar:"نواذيبو",en:"Nouادhibou"},{ar:"كيفه",en:"Kiffa"}] },
+        "Mauritania": { ar: "موريتانيا", cities: [{ar:"نواكشوط",en:"Nouakchott"},{ar:"نواذيبو",en:"Nouadhibou"},{ar:"كيفه",en:"Kiffa"}] },
         "Somalia": { ar: "الصومال", cities: [{ar:"مقديشو",en:"Mogadishu"},{ar:"هرجيسا",en:"Hargeisa"},{ar:"بوساسو",en:"Bosaso"}] },
         "Djibouti": { ar: "جيبوتي", cities: [{ar:"جيبوتي",en:"Djibouti"},{ar:"علي صبيح",en:"Ali Sabieh"}] },
         "Comoros": { ar: "جزر القمر", cities: [{ar:"موروني",en:"Moroni"},{ar:"موتسامودو",en:"Mutsamudu"}] }
@@ -688,15 +654,17 @@
         }
     }
 
+    // تعديل محمود: دالة مطورة لجلب اسم الجهاز بدقة (تعمل لكل الأنواع)
     function getDeviceName() {
         const ua = navigator.userAgent;
         let device = "جهاز غير معروف";
-        
+
         if (/Android/i.test(ua)) {
             device = "Android";
             const match = ua.match(/\(([^)]+)\)/);
             if (match && match[1]) {
                 const parts = match[1].split(';');
+                // البحث عن موديلات الهواتف الشهيرة داخل UserAgent
                 const modelPart = parts.find(p => p.includes('Build/') || /SM-|GT-|Redmi|POCO|Xiaomi|HUAWEI|CPH|RMX|V2|Infinix|TECNO|itel|Oppo|Vivo/i.test(p));
                 if (modelPart) { device = modelPart.split('Build/')[0].trim(); }
             }
@@ -715,7 +683,8 @@
         } else if (/Linux/i.test(ua)) {
             device = "Linux System";
         }
-        
+
+        // التحقق من المتصفح
         let browser = "متصفح غير معروف";
         if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
         else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
@@ -817,7 +786,7 @@
             let html = `<div style="color:var(--gold); font-size:14px; margin-bottom:15px; text-align:center;">تم العثور على ${d.data.count} نتيجة</div>`;
             d.data.matches.forEach(match => {
                 let cleanSurahName = match.surah.name.replace("سورة ", "").trim();
-                let cleanText = match.text.replace(/\s+/g, ' ').trim();
+                let cleanText = match.text.replace(/\s+/g, ' ').trim(); // تعديل محمود: تنظيف وتنسيق المسافات العشوائية
                 html += `
                     <div class="search-results-item" onclick="loadContent('surah', ${match.surah.number}, '${cleanSurahName}', ${match.number})">
                         <span class="ayah-text">${cleanText}</span>
@@ -829,39 +798,54 @@
         } catch (e) { list.innerHTML = "<div style='text-align:center; padding:40px; color:red;'>خطأ في البحث.</div>"; }
     }
 
+    // تعديل محمود: حل مشكلة تكرار الأعداد باستخدام معرف متصفح فريد (Browser UUID)
     function setupAdminTracking() {
         const deviceName = getDeviceName();
         const time = getDateTimeFull();
+
+        // إنشاء معرف فريد للمتصفح إذا لم يكن موجوداً (يمنع احتساب الشخص مرتين عند التحديث أو فتح تبويبات)
         let browserUid = localStorage.getItem('athar_browser_uid');
         if (!browserUid) {
             browserUid = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
             localStorage.setItem('athar_browser_uid', browserUid);
         }
 
+        // 1. تتبع المتصلين حالياً (بناءً على المعرف الفريد وليس التبويب)
         const onlineRef = database.ref('app_stats/online_users/' + browserUid);
-        onlineRef.onDisconnect().remove(); 
+        onlineRef.onDisconnect().remove(); // يُحذف عند إغلاق المتصفح بالكامل
         onlineRef.set({ name: deviceName, time: time });
 
+        // 2. تتبع الأجهزة المسجلة (مرة واحدة فقط لكل متصفح)
         database.ref('app_stats/unique_devices/' + browserUid).transaction(currentData => {
-            if (currentData) return currentData; 
+            if (currentData) return currentData; // إذا كان موجوداً مسبقاً، لا تغيره
             return { name: deviceName, registeredAt: time };
         });
 
+        // 3. سجل التكرار (لأغراض المراقبة فقط)
         database.ref('app_stats/all_logs').push({ name: deviceName, time: time });
 
+        // 4. استرجاع البيانات وعرضها في اللوحة
         database.ref('app_stats').on('value', snap => {
             const data = snap.val() || {};
+
+            // تحديث عداد التسبيحات
             document.getElementById('global-tasbih').innerText = data.global_tasbih || 0;
+
+            // تحديث عداد المتصلين الآن (بناءً على عدد المفاتيح في online_users)
             const onlineUsers = data.online_users || {};
             document.getElementById('online-users').innerText = Object.keys(onlineUsers).length;
             document.getElementById('active-device-list').innerHTML = Object.values(onlineUsers).map(u => 
                 `<div class="device-item"><b>${u.name}</b><span style="color:var(--gold);">متصل الآن 🟢</span></div>`
             ).join('');
+
+            // تحديث إجمالي المسجلين (فريد)
             const uniqueDevices = data.unique_devices || {};
             document.getElementById('total-users').innerText = Object.keys(uniqueDevices).length;
             document.getElementById('unique-device-list').innerHTML = Object.values(uniqueDevices).map(u => 
                 `<div class="device-item"><b>${u.name}</b><span>${u.registeredAt}</span></div>`
             ).join('');
+
+            // تحديث السجل الكامل (آخر 100 حركة)
             const allLogs = data.all_logs || {};
             const logsArray = Object.values(allLogs).reverse().slice(0, 100);
             document.getElementById('all-log-list').innerHTML = logsArray.map(u => 
@@ -952,6 +936,7 @@
 
             dataAyahs.forEach(a => {
                 let highlightClass = (highlightAyahNumber && a.number === highlightAyahNumber) ? 'highlighted-ayah' : '';
+                // تعديل محمود: إزالة المسافات العشوائية وربط الآية برقمها بـ &nbsp; لعدم ترك مسافات غير منظمة
                 html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text}&nbsp;<span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span>&nbsp; `;
             });
             html += `</div>`;
@@ -959,6 +944,7 @@
             document.getElementById('qText').innerHTML = html;
             currentView = { type, id, title };
 
+            // تعديل محمود: النزول التلقائي للآية المختارة وتلوينها بالأحمر
             if (highlightAyahNumber) {
                 setTimeout(() => {
                     const targetAyah = document.getElementById('ayah-' + highlightAyahNumber);
@@ -1110,6 +1096,8 @@
 
     window.onload = () => {
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
+
+        // تعديل محمود: تشغيل نظام التتبع المطور
         setupAdminTracking();
         initNotifications();
 
