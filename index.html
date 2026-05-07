@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
-    
+
     <style>
         :root { 
             --gold: #D4AF37; 
@@ -21,7 +21,7 @@
             --text: #eee; 
             --gold-fade: rgba(212, 175, 55, 0.1); 
         }
-        
+
         /* تعديل محمود: منع تحديد النص في التطبيق بالكامل لتحسين تجربة المستخدم (UI/UX) */
         * {
             -webkit-user-select: none;
@@ -40,10 +40,10 @@
         }
 
         body { margin: 0; font-family: 'Alexandria', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; transition: background 0.3s, color 0.3s; }
-        
+
         header { padding: 15px; background: var(--card); border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background 0.3s; }
         .logo { color: var(--gold); font-weight: 800; font-size: 26px; font-family: 'Amiri', serif; flex: 1; text-align: center; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
-        
+
         .next-prayer-bar { 
             background: var(--gold-metal); 
             color: #000; padding: 8px 15px; text-align: center; font-size: 13px; font-weight: 700; 
@@ -61,7 +61,7 @@
         body.reading-mode header, 
         body.reading-mode .next-prayer-bar, 
         body.reading-mode nav { display: none !important; }
-        
+
         body.reading-mode .container { 
             height: 100vh !important; 
             padding: 0 !important; 
@@ -78,7 +78,7 @@
         .stat-card { background: #000; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #333; }
         .stat-card span { display: block; color: var(--gold); font-size: 20px; font-weight: 800; }
         .admin-input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--gold); border-radius: 8px; color: #fff; margin-bottom: 10px; box-sizing: border-box; font-family: inherit; }
-        
+
         .admin-btn { width: 100%; padding: 12px; background: var(--gold-metal); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; margin-bottom: 5px; }
 
         .reader-tools { 
@@ -108,7 +108,7 @@
 
         .quran-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 20px; padding: 5px; scrollbar-width: none; }
         .tab-btn { padding: 10px 20px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 12px; font-size: 13px; cursor: pointer; white-space: nowrap; transition: 0.3s; }
-        
+
         .tab-btn.active { 
             background: var(--gold-metal); color: #000; font-weight: bold; border: none; 
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); 
@@ -127,7 +127,7 @@
             margin: 0; 
             direction: rtl;
         }
-        
+
         .surah-header { 
             display: flex; align-items: center; justify-content: center; margin-bottom: 25px;
             break-inside: avoid; 
@@ -138,7 +138,7 @@
 
         .font-controls { position: fixed; left: 20px; top: 100px; display: none; flex-direction: column; gap: 12px; z-index: 2000; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .font-controls.show { opacity: 1; pointer-events: all; }
-        
+
         .font-btn { 
             width: 48px; height: 48px; background: var(--gold-metal); color: #000; border: none; 
             border-radius: 50%; font-size: 22px; font-weight: bold; cursor: pointer; 
@@ -156,7 +156,7 @@
         .s-card { background: var(--card); padding: 12px; margin-bottom: 8px; border-radius: 16px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; cursor: pointer; }
         .s-card:hover { border-color: var(--gold); background: #1a1a1a; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
         .s-card b { color: var(--text); font-size: 17px; display: flex; align-items: center; gap: 10px; }
-        
+
         .q-item b::before { 
             content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 50 50'%3E%3Cpath fill='%23000000' d='M 37 48 C 36.824219 48 36.652344 47.953125 36.496094 47.863281 L 25 41.15625 L 13.503906 47.863281 C 13.195313 48.042969 12.8125 48.046875 12.503906 47.867188 C 12.191406 47.6875 12 47.359375 12 47 L 12 3 C 12 2.449219 12.449219 2 13 2 L 37 2 C 37.554688 2 38 2.449219 38 3 L 38 47 C 38 47.359375 37.808594 47.6875 37.496094 47.867188 C 37.34375 47.957031 37.171875 48 37 48 Z'%3E%3C/path%3E%3C/svg%3E");
             display: inline-flex; align-items: center; justify-content: center;
@@ -164,7 +164,7 @@
         }
 
         .s-card span { color: var(--gold); font-weight: bold; font-family: 'Amiri'; font-size: 18px; background: var(--gold-fade); padding: 2px 10px; border-radius: 8px; }
-        
+
         .dua-card { flex-direction: column; text-align: center; line-height: 1.5; cursor: default; border-right: 4px solid var(--gold); background: linear-gradient(145deg, var(--card), var(--bg)); }
         .dua-card b { font-family: 'Amiri', serif; font-size: 20px; color: var(--text); padding: 5px 0; }
         .dua-card .dua-head { color: var(--gold); font-size: 14px; font-weight: bold; border-bottom: 1px solid #333; width: 100%; padding-bottom: 6px; margin-bottom: 6px; transition: border-color 0.3s; }
@@ -178,7 +178,7 @@
             transition: transform 0.1s, background 0.3s;
         }
         .circle-btn:active { transform: scale(0.95); }
-        
+
         @keyframes goldPulse {
             0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
             70% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
@@ -186,7 +186,7 @@
         }
 
         .count-val { font-size: 75px; font-weight: 800; color: var(--text); text-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        
+
         select { background: #1a1a1a; color: #fff; padding: 15px; border: 1px solid var(--gold); border-radius: 14px; width: 100%; margin-bottom: 25px; font-family: inherit; font-size: 16px; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; }
 
         nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; height: 80px; border-top: 1px solid #222; box-shadow: 0 -5px 25px rgba(0,0,0,0.6); z-index: 100; transition: background 0.3s, border-color 0.3s; }
@@ -203,7 +203,7 @@
             opacity: 0.5;
             object-fit: contain;
         }
-        
+
         .nav-item.active .nav-img {
             opacity: 1;
             filter: drop-shadow(0 4px 8px rgba(212, 175, 55, 0.6));
@@ -234,7 +234,7 @@
         body.light-mode .circle-btn { background: radial-gradient(circle, #fff, #f0f0f0); border-color: var(--gold); }
         body.light-mode .count-val { text-shadow: none; }
         body.light-mode .download-btn { background: #fff; border-color: var(--gold); }
-        
+
         body.light-mode .nav-img { opacity: 0.6; }
         body.light-mode .nav-item.active .nav-img { opacity: 1; filter: drop-shadow(0 3px 6px rgba(212, 175, 55, 0.4)); }
 
@@ -251,7 +251,7 @@
 
         .dev-signature { text-align: center; font-size: 14px; font-weight: 500; color: var(--gold); margin: 15px 0; opacity: 0.9; letter-spacing: 0.5px; }
         .dev-small-text { display: block; text-align: center; font-size: 11px; color: var(--gold); opacity: 0.6; margin-top: 10px; font-weight: 400; }
-        
+
         .search-results-item {
             border-bottom: 1px solid #333;
             padding: 20px;
@@ -413,7 +413,7 @@
             </a>
             <span class="dev-small-text">Developed by Mahmoud Hamam</span>
         </div>
-        
+
         <div style="text-align: center; margin-top: 30px; margin-bottom: 20px; font-weight: 400; font-size: 13px; color: #888; opacity: 0.8;">
             © 2026 أَثَر - جميع الحقوق محفوظة<br>
             <span style="color: var(--gold);">Mahmoud Hamam</span>
@@ -457,7 +457,7 @@
         appId: "1:1027459267887:android:ecb608f8a39f58e8bf75da",
         databaseURL: "https://gootff-dcc2a-default-rtdb.firebaseio.com/" 
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const messaging = firebase.messaging();
@@ -479,7 +479,7 @@
                     vapidKey: 'BCnVK9Yqt6EwwWJpW4GRQQetASsKOJqa_oTDIruAjIGGWLYWc4Yw9jGFyj-KndtKVcjrOp8ZMAMXG64RKPpI7Ok',
                     serviceWorkerRegistration: registration
                 });
-                
+
                 if (token) {
                     const deviceKey = btoa(navigator.userAgent).substring(0,20);
                     database.ref('fcm_tokens/' + deviceKey).set({
@@ -488,7 +488,7 @@
                         deviceName: getDeviceName()
                     });
                 }
-                
+
                 initRandomAzkarNotifications();
             }
         } catch (error) {
@@ -498,7 +498,7 @@
 
     function initRandomAzkarNotifications() {
         const INTERVAL_MS = 4 * 60 * 60 * 1000; 
-        
+
         const sendRandomZikr = () => {
             if (Notification.permission === 'granted') {
                 const randomZikr = dbAzkar[Math.floor(Math.random() * dbAzkar.length)];
@@ -532,7 +532,7 @@
         "Oman": { ar: "عُمان", cities: [{ar:"مسقط",en:"Muscat"},{ar:"صلالة",en:"Salalah"},{ar:"صحار",en:"Sohar"},{ar:"نزوى",en:"Nizwa"},{ar:"صور",en:"Sur"},{ar:"الرستاق",en:"Rustaq"}] },
         "Yemen": { ar: "اليمن", cities: [{ar:"صنعاء",en:"Sanaa"},{ar:"عدن",en:"Aden"},{ar:"تعز",en:"Taiz"},{ar:"الحديدة",en:"Al Hudaydah"},{ar:"المكلا",en:"Mukalla"},{ar:"إب",en:"Ibb"}] },
         "Jordan": { ar: "الأردن", cities: [{ar:"عمان",en:"Amman"},{ar:"إربد",en:"Irbid"},{ar:"الزرقاء",en:"Zarqa"},{ar:"العقبة",en:"Aqaba"},{ar:"السلط",en:"As-Salt"},{ar:"المفرق",en:"Mafraq"}] },
-        "Palestine": { ar: "فلسطين", cities: [{ar:"القدس",en:"Jerusalem"},{ar:"غزة",en:"Gaza"},{ar:"رام الله",en:"Ramallah"},{ar:"الخليل",en:"Hebron"},{ar:"نابلس",en:"Nablus"},{ar:"جنين",en:"Jenin"},{ar:"بيت لحم",en:"Bethlehem"}] },
+        "Palestine": { ar: "فلسطين", cities: [{ar:"القدس",en:"Jerusalem"},{ar:"غزة",en:"Gaza"},{ar:"رام الله",en:"Ramallah"},{ar:"الخليل",en:"Hebron"},{ar:"نابلس",en:"Nablus"},{ar:"جنين",en:"Jenin"},{ar:"بيت لمهم",en:"Bethlehem"}] },
         "Syria": { ar: "سوريا", cities: [{ar:"دمشق",en:"Damascus"},{ar:"حلب",en:"Aleppo"},{ar:"حمص",en:"Homs"},{ar:"اللاذقية",en:"Latakia"},{ar:"حماة",en:"Hama"},{ar:"طرطوس",en:"Tartus"}] },
         "Lebanon": { ar: "لبنان", cities: [{ar:"بيروت",en:"Beirut"},{ar:"طرابلس",en:"Tripoli"},{ar:"صيدا",en:"Sidon"},{ar:"صور",en:"Tyre"},{ar:"زحلة",en:"Zahle"}] },
         "Iraq": { ar: "العراق", cities: [{ar:"بغداد",en:"Baghdad"},{ar:"البصرة",en:"Mosul"},{ar:"الموصل",en:"Mosul"},{ar:"أربيل",en:"Erbil"},{ar:"كركوك",en:"Kirkuk"},{ar:"النجف",en:"Najaf"},{ar:"كربلاء",en:"Karbala"}] },
@@ -551,7 +551,7 @@
     const dbAzkar = ["سبحان الله ﷻ", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله واتوب إليه", "اللهم صلِّ وسلم على نبينا محمد ﷺ", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "لا إله إلا أنت سبحانك إني كنت من الظالمين"];
     const tasbihList = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "اللهم صل على محمد", "يا حي يا قيوم", "حسبي الله ونعم الوكيل", "أستغفر الله واتوب إليه", "لا إله إلا أنت سبحانك", "اللهم إنك عفو تحب العفو", "سبحان الملك القدوس", "يا ذا الجلال والإكرام", "رضيت بالله رباً", "اللهم اغفر لي", "يا لطيف", "اللهم أجرني من النار", "اللهم إني أسألك الجنة", "سبحان الله وبحمده عدد خلقه", "الحمد لله حمداً كثيراً", "اللهم بك أصبحنا", "اللهم بك أمسينا", "اللهم أعني على ذكرك", "يا مقلب القلوب ثبت قلبي", "اللهم بارك لنا فيما رزقتنا", "بسم الله الذي لا يضر مع اسمه شيء", "أعوذ بكلمات الله التامات", "اللهم إني أسألك العافية", "لا إله إلا الله وحده لا شريك له", "سبوح قدوس رب الملائكة والروح", "اللهم اهدني", "اللهم ارزقني", "اللهم عافني", "الحمد لله على كل حال", "لا إله إلا الله الملك الحق المبين", "اللهم قني شر نفسي", "اللهم أنت ربي لا إله أنت", "اللهم إني أسألك علماً نافعاً", "يا رزاق", "يا فتاح", "يا وهاب", "اللهم ارحم موتانا", "اللهم اشف مرضانا", "سبحان الله وبحمده رضا نفسه", "سبحان الله وبحمده زنة عرشه", "سبحان الله وبحمده مداد كلماته", "لا إله إلا الله العظيم الحليم", "لا إله إلا الله رب العرش العظيم", "لا إله إلا الله رب السماوات والأرض", "اللهم ارحمني", "اللهم تقبل منا", "يا غفور يا رحيم", "أستغفر الله العظيم لي ولوالدي", "الحمد لله رب العالمين", "اللهم لك الحمد", "اللهم صلي على نبينا محمد", "تبارك الله رب العالمين"];
     const duaKhatm = ["اللهم ارحمني بالقرآن واجعله لي إماماً ونوراً هدى ورحمة.","اللهم ذكرني منه ما نسيت وعلمني منه ما جهلت وارزقني تلاوته آناء الليل وأطراف النهار واجعله لي حجة يا رب العالمين.","اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي.","اللهم اجعل خير عمري آخره وخير عملي خواتمه وخير أيامي يوم ألقاك فيه.","اللهم إني أسألك عيشة هنية وميتة سوية ومرداً غير مخز ولا فاضح.","اللهم إني أسألك خير المسألة وخير الدعاء وخير النجاح وخير العلم وخير العلم وخير العمل.","اللهم ثبتني وثقل موازيني وحقق إيماني وارفع درجتي تقبل صلاتي واغفر خطيئاتي.","اللهم إني أسألك الموجبات لرحمتك وعزائم مغفرتك السلامة من كل إثم.","اللهم لا تدع لنا ذنباً إلا غفرته ولا هماً إلا فرجته ولا ديناً إلا قضيته.","اللهم اجعلنا ممن يقرأ القرآن فيرقى ولا ممن يقرأ القرآن فيشقى."];
-    
+
     const subSupplications = [
         {title: "أذكار الصباح", content: "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير."},
         {title: "أذكار المساء", content: "أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير."},
@@ -627,7 +627,7 @@
 
     function checkPrayerNotifications() {
         if (!prayerTimings || Notification.permission !== "granted") return;
-        
+
         const now = new Date();
         const currentH = String(now.getHours()).padStart(2, '0');
         const currentM = String(now.getMinutes()).padStart(2, '0');
@@ -637,12 +637,12 @@
         const cityNameAr = citySelect.options[citySelect.selectedIndex]?.text || "";
 
         const m = {"Fajr":"الفجر","Dhuhr":"الظهر","Asr":"العصر","Maghrib":"المغرب","Isha":"العشاء"};
-        
+
         for (let k in m) {
             if (prayerTimings[k] === currentTimeStr) {
                 let dateStr = now.toDateString();
                 let notifKey = k + "_" + dateStr;
-                
+
                 if (!notifiedPrayers[notifKey]) {
                     new Notification(`حان الآن موعد صلاة ${m[k]}`, {
                         body: `الله أكبر، حان الآن موعد ${m[k]} حسب توقيت ${cityNameAr}`,
@@ -654,23 +654,45 @@
         }
     }
 
+    // تعديل محمود: دالة مطورة لجلب اسم الجهاز بدقة (تعمل لكل الأنواع)
     function getDeviceName() {
         const ua = navigator.userAgent;
-        let device = "متصفح ويب";
+        let device = "جهاز غير معروف";
+        
         if (/Android/i.test(ua)) {
-            device = "أندرويد";
+            device = "Android";
             const match = ua.match(/\(([^)]+)\)/);
             if (match && match[1]) {
                 const parts = match[1].split(';');
-                // تعديل محمود: التقاط أسماء الموبايلات الشهيرة لظهورها بدقة في اللوحة
+                // البحث عن موديلات الهواتف الشهيرة داخل UserAgent
                 const modelPart = parts.find(p => p.includes('Build/') || /SM-|GT-|Redmi|POCO|Xiaomi|HUAWEI|CPH|RMX|V2|Infinix|TECNO|itel|Oppo|Vivo/i.test(p));
                 if (modelPart) { device = modelPart.split('Build/')[0].trim(); }
             }
-        } else if (/iPhone/i.test(ua)) { device = "iPhone"; }
-        else if (/iPad/i.test(ua)) { device = "iPad"; }
-        else if (/Windows/i.test(ua)) { device = "Windows PC"; }
-        else if (/Mac OS X/i.test(ua)) { device = "Mac"; }
-        return device || "جهاز غير معروف";
+        } else if (/iPhone/i.test(ua)) {
+            device = "iPhone";
+        } else if (/iPad/i.test(ua)) {
+            device = "iPad";
+        } else if (/Windows/i.test(ua)) {
+            if (ua.includes("Windows NT 10.0")) device = "Windows 10/11 PC";
+            else if (ua.includes("Windows NT 6.1")) device = "Windows 7 PC";
+            else device = "Windows PC";
+        } else if (/Mac OS X/i.test(ua)) {
+            device = "Macintosh";
+        } else if (/CrOS/i.test(ua)) {
+            device = "ChromeOS";
+        } else if (/Linux/i.test(ua)) {
+            device = "Linux System";
+        }
+        
+        // التحقق من المتصفح
+        let browser = "متصفح غير معروف";
+        if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+        else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+        else if (ua.includes("Firefox")) browser = "Firefox";
+        else if (ua.includes("Edg")) browser = "Edge";
+        else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
+
+        return `${device} (${browser})`;
     }
 
     function getDateTimeFull() {
@@ -700,7 +722,7 @@
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         if(el) el.classList.add('active');
-        
+
         if(id === 'p-reader') {
             document.body.classList.add('reading-mode');
             enterFullscreen();
@@ -776,51 +798,56 @@
         } catch (e) { list.innerHTML = "<div style='text-align:center; padding:40px; color:red;'>خطأ في البحث.</div>"; }
     }
 
-    // تعديل محمود: نظام التتبع الكامل ولوحة التحكم المحدثة
+    // تعديل محمود: حل مشكلة تكرار الأعداد باستخدام معرف متصفح فريد (Browser UUID)
     function setupAdminTracking() {
-        const name = getDeviceName();
+        const deviceName = getDeviceName();
         const time = getDateTimeFull();
+        
+        // إنشاء معرف فريد للمتصفح إذا لم يكن موجوداً (يمنع احتساب الشخص مرتين عند التحديث أو فتح تبويبات)
+        let browserUid = localStorage.getItem('athar_browser_uid');
+        if (!browserUid) {
+            browserUid = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+            localStorage.setItem('athar_browser_uid', browserUid);
+        }
 
-        // 1. المستخدمين النشطين الآن
-        const onlineRef = database.ref('app_stats/online_users');
-        const myRef = onlineRef.push();
-        myRef.onDisconnect().remove();
-        myRef.set({ name: name, time: time });
+        // 1. تتبع المتصلين حالياً (بناءً على المعرف الفريد وليس التبويب)
+        const onlineRef = database.ref('app_stats/online_users/' + browserUid);
+        onlineRef.onDisconnect().remove(); // يُحذف عند إغلاق المتصفح بالكامل
+        onlineRef.set({ name: deviceName, time: time });
 
-        // 2. الأجهزة المسجلة (مرة واحدة فقط)
-        const uniqueKey = btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
-        database.ref('app_stats/unique_devices/' + uniqueKey).transaction(curr => {
-            if (curr) return curr; // لا تقم بتعديله إذا كان مسجلاً بالفعل
-            return { name: name, registeredAt: time };
+        // 2. تتبع الأجهزة المسجلة (مرة واحدة فقط لكل متصفح)
+        database.ref('app_stats/unique_devices/' + browserUid).transaction(currentData => {
+            if (currentData) return currentData; // إذا كان موجوداً مسبقاً، لا تغيره
+            return { name: deviceName, registeredAt: time };
         });
 
-        // 3. سجل التكرار (كل دخول وخروج)
-        database.ref('app_stats/all_logs').push({ name: name, time: time });
+        // 3. سجل التكرار (لأغراض المراقبة فقط)
+        database.ref('app_stats/all_logs').push({ name: deviceName, time: time });
 
-        // 4. استرجاع البيانات للوحة التحكم
+        // 4. استرجاع البيانات وعرضها في اللوحة
         database.ref('app_stats').on('value', snap => {
             const data = snap.val() || {};
-            
-            // التسبيحات
+
+            // تحديث عداد التسبيحات
             document.getElementById('global-tasbih').innerText = data.global_tasbih || 0;
 
-            // المتصلين الآن
+            // تحديث عداد المتصلين الآن (بناءً على عدد المفاتيح في online_users)
             const onlineUsers = data.online_users || {};
             document.getElementById('online-users').innerText = Object.keys(onlineUsers).length;
             document.getElementById('active-device-list').innerHTML = Object.values(onlineUsers).map(u => 
                 `<div class="device-item"><b>${u.name}</b><span style="color:var(--gold);">متصل الآن 🟢</span></div>`
             ).join('');
 
-            // المسجلين (فريد)
+            // تحديث إجمالي المسجلين (فريد)
             const uniqueDevices = data.unique_devices || {};
             document.getElementById('total-users').innerText = Object.keys(uniqueDevices).length;
             document.getElementById('unique-device-list').innerHTML = Object.values(uniqueDevices).map(u => 
                 `<div class="device-item"><b>${u.name}</b><span>${u.registeredAt}</span></div>`
             ).join('');
 
-            // سجل الدخول (تكرار)
+            // تحديث السجل الكامل (آخر 100 حركة)
             const allLogs = data.all_logs || {};
-            const logsArray = Object.values(allLogs).reverse().slice(0, 150); // عرض أحدث 150 حركة
+            const logsArray = Object.values(allLogs).reverse().slice(0, 100);
             document.getElementById('all-log-list').innerHTML = logsArray.map(u => 
                 `<div class="device-item"><b>${u.name}</b><span>${u.time}</span></div>`
             ).join('');
@@ -888,7 +915,7 @@
             if (!response) response = await fetch(url);
             const d = await response.json();
             const dataAyahs = d.data.ayahs || [];
-            
+
             if(dataAyahs.length > 0) {
                 const firstAyah = dataAyahs[0];
                 const info = document.getElementById('reader-info');
@@ -903,17 +930,17 @@
 
             let displayTitle = title.replace("سورة ", "").trim();
             if(type === 'surah') displayTitle = "سورة " + displayTitle;
-            
+
             let html = `<div class="reading-area">`;
             html += `<div class="surah-header"><div class="surah-title-wrap">${displayTitle}</div></div>`;
-            
+
             dataAyahs.forEach(a => {
                 let highlightClass = (highlightAyahNumber && a.number === highlightAyahNumber) ? 'highlighted-ayah' : '';
                 // تعديل محمود: إزالة المسافات العشوائية وربط الآية برقمها بـ &nbsp; لعدم ترك مسافات غير منظمة
                 html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text}&nbsp;<span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span>&nbsp; `;
             });
             html += `</div>`;
-            
+
             document.getElementById('qText').innerHTML = html;
             currentView = { type, id, title };
 
@@ -962,11 +989,10 @@
         renderQuranList();
     }
 
-    // تعديل محمود: استقبال متغير isManualChange
     function updateCities(savedCity = null, isManualChange = false) {
         const countryKey = document.getElementById('countrySelect').value;
         localStorage.setItem('saved_country', countryKey);
-        
+
         const citySelect = document.getElementById('citySelect');
         citySelect.innerHTML = '';
         if (arabCountries[countryKey]) {
@@ -980,12 +1006,11 @@
         getPrayers(isManualChange);
     }
 
-    // تعديل محمود: إضافة إشعار ترحيبي عند تحديد/تغيير المكان
     async function getPrayers(isManualChange = false) {
         const country = document.getElementById('countrySelect').value;
         const city = document.getElementById('citySelect').value;
         localStorage.setItem('saved_city', city);
-        
+
         try {
             const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}`);
             const d = await res.json();
@@ -994,12 +1019,10 @@
             document.getElementById('prayerList').innerHTML = Object.keys(m).map(k => `<div class="s-card"><b>${m[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
             updateNextPrayer();
 
-            // إرسال الإشعار النموذجي إذا قام المستخدم بتغيير الموقع بنفسه
             if (isManualChange) {
                 const citySelect = document.getElementById('citySelect');
                 const cityNameAr = citySelect.options[citySelect.selectedIndex]?.text || city;
-                
-                // حساب الصلاة القادمة مباشرة للإشعار
+
                 const now = new Date();
                 let nextName = "الفجر", nextTimeRaw = prayerTimings["Fajr"];
                 for (let k in m) {
@@ -1013,15 +1036,8 @@
                 const notifTitle = "🕌 أَثَر | تم تحديث الموقع بنجاح";
                 const notifBody = `تم ضبط المواقيت لمدينة ${cityNameAr}.\nالصلاة القادمة: ${nextName} (${formattedTime}).\nتقبل الله منا ومنكم.`;
 
-                // استخدام Notification API لظهور رسالة منبثقة مميزة
                 if (Notification.permission === "granted") {
                     new Notification(notifTitle, { body: notifBody, icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png" });
-                } else if (Notification.permission !== "denied") {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === "granted") {
-                            new Notification(notifTitle, { body: notifBody, icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png" });
-                        }
-                    });
                 }
             }
 
@@ -1056,7 +1072,6 @@
         localCount++; totalCount++;
         if (localCount >= 33) { localCount = 0; currentTasbihIndex++; if (currentTasbihIndex >= tasbihList.length) currentTasbihIndex = 0; }
         updateTasbihUI(); saveTasbihData();
-        // تعديل محمود: مسار التسبيح الجديد
         database.ref('app_stats/global_tasbih').transaction(c => (c || 0) + 1);
     }
     function updateTasbihUI() {
@@ -1081,18 +1096,16 @@
 
     window.onload = () => {
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
+        
+        // تعديل محمود: تشغيل نظام التتبع المطور
         setupAdminTracking();
         initNotifications();
 
-        // تعديل محمود: إجبار الجميع على التسجيل من جديد في القائمة الفريدة
-        if (!localStorage.getItem('is_registered_athr_v2')) {
-            localStorage.setItem('is_registered_athr_v2', 'true');
-        }
         if (localStorage.getItem('quran_downloaded')) document.getElementById('dlBtn').style.display = 'none';
-        
+
         const savedCountry = localStorage.getItem('saved_country') || "Egypt";
         const savedCity = localStorage.getItem('saved_city') || null; 
-        
+
         const countrySelect = document.getElementById('countrySelect');
         for (let key in arabCountries) {
             const opt = document.createElement('option');
@@ -1100,10 +1113,10 @@
             if(key === savedCountry) opt.selected = true;
             countrySelect.appendChild(opt);
         }
-        
+
         updateCities(savedCity, false);
         renderQuranList();
-        
+
         setInterval(() => { 
             updateNextPrayer(); 
             checkPrayerNotifications(); 
@@ -1129,7 +1142,7 @@
         let title = (currentType === 'surah') ? surahs[newId-1] : (currentType === 'page' ? "الصفحة "+newId : "الجزء "+newId);
         loadContent(currentType, newId, title);
     }
-    
+
     function changeFontSize(d) { 
         currentFontSize+=d; 
         if(currentFontSize<18) currentFontSize=18; 
@@ -1138,29 +1151,9 @@
         if(area) area.style.fontSize = currentFontSize+'px'; 
     }
 
-    // ده اللي ناقص عندك
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js');
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
     }
-
-    // شغل التطبيق سواء الصفحة حملت أو لسه
-    if (document.readyState === 'loading') {
-        if (typeof initApp === 'function') document.addEventListener('DOMContentLoaded', initApp);
-    } else {
-        if (typeof initApp === 'function') initApp();
-    }
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js').then(function(registration) {
-        console.log('Athar SW registered with scope: ', registration.scope);
-      }, function(err) {
-        console.log('Athar SW registration failed: ', err);
-      });
-    });
-  }
-
-
 </script>
 </body>
 </html>
