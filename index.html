@@ -354,6 +354,10 @@
     </div>
 
     <div id="p-quran" class="page">
+        <div id="frame" style="width: 100%;margin: 0 auto 20px auto;position: relative; z-index: 99998;">
+          <iframe data-aa='2436935' src='//acceptable.a-ads.com/2436935/?size=Adaptive'
+                            style='border:0; padding:0; width:70%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>
+        </div>
         <button class="download-btn" id="dlBtn" onclick="downloadQuranOffline()">
             <span id="dlText">📥 تحميل المصحف كاملاً (للاستخدام بدون إنترنت)</span>
             <div id="dlBarWrap" class="download-progress-container">
@@ -985,12 +989,6 @@
         else if(activeQuranTab === 'dua') h = dbAzkar.map(z => `<div class="s-card dua-card"><b>${z}</b></div>`).join('');
         else if(activeQuranTab === 'dua_khatm') h = duaKhatm.map((d, i) => `<div class="s-card dua-card"><div class="dua-head">دعاء الختم</div><b>${d}</b></div>`).join('');
         list.innerHTML = h;
-    }
-
-    function renderDuasList() {
-        document.getElementById('duasList').innerHTML = subSupplications.map(d => `
-            <div class="s-card dua-card"><div class="dua-head">${d.title}</div><b>${d.content}</b></div>
-        `).join('');
     }
 
     function switchQuranTab(type, el) {
