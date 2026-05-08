@@ -11,9 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 
-    <script src="https://qugom/88/tag.min.js" data-zone="" async data-cfasync="false"></script>
-    <script src="https://quge5.com/88/tag.min.js" data-zone="237241" async data-cfasync="false"></script>
-
     <style>
         :root { 
             --gold: #D4AF37; 
@@ -313,9 +310,6 @@
 
 <div class="container" id="mainScroll">
 
-    <div id="frame-top" style="width: 100%; margin: 0 auto 15px auto; position: relative; z-index: 99; text-align: center;">
-        <iframe data-aa='2436934' src='//acceptable.a-ads.com/2436934/?size=Adaptive' style='border:0; padding:0; width:100%; max-width:400px; height:auto; overflow:hidden; display: block; margin: auto;'></iframe>
-    </div>
     <div id="p-admin" class="page">
         <div class="admin-box">
             <h3 style="color:var(--gold); text-align:center; margin-top:0;">لوحة التحكم المطورة</h3>
@@ -354,10 +348,6 @@
     </div>
 
     <div id="p-quran" class="page">
-        <div id="frame" style="width: 100%;margin: 0 auto 20px auto;position: relative; z-index: 99998;">
-          <iframe data-aa='2436935' src='//acceptable.a-ads.com/2436935/?size=Adaptive'
-                            style='border:0; padding:0; width:70%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>
-        </div>
         <button class="download-btn" id="dlBtn" onclick="downloadQuranOffline()">
             <span id="dlText">📥 تحميل المصحف كاملاً (للاستخدام بدون إنترنت)</span>
             <div id="dlBarWrap" class="download-progress-container">
@@ -431,9 +421,6 @@
         </div>
     </div>
 
-    <div id="frame-bottom" style="width: 100%; margin: 20px auto 0 auto; position: relative; z-index: 99; text-align: center;">
-        <iframe data-aa='436933' src='//acce33/?size=Adaptive' style='border:0; padding:0; width:100%; max-width:400px; height:auto; overflow:hidden; display: block; margin: auto;'></iframe>
-    </div>
     </div>
 
 <div class="font-controls" id="fControls">
@@ -564,7 +551,7 @@
 
     const surahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلـم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
     const dbAzkar = ["سبحان الله ﷻ", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله واتوب إليه", "اللهم صلِّ وسلم على نبينا محمد ﷺ", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "لا إله إلا أنت سبحانك إني كنت من الظالمين"];
-    const tasbihList = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "اللهم صل على محمد", "يا حي يا قيوم", "حسبي الله ونعم الوكيل", "أستغفر الله واتوب إليه", "لا إله إلا أنت سبحانك", "اللهم إنك عفو تحب العفو", "سبحان الملك القدوس", "يا ذا الجلال والإكرام", "رضيت بالله رباً", "اللهم اغفر لي", "يا لطيف", "اللهم أجرني من النار", "اللهم إني أسألك الجنة", "سبحان الله وبحمده عدد خلقه", "الحمد لله حمداً كثيراً", "اللهم بك أصبحنا", "اللهم بك أمسينا", "اللهم أعني على ذكرك", "يا مقلب القلوب ثبت قلبي", "اللهم بارك لنا فيما رزقتنا", "بسم الله الذي لا يضر مع اسمه شيء", "أعوذ بكلمات الله التامات", "اللهم إني أسألك العافية", "لا إله إلا الله وحده لا شريك له", "سبوح قدوس رب الملائكة والروح", "اللهم اهدني", "اللهم ارزقني", "اللهم عافني", "الحمد لله على كل حال", "لا إله إلا الله الملك الحق المبين", "اللهم قني شر نفسي", "اللهم أنت ربي لا إله أنت", "اللهم إني أسألك علماً نافعاً", "يا رزاق", "يا فتاح", "يا وهاب", "اللهم ارحم موتانا", "اللهم اشف مرضانا", "سبحان الله وبحمده رضا نفسه", "سبحان الله وبحمده زنة عرشه", "سبحان الله وبحمده مداد كلماته", "لا إله إلا الله العظيم الحليم", "لا إله إلا الله رب العرش العظيم", "لا إله إلا الله رب السماوات والأرض", "اللهم ارحمني", "اللهم تقبل منا", "يا غفور يا رحيم", "أستغفر الله العظيم لي ولوالدي", "الحمد لله رب العالمين", "اللهم لك الحمد", "اللهم صلي على نبينا محمد", "تبارك الله رب العالمين"];
+    const tasbihList = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "اللهم صل على محمد", "يا حي يا قيوم", "حسبي الله ونعم الوكيل", "أستغفر الله واتوب إليه", "لا إله إلا أنت سبحانك", "اللهم إنك عفو تحب العفو", "سبحان الملك القدوس", "يا ذا الجلال والإكرام", "رضيت بالله رباً", "اللهم اغفر لي", "يا لطيف", "اللهم أجرني من النار", "اللهم إني أسأسك الجنة", "سبحان الله وبحمده عدد خلقه", "الحمد لله حمداً كثيراً", "اللهم بك أصبحنا", "اللهم بك أمسينا", "اللهم أعني على ذكرك", "يا مقلب القلوب ثبت قلبي", "اللهم بارك لنا فيما رزقتنا", "بسم الله الذي لا يضر مع اسمه شيء", "أعوذ بكلمات الله التامات", "اللهم إني أسألك العافية", "لا إله إلا الله وحده لا شريك له", "سبوح قدوس رب الملائكة والروح", "اللهم اهدني", "اللهم ارزقني", "اللهم عافني", "الحمد لله على كل حال", "لا إله إلا الله الملك الحق المبين", "اللهم قني شر نفسي", "اللهم أنت ربي لا إله أنت", "اللهم إني أسألك علماً نافعاً", "يا رزاق", "يا فتاح", "يا وهاب", "اللهم ارحم موتانا", "اللهم اشف مرضانا", "سبحان الله وبحمده رضا نفسه", "سبحان الله وبحمده زنة عرشه", "سبحان الله وبحمده مداد كلماته", "لا إله إلا الله العظيم الحليم", "لا إله إلا الله رب العرش العظيم", "لا إله إلا الله رب السماوات والأرض", "اللهم ارحمني", "اللهم تقبل منا", "يا غفور يا رحيم", "أستغفر الله العظيم لي ولوالدي", "الحمد لله رب العالمين", "اللهم لك الحمد", "اللهم صلي على نبينا محمد", "تبارك الله رب العالمين"];
     const duaKhatm = ["اللهم ارحمني بالقرآن واجعله لي إماماً ونوراً هدى ورحمة.","اللهم ذكرني منه ما نسيت وعلمني منه ما جهلت وارزقني تلاوته آناء الليل وأطراف النهار واجعله لي حجة يا رب العالمين.","اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي.","اللهم اجعل خير عمري آخره وخير عملي خواتمه وخير أيامي يوم ألقاك فيه.","اللهم إني أسألك عيشة هنية وميتة سوية ومرداً غير مخز ولا فاضح.","اللهم إني أسألك خير المسألة وخير الدعاء وخير النجاح وخير العلم وخير العلم وخير العمل.","اللهم ثبتني وثقل موازيني وحقق إيماني وارفع درجتي تقبل صلاتي واغفر خطيئاتي.","اللهم إني أسألك الموجبات لرحمتك وعزائم مغفرتك السلامة من كل إثم.","اللهم لا تدع لنا ذنباً إلا غفرته ولا هماً إلا فرجته ولا ديناً إلا قضيته.","اللهم اجعلنا ممن يقرأ القرآن فيرقى ولا ممن يقرأ القرآن فيشقى."];
 
     const subSupplications = [
@@ -669,7 +656,6 @@
         }
     }
 
-    // تعديل محمود: دالة مطورة لجلب اسم الجهاز بدقة (تعمل لكل الأنواع)
     function getDeviceName() {
         const ua = navigator.userAgent;
         let device = "جهاز غير معروف";
@@ -679,7 +665,6 @@
             const match = ua.match(/\(([^)]+)\)/);
             if (match && match[1]) {
                 const parts = match[1].split(';');
-                // البحث عن موديلات الهواتف الشهيرة داخل UserAgent
                 const modelPart = parts.find(p => p.includes('Build/') || /SM-|GT-|Redmi|POCO|Xiaomi|HUAWEI|CPH|RMX|V2|Infinix|TECNO|itel|Oppo|Vivo/i.test(p));
                 if (modelPart) { device = modelPart.split('Build/')[0].trim(); }
             }
@@ -699,7 +684,6 @@
             device = "Linux System";
         }
 
-        // التحقق من المتصفح
         let browser = "متصفح غير معروف";
         if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
         else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
@@ -801,7 +785,7 @@
             let html = `<div style="color:var(--gold); font-size:14px; margin-bottom:15px; text-align:center;">تم العثور على ${d.data.count} نتيجة</div>`;
             d.data.matches.forEach(match => {
                 let cleanSurahName = match.surah.name.replace("سورة ", "").trim();
-                let cleanText = match.text.replace(/\s+/g, ' ').trim(); // تعديل محمود: تنظيف وتنسيق المسافات العشوائية
+                let cleanText = match.text.replace(/\s+/g, ' ').trim();
                 html += `
                     <div class="search-results-item" onclick="loadContent('surah', ${match.surah.number}, '${cleanSurahName}', ${match.number})">
                         <span class="ayah-text">${cleanText}</span>
@@ -813,54 +797,42 @@
         } catch (e) { list.innerHTML = "<div style='text-align:center; padding:40px; color:red;'>خطأ في البحث.</div>"; }
     }
 
-    // تعديل محمود: حل مشكلة تكرار الأعداد باستخدام معرف متصفح فريد (Browser UUID)
     function setupAdminTracking() {
         const deviceName = getDeviceName();
         const time = getDateTimeFull();
 
-        // إنشاء معرف فريد للمتصفح إذا لم يكن موجوداً (يمنع احتساب الشخص مرتين عند التحديث أو فتح تبويبات)
         let browserUid = localStorage.getItem('athar_browser_uid');
         if (!browserUid) {
             browserUid = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
             localStorage.setItem('athar_browser_uid', browserUid);
         }
 
-        // 1. تتبع المتصلين حالياً (بناءً على المعرف الفريد وليس التبويب)
         const onlineRef = database.ref('app_stats/online_users/' + browserUid);
-        onlineRef.onDisconnect().remove(); // يُحذف عند إغلاق المتصفح بالكامل
+        onlineRef.onDisconnect().remove(); 
         onlineRef.set({ name: deviceName, time: time });
 
-        // 2. تتبع الأجهزة المسجلة (مرة واحدة فقط لكل متصفح)
         database.ref('app_stats/unique_devices/' + browserUid).transaction(currentData => {
-            if (currentData) return currentData; // إذا كان موجوداً مسبقاً، لا تغيره
+            if (currentData) return currentData;
             return { name: deviceName, registeredAt: time };
         });
 
-        // 3. سجل التكرار (لأغراض المراقبة فقط)
         database.ref('app_stats/all_logs').push({ name: deviceName, time: time });
 
-        // 4. استرجاع البيانات وعرضها في اللوحة
         database.ref('app_stats').on('value', snap => {
             const data = snap.val() || {};
-
-            // تحديث عداد التسبيحات
             document.getElementById('global-tasbih').innerText = data.global_tasbih || 0;
-
-            // تحديث عداد المتصلين الآن (بناءً على عدد المفاتيح في online_users)
             const onlineUsers = data.online_users || {};
             document.getElementById('online-users').innerText = Object.keys(onlineUsers).length;
             document.getElementById('active-device-list').innerHTML = Object.values(onlineUsers).map(u => 
                 `<div class="device-item"><b>${u.name}</b><span style="color:var(--gold);">متصل الآن 🟢</span></div>`
             ).join('');
 
-            // تحديث إجمالي المسجلين (فريد)
             const uniqueDevices = data.unique_devices || {};
             document.getElementById('total-users').innerText = Object.keys(uniqueDevices).length;
             document.getElementById('unique-device-list').innerHTML = Object.values(uniqueDevices).map(u => 
                 `<div class="device-item"><b>${u.name}</b><span>${u.registeredAt}</span></div>`
             ).join('');
 
-            // تحديث السجل الكامل (آخر 100 حركة)
             const allLogs = data.all_logs || {};
             const logsArray = Object.values(allLogs).reverse().slice(0, 100);
             document.getElementById('all-log-list').innerHTML = logsArray.map(u => 
@@ -951,7 +923,6 @@
 
             dataAyahs.forEach(a => {
                 let highlightClass = (highlightAyahNumber && a.number === highlightAyahNumber) ? 'highlighted-ayah' : '';
-                // تعديل محمود: إزالة المسافات العشوائية وربط الآية برقمها بـ &nbsp; لعدم ترك مسافات غير منظمة
                 html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text}&nbsp;<span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span>&nbsp; `;
             });
             html += `</div>`;
@@ -959,7 +930,6 @@
             document.getElementById('qText').innerHTML = html;
             currentView = { type, id, title };
 
-            // تعديل محمود: النزول التلقائي للآية المختارة وتلوينها بالأحمر
             if (highlightAyahNumber) {
                 setTimeout(() => {
                     const targetAyah = document.getElementById('ayah-' + highlightAyahNumber);
@@ -1031,7 +1001,6 @@
             if (isManualChange) {
                 const citySelect = document.getElementById('citySelect');
                 const cityNameAr = citySelect.options[citySelect.selectedIndex]?.text || city;
-
                 const now = new Date();
                 let nextName = "الفجر", nextTimeRaw = prayerTimings["Fajr"];
                 for (let k in m) {
@@ -1039,9 +1008,7 @@
                     let pDate = new Date(); pDate.setHours(h, min, 0);
                     if (pDate > now) { nextName = m[k]; nextTimeRaw = prayerTimings[k]; break; }
                 }
-                if (!nextTimeRaw) nextTimeRaw = prayerTimings["Fajr"];
-                const formattedTime = formatTime12(nextTimeRaw);
-
+                const formattedTime = formatTime12(nextTimeRaw || prayerTimings["Fajr"]);
                 const notifTitle = "🕌 أَثَر | تم تحديث الموقع بنجاح";
                 const notifBody = `تم ضبط المواقيت لمدينة ${cityNameAr}.\nالصلاة القادمة: ${nextName} (${formattedTime}).\nتقبل الله منا ومنكم.`;
 
@@ -1049,7 +1016,6 @@
                     new Notification(notifTitle, { body: notifBody, icon: "https://i.postimg.cc/Y9f0hWNs/Screenshot-20260322-182200-Chrome-(1).png" });
                 }
             }
-
         } catch(e) {}
     }
 
@@ -1105,16 +1071,11 @@
 
     window.onload = () => {
         if(localStorage.getItem('theme_athr') === 'light') toggleTheme();
-
-        // تعديل محمود: تشغيل نظام التتبع المطور
         setupAdminTracking();
         initNotifications();
-
         if (localStorage.getItem('quran_downloaded')) document.getElementById('dlBtn').style.display = 'none';
-
         const savedCountry = localStorage.getItem('saved_country') || "Egypt";
         const savedCity = localStorage.getItem('saved_city') || null; 
-
         const countrySelect = document.getElementById('countrySelect');
         for (let key in arabCountries) {
             const opt = document.createElement('option');
@@ -1122,10 +1083,8 @@
             if(key === savedCountry) opt.selected = true;
             countrySelect.appendChild(opt);
         }
-
         updateCities(savedCity, false);
         renderQuranList();
-
         setInterval(() => { 
             updateNextPrayer(); 
             checkPrayerNotifications(); 
