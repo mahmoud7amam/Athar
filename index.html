@@ -249,6 +249,28 @@
         .contact-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--gold-metal); color: #000; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 15px; width: 100%; box-sizing: border-box; transition: 0.3s; }
         .contact-btn:active { transform: scale(0.97); }
 
+        /* تعديل محمود الجديد: تنسيق مربع الدعم الذهبي */
+        .support-box { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: var(--card); 
+            border: 2px solid #d4af37; 
+            border-radius: 15px; 
+            padding: 15px; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            transition: 0.3s; 
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1);
+        }
+        .support-box:active { transform: scale(0.98); }
+        .support-content { display: flex; align-items: center; gap: 12px; }
+        .support-icon { width: 35px; height: 35px; object-fit: contain; }
+        .support-text-wrap { display: flex; flex-direction: column; text-align: right; }
+        .support-label { color: #d4af37; font-size: 14px; font-weight: 800; }
+        .support-desc { color: var(--text); font-size: 11px; opacity: 0.8; }
+
         .dev-signature { text-align: center; font-size: 14px; font-weight: 500; color: var(--gold); margin: 15px 0; opacity: 0.9; letter-spacing: 0.5px; }
         .dev-small-text { display: block; text-align: center; font-size: 11px; color: var(--gold); opacity: 0.6; margin-top: 10px; font-weight: 400; }
 
@@ -408,6 +430,18 @@
             <div class="settings-text" style="text-align: center; margin-top: 10px;">
                 يسعدنا تواصلكم معنا لأي مقترحات، استفسارات، أو الإبلاغ عن أي مشكلة.
             </div>
+            
+            <a href="https://direct-link.net/5627718/lBcBXglvRw5s" target="_blank" class="support-box">
+                <div class="support-content">
+                    <img src="https://i.postimg.cc/cJ7jrpKG/care.png" class="support-icon" alt="Support">
+                    <div class="support-text-wrap">
+                        <span class="support-label">ادعم استمرار التطبيق</span>
+                        <span class="support-desc">اضغط هنا لدعم المطور مجانًا عبر الرابط</span>
+                    </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#d4af37"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </a>
+
             <a href="mailto:mahmoud7amam0m@gmail.com" class="contact-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg>
                 تواصل عبر البريد
@@ -543,7 +577,7 @@
         "Tunisia": { ar: "تونس", cities: [{ar:"تونس العاصمة",en:"Tunis"},{ar:"صفاقس",en:"Sfax"},{ar:"سوسة",en:"Sousse"},{ar:"القيروان",en:"Kairouan"},{ar:"بنزرت",en:"Bizerte"}] },
         "Libya": { ar: "ليبيا", cities: [{ar:"طرابلس",en:"Tripoli"},{ar:"بنغازي",en:"Benghazi"},{ar:"مصراتة",en:"Misrata"},{ar:"البيضاء",en:"Bayda"}] },
         "Sudan": { ar: "السودان", cities: [{ar:"الخرطوم",en:"Khartoum"},{ar:"أم درمان",en:"Omdurman"},{ar:"بورتسودان",en:"Port Sudan"},{ar:"كسلا",en:"Kassala"}] },
-        "Mauritania": { ar: "موريتانيا", cities: [{ar:"نواكشوط",en:"Nouakchott"},{ar:"نواذيبو",en:"Nouadhibou"},{ar:"كيفه",en:"Kiffa"}] },
+        "Mauritania": { ar: "موريتانيا", cities: [{ar:"نواكشوط",en:"Nouakchott"},{ar:"نواذيبو",en:"Nouادhibou"},{ar:"كيفه",en:"Kiffa"}] },
         "Somalia": { ar: "الصومال", cities: [{ar:"مقديشو",en:"Mogadishu"},{ar:"هرجيسا",en:"Hargeisa"},{ar:"بوساسو",en:"Bosaso"}] },
         "Djibouti": { ar: "جيبوتي", cities: [{ar:"جيبوتي",en:"Djibouti"},{ar:"علي صبيح",en:"Ali Sabieh"}] },
         "Comoros": { ar: "جزر القمر", cities: [{ar:"موروني",en:"Moroni"},{ar:"موتسامودو",en:"Mutsamudu"}] }
