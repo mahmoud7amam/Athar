@@ -22,16 +22,14 @@
             --gold-fade: rgba(212, 175, 55, 0.1); 
         }
 
-        /* تعديل محمود: منع تحديد النص في التطبيق بالكامل لتحسين تجربة المستخدم (UI/UX) */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none; /* منع القائمة المنبثقة في أجهزة آبل */
+            -webkit-touch-callout: none;
         }
 
-        /* استثناء حقول الإدخال والاختيار لتعمل بشكل طبيعي */
         input, textarea, select {
             -webkit-user-select: auto;
             -moz-user-select: auto;
@@ -130,26 +128,25 @@
         }
 
         .surah-header { 
-            display: flex; align-items: center; justify-content: center; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 25px;
             break-inside: avoid; width: 100%;
         }
         
-        /* تصميم إطار السورة والأجزاء والصفحات الجديد */
+        /* تصميم إطار السورة (باستخدام الصورة المرفقة) */
         .surah-title-wrap { 
-            width: 100%;
-            max-width: 450px;
-            height: 70px;
+            width: 90%;
+            max-width: 500px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='450' height='70' viewBox='0 0 450 70' preserveAspectRatio='none'%3E%3Crect x='5' y='5' width='440' height='60' rx='10' fill='none' stroke='%23D4AF37' stroke-width='2'/%3E%3Crect x='10' y='10' width='430' height='50' rx='6' fill='none' stroke='%23D4AF37' stroke-width='1'/%3E%3Cpath d='M30,15 C40,15 45,25 45,35 C45,45 40,55 30,55 C20,55 15,45 15,35 C15,25 20,15 30,15 Z' fill='none' stroke='%23D4AF37' stroke-width='1.5'/%3E%3Ccircle cx='30' cy='35' r='6' fill='%23D4AF37'/%3E%3Cpath d='M420,15 C410,15 405,25 405,35 C405,45 410,55 420,55 C430,55 435,45 435,35 C435,25 430,15 420,15 Z' fill='none' stroke='%23D4AF37' stroke-width='1.5'/%3E%3Ccircle cx='420' cy='35' r='6' fill='%23D4AF37'/%3E%3C/svg%3E") no-repeat center;
-            background-size: 100% 100%;
-            color: var(--text);
-            font-size: 26px;
+            background: url("bd2aadc016aeb9a34fe7e81009260ce9 (1).svg") no-repeat center;
+            background-size: contain;
+            color: #222; /* لون النص ليتناسب مع خلفية الإطار */
+            font-size: 32px;
             font-weight: bold;
             font-family: 'Amiri', serif;
             position: relative;
-            padding: 0 50px;
             box-sizing: border-box;
             transition: 0.3s;
         }
@@ -176,7 +173,6 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* تصميم مربع الآيات الجديد (الشكل البيضاوي المزخرف) */
         .ayah-num { 
             display: inline-flex;
             align-items: center;
@@ -192,7 +188,7 @@
             vertical-align: middle;
             font-weight: bold;
             break-inside: avoid;
-            padding-top: 5px; /* لتوسيط الرقم داخل القطرة */
+            padding-top: 5px;
         }
 
         .s-card { background: var(--card); padding: 12px; margin-bottom: 8px; border-radius: 16px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; cursor: pointer; }
@@ -980,23 +976,29 @@
             if(dataAyahs.length > 0) {
                 const firstAyah = dataAyahs[0];
                 const info = document.getElementById('reader-info');
-                let surahNameDisplay = (type === 'surah') ? d.data.name : (firstAyah.surah ? firstAyah.surah.name : title);
-                surahNameDisplay = surahNameDisplay.replace("سورة ", "").trim();
-                info.innerHTML = `<div style="font-size:20px; color:var(--gold); margin-bottom:15px; font-weight:800;">سورة ${surahNameDisplay}</div>
+                
+                // تحديد النص الذي سيظهر داخل الإطار المزخرف بناءً على النوع
+                let titleToDisplay = title;
+                if (type === 'surah') {
+                    titleToDisplay = d.data.name.replace("سورة ", "").trim();
+                } else if (type === 'juz') {
+                    titleToDisplay = "الجزء " + id;
+                } else if (type === 'page') {
+                    titleToDisplay = "الصفحة " + id;
+                }
+
+                info.innerHTML = `<div style="font-size:20px; color:var(--gold); margin-bottom:15px; font-weight:800;">${titleToDisplay}</div>
                     <div style="display:flex; justify-content:space-around; gap:10px; font-size:15px; color:var(--text); font-weight:bold;">
                         <span>الجزء ${firstAyah.juz}</span><span style="color:var(--gold);">|</span>
                         <span>صفحة ${firstAyah.page}</span>
                     </div>`;
             }
 
-            // تعديل العنوان ليتناسب مع الإطار الجديد سواء سورة أو جزء أو صفحة
-            let displayTitle = title.replace("سورة ", "").trim();
-            if(type === 'surah') displayTitle = "سورة " + displayTitle;
-
             let html = `<div class="reading-area">`;
             
-            // إضافة الإطار المزخرف أعلى الصفحة
-            html += `<div class="surah-header"><div class="surah-title-wrap">${displayTitle}</div></div>`;
+            // إضافة الإطار المزخرف (من الملف المرفق) وبداخله العنوان
+            let finalHeaderTitle = (type === 'surah') ? title.replace("سورة ", "").trim() : title;
+            html += `<div class="surah-header"><div class="surah-title-wrap">${finalHeaderTitle}</div></div>`;
 
             // إضافة البسملة للسور فقط (باستثناء سورة التوبة)
             if (type === 'surah' && currentId !== 9) {
@@ -1008,8 +1010,6 @@
                 let arabicNum = a.numberInSurah.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
                 let text = a.text;
 
-                // معالجة البسملة المدمجة في النص من الـ API حتى لا تتكرر أسفل تصميمنا للبسملة
-                // سورة الفاتحة البسملة فيها هي الآية رقم 1 فنتركها
                 if (type === 'surah' && currentId !== 9 && currentId !== 1 && index === 0) {
                      text = text.replace(/^بِسْمِ.+?الرَّحِيمِ\s*/, '');
                      text = text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/, '');
@@ -1227,6 +1227,5 @@
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
     }
 </script>
-<script src="script.js"></script> 
 </body>
 </html>
