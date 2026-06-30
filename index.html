@@ -6,8 +6,7 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>أَثَر - المطور محمود حمام</title>
     <link rel="manifest" href="/manifest.json">
-    <!-- تم إضافة خط Amiri Quran ليكون الخط متطابق مع المصحف العثماني -->
-    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
@@ -115,20 +114,18 @@
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); 
         }
 
-        /* تعديلات منطقة القراءة لتتطابق مع الصورة */
         .reading-area { 
-            line-height: 2.2; /* تم زيادته لتباعد أفضل للتشكيل */
-            font-size: 32px; /* تكبير الخط ليكون أوضح وأقوى */
-            font-weight: 700; /* جعل الخط عريض (أقوى) */
-            text-align: justify; 
-            text-justify: inter-word; /* ضبط المسافات بين الكلمات لتبدو كالمصحف تماماً */
-            padding: 40px 20px 120px 20px; 
+            line-height: 2.2; /* مسافة أوضح بين السطور */
+            font-size: 24px; /* خط أصغر ليتناسب مع شكل المصحف */
+            text-align: justify; /* ضبط تمدد الكلام كالمصحف */
+            text-justify: inter-word;
+            padding: 20px 10px 120px 10px; /* صفحة أوسع بدون هوامش كبيرة */
             color: var(--text); 
-            font-family: 'Amiri Quran', 'Amiri', serif; /* استخدام الخط المخصص للقرآن */
+            font-family: 'Amiri', serif; 
             transition: font-size 0.2s; 
             width: 100%;
             box-sizing: border-box;
-            margin: 0; 
+            margin: 0 auto; 
             direction: rtl;
         }
 
@@ -150,12 +147,23 @@
             display: flex; align-items: center; justify-content: center;
         }
 
+        /* الشكل الإسلامي الجميل والمنسق لأرقام الآيات */
         .ayah-num { 
-            color: var(--gold); font-size: 42px; position: relative; display: inline-block; 
-            vertical-align: middle; margin: 0 2px; filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.5)); 
-            break-inside: avoid; 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin: 0 4px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 1.5 L23.5 8.5 L31 7.5 L30 15 L36.5 19.5 L30 24 L31 31.5 L23.5 30.5 L20 37.5 L16.5 30.5 L9 31.5 L10 24 L3.5 19.5 L10 15 L9 7.5 L16.5 8.5 Z' fill='none' stroke='%23D4AF37' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ccircle cx='20' cy='20' r='11' fill='none' stroke='%23D4AF37' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+            font-size: 16px;
+            color: var(--text);
+            font-family: 'Amiri', serif;
+            vertical-align: middle;
+            font-weight: bold;
+            break-inside: avoid;
         }
-        .num-inside { position: absolute; top: 54%; left: 50%; transform: translate(-50%, -50%); font-size: 13px; font-family: 'Alexandria'; color: var(--text); font-weight: bold; }
 
         .s-card { background: var(--card); padding: 12px; margin-bottom: 8px; border-radius: 16px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; cursor: pointer; }
         .s-card:hover { border-color: var(--gold); background: #1a1a1a; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
@@ -214,47 +222,30 @@
             transform: translateY(-3px) scale(1.1);
         }
 
-        /* تعديل محمود: إصلاح justify-content التالفة */
         .download-btn { background: #1a1a1a; color: var(--gold); border: 1px dashed var(--gold); padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 15px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
         .download-btn:hover { background: var(--gold-fade); }
         .download-progress-container { width: 100%; background: #333; height: 6px; border-radius: 3px; display: none; overflow: hidden; margin-top: 10px; }
         .download-progress-bar { height: 100%; background: var(--gold-metal); width: 0%; transition: width 0.3s; }
 
-        /* تعديلات الإضاءة للمود الفاتح لتخفيف السطوع وجعله بلون ورق المصحف المريح */
         body.light-mode {
-            --bg: #fdf6eb; /* لون دافئ يشبه ورق المصحف */
-            --card: #f4ecdf; /* بطاقات أغمق قليلاً للتباين المريح */
-            --text: #000000; /* نص أسود قوي لزيادة الوضوح والجمال */
+            --bg: #f5f6fa;
+            --card: #ffffff;
+            --text: #222222;
         }
-        body.light-mode header, body.light-mode nav { border-color: #e5d8c3; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        body.light-mode nav { border-top-color: #e5d8c3; }
-        body.light-mode .s-card { background: #fbf4e8; border-color: #e5d8c3; }
-        body.light-mode .s-card:hover { background: #f3ebdb; border-color: var(--gold); }
-        body.light-mode .dua-card .dua-head { border-bottom-color: #e5d8c3; }
-        body.light-mode .admin-box { background: #fdf6eb; }
-        body.light-mode .search-input, body.light-mode select { background: #fdf6eb; color: #000; border-color: #d1c5b0; }
+        body.light-mode header, body.light-mode nav { border-color: #ddd; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        body.light-mode nav { border-top-color: #eee; }
+        body.light-mode .s-card { background: #ffffff; border-color: #eee; }
+        body.light-mode .s-card:hover { background: #fafafa; border-color: var(--gold); }
+        body.light-mode .dua-card .dua-head { border-bottom-color: #eee; }
+        body.light-mode .admin-box { background: #fff; }
+        body.light-mode .search-input, body.light-mode select { background: #fff; color: #222; border-color: #ccc; }
         body.light-mode .search-input:focus, body.light-mode select:focus { border-color: var(--gold); }
-        body.light-mode .tab-btn { background: #fdf6eb; border-color: #d1c5b0; color: #333; }
+        body.light-mode .tab-btn { background: #fff; border-color: #ddd; color: #555; }
         body.light-mode .tab-btn.active { background: var(--gold-metal); color: #000; border-color: transparent; }
-        
-        /* تعديل شكل عنوان السورة في الوضع الفاتح ليشبه الإطار الكلاسيكي المطبوع */
-        body.light-mode .surah-title-wrap { 
-            background: transparent; 
-            border: 2px solid #222; 
-            color: #222;
-            border-radius: 4px;
-            padding: 5px 60px;
-            box-shadow: none;
-        }
-        body.light-mode .surah-title-wrap::before, body.light-mode .surah-title-wrap::after { color: #222; }
-        
-        /* ألوان أرقام الآيات في المود الفاتح */
-        body.light-mode .ayah-num { filter: none; color: #a47814; }
-        body.light-mode .num-inside { color: #222; }
-
-        body.light-mode .circle-btn { background: radial-gradient(circle, #fdf6eb, #f4ecdf); border-color: var(--gold); }
+        body.light-mode .surah-title-wrap { background: #fdfdfd; }
+        body.light-mode .circle-btn { background: radial-gradient(circle, #fff, #f0f0f0); border-color: var(--gold); }
         body.light-mode .count-val { text-shadow: none; }
-        body.light-mode .download-btn { background: #fdf6eb; border-color: var(--gold); }
+        body.light-mode .download-btn { background: #fff; border-color: var(--gold); }
 
         body.light-mode .nav-img { opacity: 0.6; }
         body.light-mode .nav-item.active .nav-img { opacity: 1; filter: drop-shadow(0 3px 6px rgba(212, 175, 55, 0.4)); }
@@ -270,7 +261,6 @@
         .contact-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--gold-metal); color: #000; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 15px; width: 100%; box-sizing: border-box; transition: 0.3s; }
         .contact-btn:active { transform: scale(0.97); }
 
-        /* تـنسيق مربع الدعم الذهبي */
         .support-box { 
             display: flex; 
             align-items: center; 
@@ -413,7 +403,7 @@
     </div>
 
     <div id="p-reader" class="page">
-        <div id="qText" style="display: flex;"></div>
+        <div id="qText" style="display: block;"></div>
     </div>
 
     <div id="p-tasbih" class="page" style="text-align:center;">
@@ -579,7 +569,6 @@
         }, INTERVAL_MS);
     }
 
-    /* تعديل محمود: إصلاح الأخطاء اللغوية لبعض المدن المدخلة (مثل بيت لحم، البصرة، ونواذيبو) */
     const arabCountries = {
         "Egypt": { ar: "مصر", cities: [{ar:"القاهرة",en:"Cairo"},{ar:"الإسكندرية",en:"Alexandria"},{ar:"الجيزة",en:"Giza"},{ar:"الدقهلية",en:"Dakahlia"},{ar:"البحر الأحمر",en:"Red Sea"},{ar:"البحيرة",en:"Beheira"},{ar:"الفيوم",en:"Faiyum"},{ar:"الغربية",en:"Gharbia"},{ar:"الإسماعيلية",en:"Ismailia"},{ar:"المنوفية",en:"Monufia"},{ar:"المنيا",en:"Minya"},{ar:"القليوبية",en:"Qalyubia"},{ar:"الوادي الجديد",en:"New Valley"},{ar:"الشرقية",en:"Sharqia"},{ar:"السويس",en:"Suez"},{ar:"أسوان",en:"Aswan"},{ar:"أسيوط",en:"Asyut"},{ar:"بني سويف",en:"Beni Suef"},{ar:"بورسعيد",en:"Port Said"},{ar:"دمياط",en:"Damietta"},{ar:"جنوب سيناء",en:"South Sinai"},{ar:"كفر الشيخ",en:"Kafr el-Sheikh"},{ar:"مطروح",en:"Matrouh"},{ar:"قنا",en:"Qena"},{ar:"شمال سيناء",en:"North Sinai"},{ar:"سوهاج",en:"Sohag"},{ar:"الأقصر",en:"Luxor"}] },
         "Saudi Arabia": { ar: "السعودية", cities: [{ar:"الرياض",en:"Riyadh"},{ar:"جدة",en:"Jeddah"},{ar:"مكة المكرمة",en:"Makkah"},{ar:"المدينة المنورة",en:"Madinah"},{ar:"الدمام",en:"Dammam"},{ar:"الخبر",en:"Khobar"},{ar:"الطائف",en:"Taif"},{ar:"تبوك",en:"Tabuk"},{ar:"بريدة",en:"Buraidah"},{ar:"خميس مشيط",en:"Khamis Mushait"},{ar:"أبها",en:"Abha"},{ar:"الجبيل",en:"Jubail"},{ar:"نجران",en:"Najran"},{ar:"ينبع",en:"Yanbu"},{ar:"حائل",en:"Hail"},{ar:"حفر الباطن",en:"Hafar Al Batin"}] },
@@ -606,7 +595,7 @@
     };
 
     const surahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلـم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
-    const dbAzkar = ["سبحان الله ﷻ", "الحمد لله", "لا إله إلا الله", "الله اكبر", "أستغفر الله واتوب إليه", "اللهم صلِّ وسلم على نبينا محمد ﷺ", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "لا إله إلا أنت سبحانك إني كنت من الظالمين"];
+    const dbAzkar = ["سبحان الله ﷻ", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله واتوب إليه", "اللهم صلِّ وسلم على نبينا محمد ﷺ", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "لا إله إلا أنت سبحانك إني كنت من الظالمين"];
     const tasbihList = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "اللهم صل على محمد", "يا حي يا قيوم", "حسبي الله ونعم الوكيل", "أستغفر الله واتوب إليه", "لا إله إلا أنت سبحانك", "اللهم إنك عفو تحب العفو", "سبحان الملك القدوس", "يا ذا الجلال والإكرام", "رضيت بالله رباً", "اللهم اغفر لي", "يا لطيف", "اللهم أجرني من النار", "اللهم إني أسأسك الجنة", "سبحان الله وبحمده عدد خلقه", "الحمد لله حمداً كثيراً", "اللهم بك أصبحنا", "اللهم بك أمسينا", "اللهم أعني على ذكرك", "يا مقلب القلوب ثبت قلبي", "اللهم بارك لنا فيما رزقتنا", "بسم الله الذي لا يضر مع اسمه شيء", "أعوذ بكلمات الله التامات", "اللهم إني أسألك العافية", "لا إله إلا الله وحده لا شريك له", "سبوح قدوس رب الملائكة والروح", "اللهم اهدني", "اللهم ارزقني", "اللهم عافني", "الحمد لله على كل حال", "لا إله إلا الله الملك الحق المبين", "اللهم قني شر نفسي", "اللهم أنت ربي لا إله أنت", "اللهم إني أسألك علماً نافعاً", "يا رزاق", "يا فتاح", "يا وهاب", "اللهم ارحم موتانا", "اللهم اشف مرضانا", "سبحان الله وبحمده رضا نفسه", "سبحان الله وبحمده زنة عرشه", "سبحان الله وبحمده مداد كلماته", "لا إله إلا الله العظيم الحليم", "لا إله إلا الله رب العرش العظيم", "لا إله إلا الله رب السماوات والأرض", "اللهم ارحمني", "اللهم تقبل منا", "يا غفور يا رحيم", "أستغفر الله العظيم لي ولوالدي", "الحمد لله رب العالمين", "اللهم لك الحمد", "اللهم صلي على نبينا محمد", "تبارك الله رب العالمين"];
     const duaKhatm = ["اللهم ارحمني بالقرآن واجعله لي إماماً ونوراً هدى ورحمة.","اللهم ذكرني منه ما نسيت وعلمني منه ما جهلت وارزقني تلاوته آناء الليل وأطراف النهار واجعله لي حجة يا رب العالمين.","اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي.","اللهم اجعل خير عمري آخره وخير عملي خواتمه وخير أيامي يوم ألقاك فيه.","اللهم إني أسألك عيشة هنية وميتة سوية ومرداً غير مخز ولا فاضح.","اللهم إني أسألك خير المسألة وخير الدعاء وخير النجاح وخير العلم وخير العلم وخير العمل.","اللهم ثبتني وثقل موازيني وحقق إيماني وارفع درجتي تقبل صلاتي واغفر خطيئاتي.","اللهم إني أسألك الموجبات لرحمتك وعزائم مغفرتك السلامة من كل إثم.","اللهم لا تدع لنا ذنباً إلا غفرته ولا هماً إلا فرجته ولا ديناً إلا قضيته.","اللهم اجعلنا ممن يقرأ القرآن فيرقى ولا ممن يقرأ القرآن فيشقى."];
 
@@ -676,7 +665,7 @@
     let localCount = parseInt(localStorage.getItem('local_tasbih_val')) || 0;
     let totalCount = parseInt(localStorage.getItem('total_athr')) || 0;
     let currentTasbihIndex = parseInt(localStorage.getItem('tasbih_idx')) || 0;
-    let currentView = null, currentFontSize = 32, prayerTimings = {}, activeQuranTab = 'surah';
+    let currentView = null, currentFontSize = 24, prayerTimings = {}, activeQuranTab = 'surah';
     let touchStartX = 0, touchEndX = 0, currentType = 'surah', currentId = 1;
     let infoTimeout = null;
     let readerUiVisible = false;
@@ -979,7 +968,10 @@
 
             dataAyahs.forEach(a => {
                 let highlightClass = (highlightAyahNumber && a.number === highlightAyahNumber) ? 'highlighted-ayah' : '';
-                html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text}&nbsp;<span class="ayah-num">۝<span class="num-inside">${a.numberInSurah}</span></span></span>&nbsp; `;
+                // تحويل الأرقام إلى عربية أصيلة لتعطي شكل المصحف الحقيقي
+                let arabicNum = a.numberInSurah.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+                // إزالة المسافات الكبيرة واستخدام مسافة عادية بعد كل آية عشان الكلام يتلاحم ببعضه
+                html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text} <span class="ayah-num">${arabicNum}</span></span> `;
             });
             html += `</div>`;
 
@@ -1017,7 +1009,6 @@
         list.innerHTML = h;
     }
 
-    /* تعديل محمود: بناء دالة renderDuasList الغائبة لعرض قائمة الأدعية الفرعية المتناسقة هندسيًا وثيم التطبيق */
     function renderDuasList() {
         const list = document.getElementById('duasList');
         if (!list) return;
