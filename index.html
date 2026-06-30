@@ -210,7 +210,8 @@
             transform: translateY(-3px) scale(1.1);
         }
 
-        .download-btn { background: #1a1a1a; color: var(--gold); border: 1px dashed var(--gold); padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 15px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: gap: 8px; transition: 0.3s; }
+        /* تعديل محمود: إصلاح justify-content التالفة */
+        .download-btn { background: #1a1a1a; color: var(--gold); border: 1px dashed var(--gold); padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 15px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
         .download-btn:hover { background: var(--gold-fade); }
         .download-progress-container { width: 100%; background: #333; height: 6px; border-radius: 3px; display: none; overflow: hidden; margin-top: 10px; }
         .download-progress-bar { height: 100%; background: var(--gold-metal); width: 0%; transition: width 0.3s; }
@@ -249,7 +250,7 @@
         .contact-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--gold-metal); color: #000; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 15px; width: 100%; box-sizing: border-box; transition: 0.3s; }
         .contact-btn:active { transform: scale(0.97); }
 
-        /* تعديل محمود الجديد: تنسيق مربع الدعم الذهبي */
+        /* تـنسيق مربع الدعم الذهبي */
         .support-box { 
             display: flex; 
             align-items: center; 
@@ -455,7 +456,7 @@
         </div>
     </div>
 
-    </div>
+</div>
 
 <div class="font-controls" id="fControls">
     <button class="font-btn" onclick="changeFontSize(2)">+</button>
@@ -558,6 +559,7 @@
         }, INTERVAL_MS);
     }
 
+    /* تعديل محمود: إصلاح الأخطاء اللغوية لبعض المدن المدخلة (مثل بيت لحم، البصرة، ونواذيبو) */
     const arabCountries = {
         "Egypt": { ar: "مصر", cities: [{ar:"القاهرة",en:"Cairo"},{ar:"الإسكندرية",en:"Alexandria"},{ar:"الجيزة",en:"Giza"},{ar:"الدقهلية",en:"Dakahlia"},{ar:"البحر الأحمر",en:"Red Sea"},{ar:"البحيرة",en:"Beheira"},{ar:"الفيوم",en:"Faiyum"},{ar:"الغربية",en:"Gharbia"},{ar:"الإسماعيلية",en:"Ismailia"},{ar:"المنوفية",en:"Monufia"},{ar:"المنيا",en:"Minya"},{ar:"القليوبية",en:"Qalyubia"},{ar:"الوادي الجديد",en:"New Valley"},{ar:"الشرقية",en:"Sharqia"},{ar:"السويس",en:"Suez"},{ar:"أسوان",en:"Aswan"},{ar:"أسيوط",en:"Asyut"},{ar:"بني سويف",en:"Beni Suef"},{ar:"بورسعيد",en:"Port Said"},{ar:"دمياط",en:"Damietta"},{ar:"جنوب سيناء",en:"South Sinai"},{ar:"كفر الشيخ",en:"Kafr el-Sheikh"},{ar:"مطروح",en:"Matrouh"},{ar:"قنا",en:"Qena"},{ar:"شمال سيناء",en:"North Sinai"},{ar:"سوهاج",en:"Sohag"},{ar:"الأقصر",en:"Luxor"}] },
         "Saudi Arabia": { ar: "السعودية", cities: [{ar:"الرياض",en:"Riyadh"},{ar:"جدة",en:"Jeddah"},{ar:"مكة المكرمة",en:"Makkah"},{ar:"المدينة المنورة",en:"Madinah"},{ar:"الدمام",en:"Dammam"},{ar:"الخبر",en:"Khobar"},{ar:"الطائف",en:"Taif"},{ar:"تبوك",en:"Tabuk"},{ar:"بريدة",en:"Buraidah"},{ar:"خميس مشيط",en:"Khamis Mushait"},{ar:"أبها",en:"Abha"},{ar:"الجبيل",en:"Jubail"},{ar:"نجران",en:"Najran"},{ar:"ينبع",en:"Yanbu"},{ar:"حائل",en:"Hail"},{ar:"حفر الباطن",en:"Hafar Al Batin"}] },
@@ -568,16 +570,16 @@
         "Oman": { ar: "عُمان", cities: [{ar:"مسقط",en:"Muscat"},{ar:"صلالة",en:"Salalah"},{ar:"صحار",en:"Sohar"},{ar:"نزوى",en:"Nizwa"},{ar:"صور",en:"Sur"},{ar:"الرستاق",en:"Rustaq"}] },
         "Yemen": { ar: "اليمن", cities: [{ar:"صنعاء",en:"Sanaa"},{ar:"عدن",en:"Aden"},{ar:"تعز",en:"Taiz"},{ar:"الحديدة",en:"Al Hudaydah"},{ar:"المكلا",en:"Mukalla"},{ar:"إب",en:"Ibb"}] },
         "Jordan": { ar: "الأردن", cities: [{ar:"عمان",en:"Amman"},{ar:"إربد",en:"Irbid"},{ar:"الزرقاء",en:"Zarqa"},{ar:"العقبة",en:"Aqaba"},{ar:"السلط",en:"As-Salt"},{ar:"المفرق",en:"Mafraq"}] },
-        "Palestine": { ar: "فلسطين", cities: [{ar:"القدس",en:"Jerusalem"},{ar:"غزة",en:"Gaza"},{ar:"رام الله",en:"Ramallah"},{ar:"الخليل",en:"Hebron"},{ar:"نابلس",en:"Nablus"},{ar:"جنين",en:"Jenin"},{ar:"بيت لمهم",en:"Bethlehem"}] },
+        "Palestine": { ar: "فلسطين", cities: [{ar:"القدس",en:"Jerusalem"},{ar:"غزة",en:"Gaza"},{ar:"رام الله",en:"Ramallah"},{ar:"الخليل",en:"Hebron"},{ar:"نابلس",en:"Nablus"},{ar:"جنين",en:"Jenin"},{ar:"بيت لحم",en:"Bethlehem"}] },
         "Syria": { ar: "سوريا", cities: [{ar:"دمشق",en:"Damascus"},{ar:"حلب",en:"Aleppo"},{ar:"حمص",en:"Homs"},{ar:"اللاذقية",en:"Latakia"},{ar:"حماة",en:"Hama"},{ar:"طرطوس",en:"Tartus"}] },
         "Lebanon": { ar: "لبنان", cities: [{ar:"بيروت",en:"Beirut"},{ar:"طرابلس",en:"Tripoli"},{ar:"صيدا",en:"Sidon"},{ar:"صور",en:"Tyre"},{ar:"زحلة",en:"Zahle"}] },
-        "Iraq": { ar: "العراق", cities: [{ar:"بغداد",en:"Baghdad"},{ar:"البصرة",en:"Mosul"},{ar:"الموصل",en:"Mosul"},{ar:"أربيل",en:"Erbil"},{ar:"كركوك",en:"Kirkuk"},{ar:"النجف",en:"Najaf"},{ar:"كربلاء",en:"Karbala"}] },
+        "Iraq": { ar: "العراق", cities: [{ar:"بغداد",en:"Baghdad"},{ar:"البصرة",en:"Basra"},{ar:"الموصل",en:"Mosul"},{ar:"أربيل",en:"Erbil"},{ar:"كركوك",en:"Kirkuk"},{ar:"النجف",en:"Najaf"},{ar:"كربلاء",en:"Karbala"}] },
         "Algeria": { ar: "الجزائر", cities: [{ar:"الجزائر العاصمة",en:"Algiers"},{ar:"وهران",en:"Oran"},{ar:"قسنطينة",en:"Constantine"},{ar:"عنابة",en:"Annaba"},{ar:"البليدة",en:"Blida"},{ar:"باتنة",en:"Batna"}] },
         "Morocco": { ar: "المغرب", cities: [{ar:"الدار البيضاء",en:"Casablanca"},{ar:"الرباط",en:"Rabat"},{ar:"فاس",en:"Fes"},{ar:"مراكش",en:"Marrakesh"},{ar:"طنجة",en:"Tangier"},{ar:"أكادير",en:"Agadir"}] },
         "Tunisia": { ar: "تونس", cities: [{ar:"تونس العاصمة",en:"Tunis"},{ar:"صفاقس",en:"Sfax"},{ar:"سوسة",en:"Sousse"},{ar:"القيروان",en:"Kairouan"},{ar:"بنزرت",en:"Bizerte"}] },
         "Libya": { ar: "ليبيا", cities: [{ar:"طرابلس",en:"Tripoli"},{ar:"بنغازي",en:"Benghazi"},{ar:"مصراتة",en:"Misrata"},{ar:"البيضاء",en:"Bayda"}] },
         "Sudan": { ar: "السودان", cities: [{ar:"الخرطوم",en:"Khartoum"},{ar:"أم درمان",en:"Omdurman"},{ar:"بورتسودان",en:"Port Sudan"},{ar:"كسلا",en:"Kassala"}] },
-        "Mauritania": { ar: "موريتانيا", cities: [{ar:"نواكشوط",en:"Nouakchott"},{ar:"نواذيبو",en:"Nouادhibou"},{ar:"كيفه",en:"Kiffa"}] },
+        "Mauritania": { ar: "موريتانيا", cities: [{ar:"نواكشوط",en:"Nouakchott"},{ar:"نواذيبو",en:"Nouadhibou"},{ar:"كيفه",en:"Kiffa"}] },
         "Somalia": { ar: "الصومال", cities: [{ar:"مقديشو",en:"Mogadishu"},{ar:"هرجيسا",en:"Hargeisa"},{ar:"بوساسو",en:"Bosaso"}] },
         "Djibouti": { ar: "جيبوتي", cities: [{ar:"جيبوتي",en:"Djibouti"},{ar:"علي صبيح",en:"Ali Sabieh"}] },
         "Comoros": { ar: "جزر القمر", cities: [{ar:"موروني",en:"Moroni"},{ar:"موتسامودو",en:"Mutsamudu"}] }
@@ -995,6 +997,19 @@
         list.innerHTML = h;
     }
 
+    /* تعديل محمود: بناء دالة renderDuasList الغائبة لعرض قائمة الأدعية الفرعية المتناسقة هندسيًا وثيم التطبيق */
+    function renderDuasList() {
+        const list = document.getElementById('duasList');
+        if (!list) return;
+        let h = subSupplications.map(d => `
+            <div class="s-card dua-card">
+                <div class="dua-head">${d.title}</div>
+                <b>${d.content}</b>
+            </div>
+        `).join('');
+        list.innerHTML = h;
+    }
+
     function switchQuranTab(type, el) {
         activeQuranTab = type;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1160,3 +1175,4 @@
 <script src="script.js"></script> 
 </body>
 </html>
+
