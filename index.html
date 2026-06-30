@@ -6,7 +6,8 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>أَثَر - المطور محمود حمام</title>
     <link rel="manifest" href="/manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- تم إضافة خط Amiri Quran ليكون الخط متطابق مع المصحف العثماني -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
@@ -114,13 +115,16 @@
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); 
         }
 
+        /* تعديلات منطقة القراءة لتتطابق مع الصورة */
         .reading-area { 
-            line-height: 1.8; 
-            font-size: 28px; 
-            text-align: justify; /* تعديل محمود: جعل النص متناسق ومنظم مثل المصحف الحقيقي */
+            line-height: 2.2; /* تم زيادته لتباعد أفضل للتشكيل */
+            font-size: 32px; /* تكبير الخط ليكون أوضح وأقوى */
+            font-weight: 700; /* جعل الخط عريض (أقوى) */
+            text-align: justify; 
+            text-justify: inter-word; /* ضبط المسافات بين الكلمات لتبدو كالمصحف تماماً */
             padding: 40px 20px 120px 20px; 
             color: var(--text); 
-            font-family: 'Amiri', serif; 
+            font-family: 'Amiri Quran', 'Amiri', serif; /* استخدام الخط المخصص للقرآن */
             transition: font-size 0.2s; 
             width: 100%;
             box-sizing: border-box;
@@ -216,25 +220,41 @@
         .download-progress-container { width: 100%; background: #333; height: 6px; border-radius: 3px; display: none; overflow: hidden; margin-top: 10px; }
         .download-progress-bar { height: 100%; background: var(--gold-metal); width: 0%; transition: width 0.3s; }
 
+        /* تعديلات الإضاءة للمود الفاتح لتخفيف السطوع وجعله بلون ورق المصحف المريح */
         body.light-mode {
-            --bg: #f5f6fa;
-            --card: #ffffff;
-            --text: #222222;
+            --bg: #fdf6eb; /* لون دافئ يشبه ورق المصحف */
+            --card: #f4ecdf; /* بطاقات أغمق قليلاً للتباين المريح */
+            --text: #000000; /* نص أسود قوي لزيادة الوضوح والجمال */
         }
-        body.light-mode header, body.light-mode nav { border-color: #ddd; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        body.light-mode nav { border-top-color: #eee; }
-        body.light-mode .s-card { background: #ffffff; border-color: #eee; }
-        body.light-mode .s-card:hover { background: #fafafa; border-color: var(--gold); }
-        body.light-mode .dua-card .dua-head { border-bottom-color: #eee; }
-        body.light-mode .admin-box { background: #fff; }
-        body.light-mode .search-input, body.light-mode select { background: #fff; color: #222; border-color: #ccc; }
+        body.light-mode header, body.light-mode nav { border-color: #e5d8c3; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        body.light-mode nav { border-top-color: #e5d8c3; }
+        body.light-mode .s-card { background: #fbf4e8; border-color: #e5d8c3; }
+        body.light-mode .s-card:hover { background: #f3ebdb; border-color: var(--gold); }
+        body.light-mode .dua-card .dua-head { border-bottom-color: #e5d8c3; }
+        body.light-mode .admin-box { background: #fdf6eb; }
+        body.light-mode .search-input, body.light-mode select { background: #fdf6eb; color: #000; border-color: #d1c5b0; }
         body.light-mode .search-input:focus, body.light-mode select:focus { border-color: var(--gold); }
-        body.light-mode .tab-btn { background: #fff; border-color: #ddd; color: #555; }
+        body.light-mode .tab-btn { background: #fdf6eb; border-color: #d1c5b0; color: #333; }
         body.light-mode .tab-btn.active { background: var(--gold-metal); color: #000; border-color: transparent; }
-        body.light-mode .surah-title-wrap { background: #fdfdfd; }
-        body.light-mode .circle-btn { background: radial-gradient(circle, #fff, #f0f0f0); border-color: var(--gold); }
+        
+        /* تعديل شكل عنوان السورة في الوضع الفاتح ليشبه الإطار الكلاسيكي المطبوع */
+        body.light-mode .surah-title-wrap { 
+            background: transparent; 
+            border: 2px solid #222; 
+            color: #222;
+            border-radius: 4px;
+            padding: 5px 60px;
+            box-shadow: none;
+        }
+        body.light-mode .surah-title-wrap::before, body.light-mode .surah-title-wrap::after { color: #222; }
+        
+        /* ألوان أرقام الآيات في المود الفاتح */
+        body.light-mode .ayah-num { filter: none; color: #a47814; }
+        body.light-mode .num-inside { color: #222; }
+
+        body.light-mode .circle-btn { background: radial-gradient(circle, #fdf6eb, #f4ecdf); border-color: var(--gold); }
         body.light-mode .count-val { text-shadow: none; }
-        body.light-mode .download-btn { background: #fff; border-color: var(--gold); }
+        body.light-mode .download-btn { background: #fdf6eb; border-color: var(--gold); }
 
         body.light-mode .nav-img { opacity: 0.6; }
         body.light-mode .nav-item.active .nav-img { opacity: 1; filter: drop-shadow(0 3px 6px rgba(212, 175, 55, 0.4)); }
@@ -586,7 +606,7 @@
     };
 
     const surahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلـم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
-    const dbAzkar = ["سبحان الله ﷻ", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله واتوب إليه", "اللهم صلِّ وسلم على نبينا محمد ﷺ", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "لا إله إلا أنت سبحانك إني كنت من الظالمين"];
+    const dbAzkar = ["سبحان الله ﷻ", "الحمد لله", "لا إله إلا الله", "الله اكبر", "أستغفر الله واتوب إليه", "اللهم صلِّ وسلم على نبينا محمد ﷺ", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "لا إله إلا أنت سبحانك إني كنت من الظالمين"];
     const tasbihList = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "لا حول ولا قوة إلا بالله", "سبحان الله وبحمده", "سبحان الله العظيم", "اللهم صل على محمد", "يا حي يا قيوم", "حسبي الله ونعم الوكيل", "أستغفر الله واتوب إليه", "لا إله إلا أنت سبحانك", "اللهم إنك عفو تحب العفو", "سبحان الملك القدوس", "يا ذا الجلال والإكرام", "رضيت بالله رباً", "اللهم اغفر لي", "يا لطيف", "اللهم أجرني من النار", "اللهم إني أسأسك الجنة", "سبحان الله وبحمده عدد خلقه", "الحمد لله حمداً كثيراً", "اللهم بك أصبحنا", "اللهم بك أمسينا", "اللهم أعني على ذكرك", "يا مقلب القلوب ثبت قلبي", "اللهم بارك لنا فيما رزقتنا", "بسم الله الذي لا يضر مع اسمه شيء", "أعوذ بكلمات الله التامات", "اللهم إني أسألك العافية", "لا إله إلا الله وحده لا شريك له", "سبوح قدوس رب الملائكة والروح", "اللهم اهدني", "اللهم ارزقني", "اللهم عافني", "الحمد لله على كل حال", "لا إله إلا الله الملك الحق المبين", "اللهم قني شر نفسي", "اللهم أنت ربي لا إله أنت", "اللهم إني أسألك علماً نافعاً", "يا رزاق", "يا فتاح", "يا وهاب", "اللهم ارحم موتانا", "اللهم اشف مرضانا", "سبحان الله وبحمده رضا نفسه", "سبحان الله وبحمده زنة عرشه", "سبحان الله وبحمده مداد كلماته", "لا إله إلا الله العظيم الحليم", "لا إله إلا الله رب العرش العظيم", "لا إله إلا الله رب السماوات والأرض", "اللهم ارحمني", "اللهم تقبل منا", "يا غفور يا رحيم", "أستغفر الله العظيم لي ولوالدي", "الحمد لله رب العالمين", "اللهم لك الحمد", "اللهم صلي على نبينا محمد", "تبارك الله رب العالمين"];
     const duaKhatm = ["اللهم ارحمني بالقرآن واجعله لي إماماً ونوراً هدى ورحمة.","اللهم ذكرني منه ما نسيت وعلمني منه ما جهلت وارزقني تلاوته آناء الليل وأطراف النهار واجعله لي حجة يا رب العالمين.","اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي.","اللهم اجعل خير عمري آخره وخير عملي خواتمه وخير أيامي يوم ألقاك فيه.","اللهم إني أسألك عيشة هنية وميتة سوية ومرداً غير مخز ولا فاضح.","اللهم إني أسألك خير المسألة وخير الدعاء وخير النجاح وخير العلم وخير العلم وخير العمل.","اللهم ثبتني وثقل موازيني وحقق إيماني وارفع درجتي تقبل صلاتي واغفر خطيئاتي.","اللهم إني أسألك الموجبات لرحمتك وعزائم مغفرتك السلامة من كل إثم.","اللهم لا تدع لنا ذنباً إلا غفرته ولا هماً إلا فرجته ولا ديناً إلا قضيته.","اللهم اجعلنا ممن يقرأ القرآن فيرقى ولا ممن يقرأ القرآن فيشقى."];
 
@@ -656,7 +676,7 @@
     let localCount = parseInt(localStorage.getItem('local_tasbih_val')) || 0;
     let totalCount = parseInt(localStorage.getItem('total_athr')) || 0;
     let currentTasbihIndex = parseInt(localStorage.getItem('tasbih_idx')) || 0;
-    let currentView = null, currentFontSize = 28, prayerTimings = {}, activeQuranTab = 'surah';
+    let currentView = null, currentFontSize = 32, prayerTimings = {}, activeQuranTab = 'surah';
     let touchStartX = 0, touchEndX = 0, currentType = 'surah', currentId = 1;
     let infoTimeout = null;
     let readerUiVisible = false;
@@ -1175,4 +1195,3 @@
 <script src="script.js"></script> 
 </body>
 </html>
-
