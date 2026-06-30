@@ -115,11 +115,11 @@
         }
 
         .reading-area { 
-            line-height: 2.2; /* مسافة أوضح بين السطور */
-            font-size: 24px; /* خط أصغر ليتناسب مع شكل المصحف */
-            text-align: justify; /* ضبط تمدد الكلام كالمصحف */
+            line-height: 2.2; 
+            font-size: 24px; 
+            text-align: justify; 
             text-justify: inter-word;
-            padding: 20px 10px 120px 10px; /* صفحة أوسع بدون هوامش كبيرة */
+            padding: 20px 10px 120px 10px; 
             color: var(--text); 
             font-family: 'Amiri', serif; 
             transition: font-size 0.2s; 
@@ -130,12 +130,41 @@
         }
 
         .surah-header { 
-            display: flex; align-items: center; justify-content: center; margin-bottom: 25px;
-            break-inside: avoid; 
+            display: flex; align-items: center; justify-content: center; margin-bottom: 15px;
+            break-inside: avoid; width: 100%;
         }
-        .surah-title-wrap { border: 2px solid var(--gold); padding: 8px 45px; background: #0a0a0a; color: var(--gold); font-size: 26px; border-radius: 8px; position: relative; box-shadow: inset 0 0 15px var(--gold-fade), 0 0 10px var(--gold-fade); transition: 0.3s; }
-        .surah-title-wrap::before, .surah-title-wrap::after { content: '◈'; position: absolute; top: 50%; transform: translateY(-50%); color: var(--gold); font-size: 18px; }
-        .surah-title-wrap::before { right: 15px; } .surah-title-wrap::after { left: 15px; }
+        
+        /* تصميم إطار السورة والأجزاء والصفحات الجديد */
+        .surah-title-wrap { 
+            width: 100%;
+            max-width: 450px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='450' height='70' viewBox='0 0 450 70' preserveAspectRatio='none'%3E%3Crect x='5' y='5' width='440' height='60' rx='10' fill='none' stroke='%23D4AF37' stroke-width='2'/%3E%3Crect x='10' y='10' width='430' height='50' rx='6' fill='none' stroke='%23D4AF37' stroke-width='1'/%3E%3Cpath d='M30,15 C40,15 45,25 45,35 C45,45 40,55 30,55 C20,55 15,45 15,35 C15,25 20,15 30,15 Z' fill='none' stroke='%23D4AF37' stroke-width='1.5'/%3E%3Ccircle cx='30' cy='35' r='6' fill='%23D4AF37'/%3E%3Cpath d='M420,15 C410,15 405,25 405,35 C405,45 410,55 420,55 C430,55 435,45 435,35 C435,25 430,15 420,15 Z' fill='none' stroke='%23D4AF37' stroke-width='1.5'/%3E%3Ccircle cx='420' cy='35' r='6' fill='%23D4AF37'/%3E%3C/svg%3E") no-repeat center;
+            background-size: 100% 100%;
+            color: var(--text);
+            font-size: 26px;
+            font-weight: bold;
+            font-family: 'Amiri', serif;
+            position: relative;
+            padding: 0 50px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        /* تنسيق البسملة */
+        .basmalah {
+            font-family: 'Amiri', serif;
+            font-size: 28px;
+            color: var(--text);
+            text-align: center;
+            margin-top: 5px;
+            margin-bottom: 25px;
+            width: 100%;
+            line-height: 1.5;
+        }
 
         .font-controls { position: fixed; left: 20px; top: 100px; display: none; flex-direction: column; gap: 12px; z-index: 2000; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .font-controls.show { opacity: 1; pointer-events: all; }
@@ -147,22 +176,23 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* الشكل الإسلامي الجميل والمنسق لأرقام الآيات */
+        /* تصميم مربع الآيات الجديد (الشكل البيضاوي المزخرف) */
         .ayah-num { 
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 55px;
             margin: 0 4px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 1.5 L23.5 8.5 L31 7.5 L30 15 L36.5 19.5 L30 24 L31 31.5 L23.5 30.5 L20 37.5 L16.5 30.5 L9 31.5 L10 24 L3.5 19.5 L10 15 L9 7.5 L16.5 8.5 Z' fill='none' stroke='%23D4AF37' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ccircle cx='20' cy='20' r='11' fill='none' stroke='%23D4AF37' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat center;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 60'%3E%3Cpath d='M25 2 C35 15 48 25 48 35 C48 48 38 58 25 58 C12 58 2 48 2 35 C2 25 15 15 25 2 Z' fill='none' stroke='%23D4AF37' stroke-width='2'/%3E%3Cpath d='M25 8 C31 18 41 26 41 35 C41 44 34 52 25 52 C16 52 9 44 9 35 C9 26 19 18 25 8 Z' fill='none' stroke='%23D4AF37' stroke-width='1' stroke-dasharray='3,2'/%3E%3C/svg%3E") no-repeat center;
             background-size: contain;
-            font-size: 16px;
+            font-size: 18px;
             color: var(--text);
             font-family: 'Amiri', serif;
             vertical-align: middle;
             font-weight: bold;
             break-inside: avoid;
+            padding-top: 5px; /* لتوسيط الرقم داخل القطرة */
         }
 
         .s-card { background: var(--card); padding: 12px; margin-bottom: 8px; border-radius: 16px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; cursor: pointer; }
@@ -242,7 +272,6 @@
         body.light-mode .search-input:focus, body.light-mode select:focus { border-color: var(--gold); }
         body.light-mode .tab-btn { background: #fff; border-color: #ddd; color: #555; }
         body.light-mode .tab-btn.active { background: var(--gold-metal); color: #000; border-color: transparent; }
-        body.light-mode .surah-title-wrap { background: #fdfdfd; }
         body.light-mode .circle-btn { background: radial-gradient(circle, #fff, #f0f0f0); border-color: var(--gold); }
         body.light-mode .count-val { text-shadow: none; }
         body.light-mode .download-btn { background: #fff; border-color: var(--gold); }
@@ -960,18 +989,33 @@
                     </div>`;
             }
 
+            // تعديل العنوان ليتناسب مع الإطار الجديد سواء سورة أو جزء أو صفحة
             let displayTitle = title.replace("سورة ", "").trim();
             if(type === 'surah') displayTitle = "سورة " + displayTitle;
 
             let html = `<div class="reading-area">`;
+            
+            // إضافة الإطار المزخرف أعلى الصفحة
             html += `<div class="surah-header"><div class="surah-title-wrap">${displayTitle}</div></div>`;
 
-            dataAyahs.forEach(a => {
+            // إضافة البسملة للسور فقط (باستثناء سورة التوبة)
+            if (type === 'surah' && currentId !== 9) {
+                html += `<div class="basmalah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+            }
+
+            dataAyahs.forEach((a, index) => {
                 let highlightClass = (highlightAyahNumber && a.number === highlightAyahNumber) ? 'highlighted-ayah' : '';
-                // تحويل الأرقام إلى عربية أصيلة لتعطي شكل المصحف الحقيقي
                 let arabicNum = a.numberInSurah.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-                // إزالة المسافات الكبيرة واستخدام مسافة عادية بعد كل آية عشان الكلام يتلاحم ببعضه
-                html += `<span id="ayah-${a.number}" class="${highlightClass}">${a.text} <span class="ayah-num">${arabicNum}</span></span> `;
+                let text = a.text;
+
+                // معالجة البسملة المدمجة في النص من الـ API حتى لا تتكرر أسفل تصميمنا للبسملة
+                // سورة الفاتحة البسملة فيها هي الآية رقم 1 فنتركها
+                if (type === 'surah' && currentId !== 9 && currentId !== 1 && index === 0) {
+                     text = text.replace(/^بِسْمِ.+?الرَّحِيمِ\s*/, '');
+                     text = text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/, '');
+                }
+
+                html += `<span id="ayah-${a.number}" class="${highlightClass}">${text} <span class="ayah-num">${arabicNum}</span></span> `;
             });
             html += `</div>`;
 
