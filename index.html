@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Alexandria:wght@400;700;800&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet"></noscript>
 
+    <link rel="stylesheet" href="css/splash.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/layout.css">
@@ -34,6 +35,49 @@
     <link rel="stylesheet" href="css/storage.css">
 </head>
 <body>
+
+<!-- شاشة البداية: روبوت إسلامي متحرك (css/splash.css) -->
+<div id="splash" aria-hidden="true">
+    <div class="sp-glow"></div>
+    <div class="sp-stage">
+        <svg class="sp-bot" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="spG" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#f9e076"/><stop offset=".5" stop-color="#D4AF37"/><stop offset="1" stop-color="#8f6f14"/>
+                </linearGradient>
+                <mask id="spM"><rect x="80" y="0" width="40" height="45" fill="#fff"/><circle cx="106" cy="25" r="9" fill="#000"/></mask>
+            </defs>
+            <g class="rb-x"><g class="rb-bob">
+                <ellipse class="rb-sh" cx="100" cy="292" rx="46" ry="6" fill="rgba(212,175,55,.2)"/>
+                <!-- الرجلين -->
+                <g class="lg-l"><rect x="79" y="236" width="14" height="42" rx="7" fill="url(#spG)"/><ellipse cx="85" cy="280" rx="14" ry="6" fill="#8f6f14"/></g>
+                <g class="lg-r"><rect x="107" y="236" width="14" height="42" rx="7" fill="url(#spG)"/><ellipse cx="115" cy="280" rx="14" ry="6" fill="#8f6f14"/></g>
+                <!-- الذراع الشمال + المسبحة -->
+                <g class="arm-l"><rect x="52" y="172" width="14" height="52" rx="7" fill="url(#spG)"/><circle cx="59" cy="226" r="8" fill="#f3d977"/></g>
+                <g class="tasbih" fill="#f9e076"><circle cx="58" cy="236" r="3.2"/><circle cx="55" cy="245" r="3.2"/><circle cx="54" cy="254" r="3.2"/><circle cx="56" cy="263" r="3.2"/><circle cx="60" cy="270" r="3.8"/></g>
+                <!-- الجسم -->
+                <rect x="62" y="158" width="76" height="84" rx="26" fill="url(#spG)"/>
+                <rect x="72" y="168" width="56" height="60" rx="18" fill="#0d0c08" stroke="#D4AF37" stroke-width="1.5"/>
+                <g class="star" fill="#f9e076"><polygon points="100.0,187.0 102.1,192.9 107.8,190.2 105.1,195.9 111.0,198.0 105.1,200.1 107.8,205.8 102.1,203.1 100.0,209.0 97.9,203.1 92.2,205.8 94.9,200.1 89.0,198.0 94.9,195.9 92.2,190.2 97.9,192.9"/></g>
+                <rect x="92" y="148" width="16" height="14" rx="3" fill="#8f6f14"/>
+                <!-- الراس -->
+                <g class="hd">
+                    <circle cx="100" cy="27" r="11" fill="#f9e076" mask="url(#spM)"/>
+                    <path d="M62 140 V104 C62 74 82 56 100 44 C118 56 138 74 138 104 V140 Q138 154 124 154 H76 Q62 154 62 140 Z" fill="url(#spG)"/>
+                    <path d="M72 136 V106 C72 86 86 72 100 62 C114 72 128 86 128 106 V136 Q128 144 120 144 H80 Q72 144 72 136 Z" fill="#0b0a07"/>
+                    <ellipse class="eye" cx="86" cy="114" rx="7" ry="9" fill="#ffe58a"/>
+                    <ellipse class="eye" cx="114" cy="114" rx="7" ry="9" fill="#ffe58a"/>
+                    <path d="M90 130 Q100 138 110 130" stroke="#D4AF37" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                </g>
+                <!-- الذراع اليمين (بيسلّم) -->
+                <g class="arm-r"><rect x="134" y="172" width="14" height="52" rx="7" fill="url(#spG)"/><circle cx="141" cy="226" r="8" fill="#f3d977"/></g>
+            </g></g>
+        </svg>
+        <div class="sp-hi">السلام عليكم</div>
+        <div class="sp-title">أَثَر</div>
+        <div class="sp-bar"></div>
+    </div>
+</div>
 
 <div id="reader-tools" class="reader-tools">
     <div class="rt-inner">
@@ -341,5 +385,22 @@
 <script src="js/features/audio.js"></script>
 <script src="js/features/storage.js"></script>
 <script src="js/app.js"></script>
+<script>
+/* إخفاء السبلاش بسلاسة: بعد ما الصفحة تجهز وبحد أدنى ~3.6 ثانية عشان الأنيميشن يكمل */
+(function () {
+    var el = document.getElementById('splash'); if (!el) return;
+    var t0 = Date.now(), MIN = 3600, MAX = 6500, done = false;
+    function hide() {
+        if (done) return; done = true;
+        var wait = Math.max(0, MIN - (Date.now() - t0));
+        setTimeout(function () {
+            el.classList.add('hide');
+            setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 900);
+        }, wait);
+    }
+    if (document.readyState === 'complete') hide(); else window.addEventListener('load', hide);
+    setTimeout(hide, MAX);
+})();
+</script>
 </body>
 </html>

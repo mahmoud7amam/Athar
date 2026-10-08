@@ -8,6 +8,7 @@ const AUDIO_CACHE = 'quran-audio-v1';
 const QURAN_CACHE = 'quran-cache-v1'; // لا يُحذف أبداً (مصحف الأوفلاين)
 // ملفات الواجهة (CSS/JS) — لازم تتسجل هنا عشان التطبيق يفتح أوفلاين من أول زيارة
 const APP_ASSETS = [
+  './css/splash.css',
   './css/base.css',
   './css/components.css',
   './css/layout.css',
