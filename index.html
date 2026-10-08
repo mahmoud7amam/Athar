@@ -36,45 +36,60 @@
 </head>
 <body>
 
-<!-- شاشة البداية: روبوت إسلامي متحرك (css/splash.css) -->
+<!-- شاشة البداية: لوجو أَثَر + شخصية صغيرة بعمامة تطلع من ورا اللوجو (css/splash.css) -->
 <div id="splash" aria-hidden="true">
     <div class="sp-glow"></div>
+    <div class="sp-sparks"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="sp-stage">
-        <svg class="sp-bot" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="spG" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#f9e076"/><stop offset=".5" stop-color="#D4AF37"/><stop offset="1" stop-color="#8f6f14"/>
-                </linearGradient>
-                <mask id="spM"><rect x="80" y="0" width="40" height="45" fill="#fff"/><circle cx="106" cy="25" r="9" fill="#000"/></mask>
-            </defs>
-            <g class="rb-x"><g class="rb-bob">
-                <ellipse class="rb-sh" cx="100" cy="292" rx="46" ry="6" fill="rgba(212,175,55,.2)"/>
-                <!-- الرجلين -->
-                <g class="lg-l"><rect x="79" y="236" width="14" height="42" rx="7" fill="url(#spG)"/><ellipse cx="85" cy="280" rx="14" ry="6" fill="#8f6f14"/></g>
-                <g class="lg-r"><rect x="107" y="236" width="14" height="42" rx="7" fill="url(#spG)"/><ellipse cx="115" cy="280" rx="14" ry="6" fill="#8f6f14"/></g>
-                <!-- الذراع الشمال + المسبحة -->
-                <g class="arm-l"><rect x="52" y="172" width="14" height="52" rx="7" fill="url(#spG)"/><circle cx="59" cy="226" r="8" fill="#f3d977"/></g>
-                <g class="tasbih" fill="#f9e076"><circle cx="58" cy="236" r="3.2"/><circle cx="55" cy="245" r="3.2"/><circle cx="54" cy="254" r="3.2"/><circle cx="56" cy="263" r="3.2"/><circle cx="60" cy="270" r="3.8"/></g>
-                <!-- الجسم -->
-                <rect x="62" y="158" width="76" height="84" rx="26" fill="url(#spG)"/>
-                <rect x="72" y="168" width="56" height="60" rx="18" fill="#0d0c08" stroke="#D4AF37" stroke-width="1.5"/>
-                <g class="star" fill="#f9e076"><polygon points="100.0,187.0 102.1,192.9 107.8,190.2 105.1,195.9 111.0,198.0 105.1,200.1 107.8,205.8 102.1,203.1 100.0,209.0 97.9,203.1 92.2,205.8 94.9,200.1 89.0,198.0 94.9,195.9 92.2,190.2 97.9,192.9"/></g>
-                <rect x="92" y="148" width="16" height="14" rx="3" fill="#8f6f14"/>
-                <!-- الراس -->
-                <g class="hd">
-                    <circle cx="100" cy="27" r="11" fill="#f9e076" mask="url(#spM)"/>
-                    <path d="M62 140 V104 C62 74 82 56 100 44 C118 56 138 74 138 104 V140 Q138 154 124 154 H76 Q62 154 62 140 Z" fill="url(#spG)"/>
-                    <path d="M72 136 V106 C72 86 86 72 100 62 C114 72 128 86 128 106 V136 Q128 144 120 144 H80 Q72 144 72 136 Z" fill="#0b0a07"/>
-                    <ellipse class="eye" cx="86" cy="114" rx="7" ry="9" fill="#ffe58a"/>
-                    <ellipse class="eye" cx="114" cy="114" rx="7" ry="9" fill="#ffe58a"/>
-                    <path d="M90 130 Q100 138 110 130" stroke="#D4AF37" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <div class="sp-peek">
+            <svg class="sp-kid" viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="kTb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf3"/><stop offset="1" stop-color="#e6d9b0"/></linearGradient>
+                    <linearGradient id="kTh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffef8"/><stop offset="1" stop-color="#e9dfc0"/></linearGradient>
+                    <radialGradient id="kSk" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f8d9b6"/><stop offset="1" stop-color="#e6b588"/></radialGradient>
+                </defs>
+                <g class="k-body">
+                    <!-- الكمّ الشمال -->
+                    <path d="M52 160 C36 170 30 184 32 192" stroke="#d6c999" stroke-width="21" stroke-linecap="round" fill="none"/>
+                    <path d="M52 160 C36 170 30 184 32 192" stroke="url(#kTh)" stroke-width="18" stroke-linecap="round" fill="none"/>
+                    <!-- الثوب -->
+                    <path d="M26 192 C26 152 56 136 100 136 C144 136 174 152 174 192Z" fill="url(#kTh)" stroke="#d6c999" stroke-width="1.5"/>
+                    <path d="M78 138 Q100 166 122 138" stroke="#D4AF37" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+                    <path d="M100 152 V192" stroke="#D4AF37" stroke-width="1.6"/>
+                    <circle cx="100" cy="166" r="2.4" fill="#D4AF37"/><circle cx="100" cy="178" r="2.4" fill="#D4AF37"/>
+                    <!-- الرقبة -->
+                    <rect x="87" y="120" width="26" height="22" rx="9" fill="#dca97c"/>
                 </g>
-                <!-- الذراع اليمين (بيسلّم) -->
-                <g class="arm-r"><rect x="134" y="172" width="14" height="52" rx="7" fill="url(#spG)"/><circle cx="141" cy="226" r="8" fill="#f3d977"/></g>
-            </g></g>
-        </svg>
-        <div class="sp-hi">السلام عليكم</div>
+                <g class="k-arm">
+                    <path d="M148 164 C170 154 178 128 171 102" stroke="#d6c999" stroke-width="21" stroke-linecap="round" fill="none"/>
+                    <path d="M148 164 C170 154 178 128 171 102" stroke="url(#kTh)" stroke-width="18" stroke-linecap="round" fill="none"/>
+                    <circle cx="171" cy="94" r="10.5" fill="url(#kSk)"/>
+                    <ellipse cx="161" cy="97" rx="3.6" ry="6.4" fill="url(#kSk)" transform="rotate(-24 161 97)"/>
+                </g>
+                <g class="k-head">
+                    <g class="k-tail"><path d="M146 54 C164 62 168 88 160 112 C155 104 150 94 147 84Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.4"/><path d="M152 70 C158 80 159 92 157 102" stroke="#d6c999" stroke-width="1.2" fill="none"/></g>
+                    <circle cx="60" cy="96" r="7.5" fill="#e6b588"/><circle cx="140" cy="96" r="7.5" fill="#e6b588"/>
+                    <ellipse cx="100" cy="92" rx="40" ry="41" fill="url(#kSk)"/>
+                    <path d="M62 100 C62 134 82 144 100 144 C118 144 138 134 138 100 C130 113 118 119 100 119 C82 119 70 113 62 100Z" fill="#2c2119"/>
+                    <circle cx="73" cy="103" r="6.2" fill="#ee8a78" opacity=".42"/><circle cx="127" cy="103" r="6.2" fill="#ee8a78" opacity=".42"/>
+                    <path d="M75 79 Q84 73 93 77" stroke="#2c2119" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+                    <path d="M107 77 Q116 73 125 79" stroke="#2c2119" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+                    <g class="k-eye"><ellipse cx="84" cy="90" rx="5.4" ry="6.6" fill="#1b140e"/><circle cx="86" cy="87.6" r="2" fill="#fff"/></g>
+                    <g class="k-eye"><ellipse cx="116" cy="90" rx="5.4" ry="6.6" fill="#1b140e"/><circle cx="118" cy="87.6" r="2" fill="#fff"/></g>
+                    <path d="M91 108 Q100 116.5 109 108" stroke="#8a3f2c" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+                    <!-- العمامة -->
+                    <path d="M47 76 C42 40 68 17 100 17 C132 17 158 40 153 76 C141 67 122 63 100 63 C78 63 59 67 47 76Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.5"/>
+                    <path d="M54 62 C74 38 112 28 149 52" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+                    <path d="M50 70 C80 46 122 40 151 64" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+                    <path d="M68 32 C88 26 118 26 136 36" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    <path d="M100 18 C95 34 98 50 110 63" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    <path d="M48 74 C64 65 82 62 100 62 C118 62 136 65 152 74" stroke="#D4AF37" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+                    <circle cx="100" cy="62.5" r="4" fill="#f9e076" stroke="#a8841f" stroke-width="1"/>
+                </g>
+            </svg>
+        </div>
         <div class="sp-title">أَثَر</div>
+        <div class="sp-hi">السلام عليكم</div>
         <div class="sp-bar"></div>
     </div>
 </div>
@@ -386,10 +401,10 @@
 <script src="js/features/storage.js"></script>
 <script src="js/app.js"></script>
 <script>
-/* إخفاء السبلاش بسلاسة: بعد ما الصفحة تجهز وبحد أدنى ~3.6 ثانية عشان الأنيميشن يكمل */
+/* إخفاء السبلاش بسلاسة: بعد ما الصفحة تجهز وبحد أدنى ~4.4 ثانية عشان الأنيميشن يكمل */
 (function () {
     var el = document.getElementById('splash'); if (!el) return;
-    var t0 = Date.now(), MIN = 3600, MAX = 6500, done = false;
+    var t0 = Date.now(), MIN = 4400, MAX = 7000, done = false;
     function hide() {
         if (done) return; done = true;
         var wait = Math.max(0, MIN - (Date.now() - t0));
