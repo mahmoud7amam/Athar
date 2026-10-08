@@ -1,0 +1,17 @@
+/* أَثَر — شريط التنقل وبطاقات السور والأجزاء والأحزاب */
+
+nav{padding-left:2px;padding-right:2px}
+.nav-item{font-size:10.5px;min-width:0}.nav-item span{font-size:10.5px;margin-top:3px;white-space:nowrap}
+.nav-img{width:27px;height:27px}
+/* بطاقات السور/الأجزاء/الأحزاب */
+.sr-card,.num-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:.25s;animation:pgIn .4s cubic-bezier(.2,.8,.2,1) both}
+.sr-card:nth-child(n+9),.num-card:nth-child(n+9){animation:none}
+.sr-card:active,.num-card:active{transform:scale(.98);border-color:var(--gold)}
+.sr-num{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--marker) center/100% 100% no-repeat}
+.sr-num i{font-style:normal;font-family:'Amiri',serif;font-weight:700;font-size:16px;color:var(--text);padding-top:2px}
+.sr-info{flex:1;min-width:0}
+.sr-info b{display:block;font-family:'Reem Kufi','Amiri',serif;font-size:19px;font-weight:600;color:var(--text);line-height:1.4}
+.sr-info small{display:block;font-size:11.5px;color:var(--gold);opacity:.85;margin-top:1px}
+.sr-chev{color:var(--gold);font-size:22px;opacity:.7}
+.num-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.num-grid .num-card{margin:0}
+.num-card .sr-info b{font-size:17px}

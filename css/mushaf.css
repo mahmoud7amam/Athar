@@ -1,0 +1,40 @@
+/* أَثَر — شكل صفحة المصحف ودائرة رقم الآية */
+
+/* ============ شكل المصحف ============ */
+.mushaf-page { max-width: 680px; margin: 0 auto; padding: calc(12px + env(safe-area-inset-top)) 10px calc(24px + env(safe-area-inset-bottom)); box-sizing: border-box; }
+.reading-area {
+    font-family: 'Amiri Quran', 'Amiri', 'Scheherazade New', serif;
+    line-height: 2.25; font-size: 24px; text-align: justify; text-justify: inter-word;
+    padding: 18px 14px 28px; margin: 0; width: 100%;
+    background: var(--page-bg); color: var(--text);
+    border: 4px double var(--gold); border-radius: 10px;
+    box-shadow: 0 0 0 1px rgba(212,175,55,.25), 0 6px 24px rgba(0,0,0,.35);
+    transition: none; direction: rtl; box-sizing: border-box;
+}
+body.light-mode .reading-area { box-shadow: 0 0 0 1px rgba(212,175,55,.3), 0 6px 20px rgba(0,0,0,.08); }
+.ayat { margin: 0 0 6px; text-align: justify; text-align-last: center; }
+.nw { white-space: nowrap; }
+.part-label { text-align: center; color: var(--gold); font-family: 'Alexandria', sans-serif; font-size: 14px; font-weight: 700; margin: 0 0 6px; opacity: .9; }
+.surah-frame-container { height: clamp(72px, 22vw, 100px); margin: 14px auto 8px; }
+.surah-title-text { font-size: clamp(20px, 6.4vw, 30px); line-height: 1.2; padding-top: 2px; }
+.basmala { font-size: 1.1em; margin: 6px 0 14px; line-height: 2; text-align: center; }
+html.no-frame-img .surah-frame-container {
+    background-image: none; border: 2px solid var(--gold); border-radius: 12px;
+    background: var(--gold-fade); box-shadow: inset 0 0 0 4px var(--page-bg), inset 0 0 0 5px rgba(212,175,55,.6);
+    height: clamp(54px, 16vw, 72px);
+}
+body.light-mode .surah-title-text { text-shadow: none; color: #b8962a; }
+.highlighted-ayah { background: rgba(212,175,55,.28); border-radius: 8px; box-shadow: 0 0 0 3px rgba(212,175,55,.28); }
+
+/* دايرة رقم الآية */
+.ayah-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.45em; height: 1.45em; margin: 0 .16em; vertical-align: -.34em;
+    background: var(--marker) center / 100% 100% no-repeat;
+    flex: none; direction: rtl; line-height: 1; text-indent: 0;
+}
+.ayah-num i {
+    font-style: normal; font-family: 'Amiri', 'Amiri Quran', serif; font-weight: 700;
+    font-size: .5em; line-height: 1; color: var(--text); padding-top: .1em; letter-spacing: 0;
+}
+.ayah-num.d3 i { font-size: .4em; }

@@ -1,0 +1,27 @@
+/* أَثَر — الأحاديث وسلسلة القراءة */
+
+#p-hadith.active{display:flex;flex-direction:column;align-items:center;gap:14px}
+.streak-card{width:100%;max-width:420px;box-sizing:border-box;text-align:center;padding:18px 14px 14px;border-radius:22px;border:1px solid var(--line);background:radial-gradient(120% 90% at 50% 0,rgba(255,140,0,.16),transparent 65%),var(--card)}
+.flame{width:84px;height:104px;margin:0 auto -6px;filter:grayscale(1) opacity(.45);transition:filter .6s}
+.flame svg{width:100%;height:100%;transform-origin:50% 90%;animation:flick 1.6s ease-in-out infinite}
+.flame.lit{filter:drop-shadow(0 0 14px rgba(255,140,0,.65))}
+.flame.burst{animation:burst .8s}
+@keyframes flick{0%,100%{transform:scale(1,1) rotate(-1deg)}30%{transform:scale(.96,1.05) rotate(1.5deg)}60%{transform:scale(1.03,.97) rotate(-1deg)}}
+@keyframes burst{30%{transform:scale(1.35)}100%{transform:scale(1)}}
+.streak-num{font-family:'Amiri',serif;font-size:58px;font-weight:700;line-height:1.1;color:#ffb02e}
+.streak-lbl{font-size:14px;font-weight:700;color:var(--text)}
+.streak-week{display:flex;justify-content:center;gap:9px;margin:14px 0 8px}
+.sw-d{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;opacity:.8}
+.sw-d i{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px}
+.sw-d.on i{background:linear-gradient(160deg,#ffb02e,#ff5a00);border-color:transparent;color:#fff}
+.sw-d.today i{box-shadow:0 0 0 3px var(--gold-fade);border-color:var(--gold)}
+.streak-best{font-size:12px;color:var(--gold);opacity:.85}
+.hd-card{width:100%;max-width:420px;box-sizing:border-box;border-radius:20px;border:1px solid var(--line);background:linear-gradient(160deg,var(--card),var(--gold-fade));padding:18px 16px}
+.hd-card.swap{animation:pgIn .4s both}
+.hd-tag{display:inline-block;font-size:12px;font-weight:700;color:#000;background:var(--gold-metal);border-radius:20px;padding:2px 14px;margin-bottom:10px}
+.hd-text{font-family:'Amiri',serif;font-size:22px;line-height:2;text-align:justify;color:var(--text)}
+.hd-src{margin-top:10px;font-size:13px;color:var(--gold);font-weight:700;text-align:left;direction:rtl}
+.hd-read{width:100%;max-width:420px;border:none;border-radius:16px;padding:15px;font-family:inherit;font-size:17px;font-weight:800;cursor:pointer;color:#000;background:var(--gold-metal);box-shadow:0 8px 22px rgba(212,175,55,.3);transition:transform .15s}
+.hd-read:active{transform:scale(.97)}
+.hd-read.done{background:var(--card);color:var(--gold);box-shadow:none;border:1px solid var(--line);cursor:default}
+.hd-more{background:none;border:1px solid var(--line);color:var(--text);opacity:.8;padding:9px 24px;border-radius:25px;cursor:pointer;font-family:inherit;font-size:13px}

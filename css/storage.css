@@ -1,0 +1,13 @@
+/* أَثَر — أزرار التنزيل وإدارة التخزين */
+
+.download-btn.done { border-style: solid; background: var(--gold-fade); }
+.download-btn small { font-weight: 600; opacity: .75; font-size: 11px; line-height: 1.6; }
+#ptDlBtn { margin: 4px 0 14px; }
+.st-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.st-row:last-of-type { border-bottom: none; }
+.st-row span { color: var(--muted); font-weight: 600; }
+.st-row b { color: var(--gold); font-weight: 800; }
+.st-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.st-btn { flex: 1; min-width: 120px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--gold-fade); color: var(--gold); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.st-btn.danger { color: #e5534b; border-color: rgba(229,83,75,.4); background: rgba(229,83,75,.07); }
+.st-btn:active { transform: scale(.96); }

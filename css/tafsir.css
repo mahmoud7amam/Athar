@@ -1,0 +1,13 @@
+/* أَثَر — التفسير */
+
+.tf-hero{text-align:center;padding:6px 0 14px}
+.tf-hero h2{margin:0;font-family:'Reem Kufi',serif;color:var(--gold-light);font-size:26px}
+.tf-hero p{margin:4px 0 0;font-size:13px;opacity:.7}
+.tf-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;position:sticky;top:-15px;z-index:5;background:var(--bg);padding:8px 0}
+.tf-back,.tf-chip{background:var(--card);border:1px solid var(--line);color:var(--gold);border-radius:20px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.tf-chip.on{background:var(--gold-metal);color:#000;border-color:transparent}
+.tf-chips{display:flex;gap:6px}
+.tf-ayah{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;content-visibility:auto;contain-intrinsic-size:auto 170px}
+.tf-q{font-family:'Amiri Quran','Amiri',serif;font-size:22px;line-height:2;text-align:right;color:var(--text);padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.tf-t{font-family:'Alexandria',sans-serif;font-size:14.5px;line-height:2;color:var(--text);opacity:.92;padding-top:10px;text-align:justify}
+.tf-t:before{content:'التفسير';display:inline-block;margin-left:8px;font-size:11px;font-weight:700;color:#000;background:var(--gold-metal);border-radius:8px;padding:0 8px}

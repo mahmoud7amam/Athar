@@ -1,0 +1,9 @@
+/* أَثَر — رسائل الحالة، زر إعادة المحاولة والتنبيه السريع */
+
+/* حالات + أزرار */
+.state-msg { text-align: center; padding: 40px 10px; color: #777; line-height: 1.8; font-size: 15px; }
+.state-msg.gold { color: var(--gold); }
+.state-msg.err { color: #e5534b; }
+.retry-btn { margin-top: 14px; background: var(--gold-metal); color: #000; border: none; padding: 10px 24px; border-radius: 10px; font-family: inherit; font-weight: bold; cursor: pointer; }
+#toast { position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: rgba(20,20,20,.95); color: var(--gold); border: 1px solid var(--gold); padding: 10px 20px; border-radius: 25px; font-size: 14px; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 3000; max-width: 85%; text-align: center; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }

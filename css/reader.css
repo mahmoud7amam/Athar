@@ -1,0 +1,46 @@
+/* أَثَر — القارئ: عنوان السورة، تقليب الصفحات وبطاقة المعلومات */
+
+/* المصحف: مسافات أنضف */
+.reading-area{line-height:2.05;padding:14px 14px 22px;border-color:var(--gold)}
+.ayat{margin:0}
+.ayah-num{vertical-align:middle;margin:-.5em .12em;position:relative;top:-.05em}
+.part-label{display:flex;justify-content:center;gap:8px;margin:2px 0 8px;font-family:'Alexandria',sans-serif}
+.part-label span{font-size:12px;padding:3px 12px;border-radius:20px;border:1px solid var(--line);color:var(--gold-light)}
+.part-label .pl-main{background:var(--gold-fade);font-weight:700;font-size:13px}
+
+/* عنوان السورة بدون خلفية */
+.surah-banner{margin:14px auto 4px;max-width:560px;text-align:center;background:none}
+.sb{display:flex;align-items:center;gap:8px}
+.sb-wing{flex:1;height:7px;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);opacity:.85}
+.sb-wing.r{-webkit-mask-image:linear-gradient(to left,transparent,#000 85%);mask-image:linear-gradient(to left,transparent,#000 85%)}
+.sb-wing.l{-webkit-mask-image:linear-gradient(to right,transparent,#000 85%);mask-image:linear-gradient(to right,transparent,#000 85%)}
+.sb-dia{width:8px;height:8px;flex:none;transform:rotate(45deg);border:1.5px solid var(--gold);background:var(--gold-fade)}
+.surah-banner .surah-title-text{font-family:'Reem Kufi','Amiri',serif;font-size:clamp(22px,6.6vw,30px);font-weight:700;color:var(--gold-light);text-shadow:0 0 16px rgba(212,175,55,.3);padding:0 4px;line-height:1.4}
+body.light-mode .surah-banner .surah-title-text{text-shadow:none}
+.sb-meta{font-size:12px;color:var(--gold);opacity:.85;margin-top:2px;font-family:'Alexandria',sans-serif}
+
+/* انيميشن تقليب الصفحات (الكعب على اليمين) */
+#qText .mushaf-page{transform-origin:right center}
+#qText.flip-out-next .mushaf-page{animation:fONext .24s cubic-bezier(.55,.05,.7,.4) forwards}
+#qText.flip-out-prev .mushaf-page{animation:fOPrev .2s ease-in forwards}
+#qText.flip-in-next .mushaf-page,#qText.flip-in-open .mushaf-page{animation:fIUnder .34s ease-out both}
+#qText.flip-in-prev .mushaf-page{animation:fIPrev .4s cubic-bezier(.2,.7,.2,1) both}
+@keyframes fONext{to{transform:perspective(1600px) rotateY(78deg) translateX(-6%);opacity:0;filter:brightness(.55)}}
+@keyframes fOPrev{to{opacity:0;transform:scale(.97)}}
+@keyframes fIUnder{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes fIPrev{from{transform:perspective(1600px) rotateY(78deg) translateX(-6%);opacity:0;filter:brightness(.55)}to{transform:perspective(1600px) rotateY(0);opacity:1;filter:none}}
+
+/* بطاقة المعلومات */
+#reader-info{padding:0;width:min(88%,350px);border-radius:22px;overflow:hidden;color:var(--text);border:1px solid var(--gold);
+ background:linear-gradient(160deg,rgba(28,25,17,.97),rgba(9,8,6,.98));box-shadow:0 20px 60px rgba(0,0,0,.7),inset 0 0 0 4px rgba(9,8,6,.9),inset 0 0 0 5px var(--line)}
+body.light-mode #reader-info{background:linear-gradient(160deg,#fffdf6,#f6efdc);box-shadow:0 20px 50px rgba(0,0,0,.25),inset 0 0 0 4px #fffdf6,inset 0 0 0 5px var(--line)}
+.ri-head{padding:20px 16px 10px;background:radial-gradient(120% 100% at 50% 0,rgba(212,175,55,.18),transparent 70%)}
+.ri-surah{font-family:'Reem Kufi','Amiri',serif;font-size:28px;font-weight:700;color:var(--gold-light);line-height:1.4}
+.ri-meta{font-size:12px;opacity:.75;margin-top:2px}
+.ri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 14px 12px}
+.ri-cell{background:var(--gold-fade);border:1px solid var(--line);border-radius:14px;padding:9px 4px 7px}
+.ri-cell small{display:block;font-size:11px;opacity:.7;font-weight:600}
+.ri-cell b{display:block;font-family:'Amiri',serif;font-size:27px;color:var(--gold-light);line-height:1.3}
+.ri-foot{padding:0 16px 16px;font-size:12px;opacity:.85}
+.ri-q{display:flex;gap:5px;justify-content:center;margin-bottom:7px}
+.ri-q i{width:34px;height:5px;border-radius:3px;background:var(--line)}.ri-q i.on{background:var(--gold)}

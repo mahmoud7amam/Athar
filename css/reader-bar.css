@@ -1,0 +1,26 @@
+/* أَثَر — الشريط العلوي للقارئ والآية قيد التشغيل */
+
+.reader-tools { padding: 0; justify-content: flex-start; display: block; transform: translateY(-110%); background: linear-gradient(180deg, rgba(10,10,12,.98), rgba(10,10,12,.9)); border-bottom: 1px solid var(--line); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 10px 30px rgba(0,0,0,.5); transition: transform .38s cubic-bezier(.2,.8,.2,1); }
+.reader-tools.show { transform: translateY(0); }
+body.light-mode .reader-tools { background: linear-gradient(180deg, rgba(255,252,242,.98), rgba(250,243,224,.94)); box-shadow: 0 10px 30px rgba(80,60,0,.18); }
+.rt-inner { display: flex; align-items: center; gap: 7px; padding: calc(10px + env(safe-area-inset-top)) 12px 10px; box-sizing: border-box; width: 100%; direction: rtl; }
+.rt-ic { width: 38px; height: 38px; flex: none; padding: 0; border-radius: 12px; border: 1px solid var(--line); background: rgba(214,176,74,.08); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s, background .2s; -webkit-tap-highlight-color: transparent; font-family: inherit; }
+.rt-ic:active { transform: scale(.9); background: rgba(214,176,74,.25); }
+.rt-ic svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rt-exit { color: #ff8f86; border-color: rgba(255,143,134,.4); background: rgba(255,143,134,.09); }
+.rt-title { flex: 1; min-width: 0; text-align: center; display: flex; flex-direction: column; line-height: 1.3; }
+.rt-title b { font-family: 'Reem Kufi','Amiri',serif; font-size: 16px; color: var(--gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+body.light-mode .rt-title b { color: #7c5d0b; }
+.rt-title small { font-size: 10.5px; color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rt-seg { display: flex; flex: none; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: rgba(214,176,74,.06); }
+.rt-seg .rt-ic { border: none; border-radius: 0; width: 36px; background: transparent; }
+.rt-seg .rt-ic + .rt-ic { border-right: 1px solid var(--line); }
+.rt-a { font-family: 'Amiri Quran','Amiri',serif; font-weight: 700; line-height: 1; }
+.rt-a.sm { font-size: 14px; } .rt-a.lg { font-size: 22px; }
+.rt-play { background: var(--gold-metal); color: #000; border-color: transparent; box-shadow: 0 3px 12px rgba(214,176,74,.35); }
+.rt-play svg { fill: currentColor; stroke: none; }
+.font-controls { display: none !important; }
+@media (max-width: 360px) { .rt-ic { width: 34px; height: 34px; } .rt-seg .rt-ic { width: 32px; } .rt-inner { gap: 5px; padding-left: 8px; padding-right: 8px; } }
+
+/* آية قيد التشغيل */
+.aud-playing { background: rgba(214,176,74,.22); border-radius: 8px; box-shadow: 0 0 0 3px rgba(214,176,74,.22); transition: background .25s; }
