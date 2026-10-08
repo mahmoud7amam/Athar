@@ -12,12 +12,18 @@ function renderTafsirList() {
 }
 async function fetchTafsir(n, ed) {
     const url = `https://api.alquran.cloud/v1/surah/${n}/editions/quran-uthmani,${ed}`;
-    let cache = null; try { cache = await caches.open(TF_CACHE); } catch (e) {}
-    if (cache) { const hit = await cache.match(url); if (hit) { const j = await hit.json(); if (j && j.data) return j.data; } }
-    const res = await fetch(url); if (!res.ok) throw new Error('HTTP');
-    const copy = res.clone(), j = await res.json(); if (!j || !j.data) throw new Error('bad');
-    if (cache) cache.put(url, copy).catch(() => {});
-    return j.data;
+    const cache = await openCache(TF_CACHE);
+    if (cache) { try { const hit = await cache.match(url, { ignoreVary: true }); if (hit) { const j = await hit.json(); if (j && j.data) return j.data; } } catch (e) {} }
+    let last;
+    for (let i = 0; i < 3; i++) {
+        try {
+            const res = await fetchWithTimeout(url, 20000); if (!res.ok) throw new Error('HTTP');
+            const blob = await res.blob(); const j = JSON.parse(await blob.text()); if (!j || !j.data) throw new Error('bad');
+            if (cache) putRebuilt(cache, url, blob, 'application/json').catch(() => {});
+            return j.data;
+        } catch (e) { last = e; if (i < 2) await sleep(600 * (i + 1)); }
+    }
+    throw last;
 }
 async function openTafsir(n) {
     tfSurah = n; const seq = ++tfSeq;
@@ -42,26 +48,41 @@ function setTafsirEd(ed) { tfEd = ed; store.set('tf_ed', ed); if (tfSurah) openT
 function closeTafsir() { tfSeq++; $('tfView').style.display = 'none'; $('tfListWrap').style.display = 'block'; $('mainScroll').scrollTop = 0; }
 
 /* ---------- تنزيل التفسير ---------- */
+const TF_EDITIONS = ['ar.muyassar', 'ar.jalalayn'];
+const TF_TOTAL = TF_EDITIONS.length * 114;
+const tfUrl = (n, ed) => `https://api.alquran.cloud/v1/surah/${n}/editions/quran-uthmani,${ed}`;
+async function tafsirCachedCount() {
+    const c = await openCache(TF_CACHE); if (!c) return 0;
+    const keys = await c.keys();
+    return keys.filter(r => /\/surah\/\d+\/editions\/quran-uthmani,ar\.(muyassar|jalalayn)$/.test(r.url)).length;
+}
 async function downloadTafsirOffline() {
     const btn = $('tfDlBtn'), bar = $('tfBar'), wrap = $('tfBarWrap'), txt = $('tfDlText');
     if (btn.dataset.busy) return;
     if (!isOnline()) { toast('محتاج إنترنت للتنزيل'); return; }
     const c = await openCache(TF_CACHE); if (!c) { toast('المتصفح لا يدعم الحفظ'); return; }
-    btn.dataset.busy = '1'; persistStorage(); wrap.style.display = 'block';
-    const jobs = []; ['ar.muyassar', 'ar.jalalayn'].forEach(ed => { for (let n = 1; n <= 114; n++) jobs.push([n, ed]); });
-    let done = 0, failed = 0;
-    await pool(jobs, 4, async ([n, ed]) => {
-        const url = `https://api.alquran.cloud/v1/surah/${n}/editions/quran-uthmani,${ed}`;
-        try { if (!(await c.match(url))) { const r = await fetch(url); if (!r.ok) throw new Error('bad'); await c.put(url, r); } } catch (e) { failed++; }
-        done++; bar.style.width = (done / jobs.length * 100) + '%'; txt.innerText = `جاري حفظ التفسير... ${A(done)}/${A(jobs.length)}`;
-    });
+    btn.dataset.busy = '1'; persistStorage(); wrap.style.display = 'block'; bar.style.width = '0%';
+    const jobs = []; TF_EDITIONS.forEach(ed => { for (let n = 1; n <= 114; n++) jobs.push([n, ed]); });
+    let done = 0, failed = [];
+    const run = async list => {
+        await pool(list, 3, async ([n, ed]) => {
+            const url = tfUrl(n, ed);
+            try { if (!(await c.match(url, { ignoreVary: true }))) await fetchAndCache(c, url, { tries: 3, timeout: 25000, validate: validJsonData, type: 'application/json' }); }
+            catch (e) { failed.push([n, ed]); }
+            done++; bar.style.width = Math.min(100, done / jobs.length * 100) + '%'; txt.innerText = `جاري حفظ التفسير... ${A(Math.min(done, jobs.length))}/${A(jobs.length)}`;
+        });
+    };
+    await run(jobs);
+    if (failed.length && isOnline()) {            // جولة تانية للي فشل، بعد راحة قصيرة
+        const again = failed.splice(0); await sleep(1500); done = jobs.length - again.length; await run(again);
+    }
     delete btn.dataset.busy; setTimeout(() => { wrap.style.display = 'none'; }, 900);
-    if (failed) toast(`تعذر حفظ ${A(failed)} — حاول مرة أخرى`); else toast('تم حفظ التفسير كاملاً ✓');
+    if (failed.length) toast(`تعذر حفظ ${A(failed.length)} — اضغط تاني للإكمال`); else toast('تم حفظ التفسير كاملاً ✓');
     checkTafsirState(); renderStorageInfo();
 }
 async function checkTafsirState() {
     const btn = $('tfDlBtn'); if (!btn || btn.dataset.busy) return;
-    const c = await openCache(TF_CACHE); const n = c ? (await c.keys()).length : 0;
-    if (n >= 228) { btn.classList.add('done'); $('tfDlText').innerHTML = '✅ التفسير محفوظ كاملاً (الميسّر + الجلالين)'; }
-    else { btn.classList.remove('done'); $('tfDlText').innerHTML = `📥 تنزيل التفسير كاملاً للاستخدام بدون إنترنت${n ? ` (${A(n)}/${A(228)})` : ''}`; }
+    const n = await tafsirCachedCount();
+    if (n >= TF_TOTAL) { btn.classList.add('done'); $('tfDlText').innerHTML = '✅ التفسير محفوظ كاملاً (الميسّر + الجلالين)'; }
+    else { btn.classList.remove('done'); $('tfDlText').innerHTML = `📥 ${n ? 'أكمل تنزيل التفسير' : 'تنزيل التفسير كاملاً للاستخدام بدون إنترنت'}${n ? ` (${A(n)}/${A(TF_TOTAL)})` : ''}`; }
 }

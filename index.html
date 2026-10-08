@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="css/player.css">
     <link rel="stylesheet" href="css/sheets.css">
     <link rel="stylesheet" href="css/storage.css">
+    <link rel="stylesheet" href="css/settings.css">
 </head>
 <body>
 
@@ -46,45 +47,53 @@
                 <defs>
                     <linearGradient id="kTb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf3"/><stop offset="1" stop-color="#e6d9b0"/></linearGradient>
                     <linearGradient id="kTh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffef8"/><stop offset="1" stop-color="#e9dfc0"/></linearGradient>
-                    <radialGradient id="kSk" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f8d9b6"/><stop offset="1" stop-color="#e6b588"/></radialGradient>
+                    <radialGradient id="kSk" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fbe2c4"/><stop offset="1" stop-color="#eebd92"/></radialGradient>
                 </defs>
                 <g class="k-body">
-                    <!-- الكمّ الشمال -->
-                    <path d="M52 160 C36 170 30 184 32 192" stroke="#d6c999" stroke-width="21" stroke-linecap="round" fill="none"/>
-                    <path d="M52 160 C36 170 30 184 32 192" stroke="url(#kTh)" stroke-width="18" stroke-linecap="round" fill="none"/>
+                    <!-- الكمّ الشمال (قصير وصغير) -->
+                    <path d="M62 164 C48 172 44 184 46 192" stroke="#d6c999" stroke-width="19" stroke-linecap="round" fill="none"/>
+                    <path d="M62 164 C48 172 44 184 46 192" stroke="url(#kTh)" stroke-width="16" stroke-linecap="round" fill="none"/>
                     <!-- الثوب -->
-                    <path d="M26 192 C26 152 56 136 100 136 C144 136 174 152 174 192Z" fill="url(#kTh)" stroke="#d6c999" stroke-width="1.5"/>
-                    <path d="M78 138 Q100 166 122 138" stroke="#D4AF37" stroke-width="3.4" fill="none" stroke-linecap="round"/>
-                    <path d="M100 152 V192" stroke="#D4AF37" stroke-width="1.6"/>
-                    <circle cx="100" cy="166" r="2.4" fill="#D4AF37"/><circle cx="100" cy="178" r="2.4" fill="#D4AF37"/>
+                    <path d="M40 192 C40 158 64 146 100 146 C136 146 160 158 160 192Z" fill="url(#kTh)" stroke="#d6c999" stroke-width="1.5"/>
+                    <path d="M82 148 Q100 168 118 148" stroke="#D4AF37" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+                    <path d="M100 160 V192" stroke="#D4AF37" stroke-width="1.6"/>
+                    <circle cx="100" cy="172" r="2.4" fill="#D4AF37"/><circle cx="100" cy="183" r="2.4" fill="#D4AF37"/>
                     <!-- الرقبة -->
-                    <rect x="87" y="120" width="26" height="22" rx="9" fill="#dca97c"/>
+                    <rect x="89" y="128" width="22" height="22" rx="9" fill="#e3b088"/>
                 </g>
                 <g class="k-arm">
-                    <path d="M148 164 C170 154 178 128 171 102" stroke="#d6c999" stroke-width="21" stroke-linecap="round" fill="none"/>
-                    <path d="M148 164 C170 154 178 128 171 102" stroke="url(#kTh)" stroke-width="18" stroke-linecap="round" fill="none"/>
-                    <circle cx="171" cy="94" r="10.5" fill="url(#kSk)"/>
-                    <ellipse cx="161" cy="97" rx="3.6" ry="6.4" fill="url(#kSk)" transform="rotate(-24 161 97)"/>
+                    <path d="M140 168 C160 160 168 138 162 114" stroke="#d6c999" stroke-width="19" stroke-linecap="round" fill="none"/>
+                    <path d="M140 168 C160 160 168 138 162 114" stroke="url(#kTh)" stroke-width="16" stroke-linecap="round" fill="none"/>
+                    <circle cx="162" cy="105" r="11.5" fill="url(#kSk)"/>
+                    <ellipse cx="152" cy="108" rx="3.8" ry="6.6" fill="url(#kSk)" transform="rotate(-24 152 108)"/>
                 </g>
                 <g class="k-head">
-                    <g class="k-tail"><path d="M146 54 C164 62 168 88 160 112 C155 104 150 94 147 84Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.4"/><path d="M152 70 C158 80 159 92 157 102" stroke="#d6c999" stroke-width="1.2" fill="none"/></g>
-                    <circle cx="60" cy="96" r="7.5" fill="#e6b588"/><circle cx="140" cy="96" r="7.5" fill="#e6b588"/>
-                    <ellipse cx="100" cy="92" rx="40" ry="41" fill="url(#kSk)"/>
-                    <path d="M62 100 C62 134 82 144 100 144 C118 144 138 134 138 100 C130 113 118 119 100 119 C82 119 70 113 62 100Z" fill="#2c2119"/>
-                    <circle cx="73" cy="103" r="6.2" fill="#ee8a78" opacity=".42"/><circle cx="127" cy="103" r="6.2" fill="#ee8a78" opacity=".42"/>
-                    <path d="M75 79 Q84 73 93 77" stroke="#2c2119" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-                    <path d="M107 77 Q116 73 125 79" stroke="#2c2119" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-                    <g class="k-eye"><ellipse cx="84" cy="90" rx="5.4" ry="6.6" fill="#1b140e"/><circle cx="86" cy="87.6" r="2" fill="#fff"/></g>
-                    <g class="k-eye"><ellipse cx="116" cy="90" rx="5.4" ry="6.6" fill="#1b140e"/><circle cx="118" cy="87.6" r="2" fill="#fff"/></g>
-                    <path d="M91 108 Q100 116.5 109 108" stroke="#8a3f2c" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-                    <!-- العمامة -->
-                    <path d="M47 76 C42 40 68 17 100 17 C132 17 158 40 153 76 C141 67 122 63 100 63 C78 63 59 67 47 76Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.5"/>
-                    <path d="M54 62 C74 38 112 28 149 52" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-                    <path d="M50 70 C80 46 122 40 151 64" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-                    <path d="M68 32 C88 26 118 26 136 36" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                    <path d="M100 18 C95 34 98 50 110 63" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                    <path d="M48 74 C64 65 82 62 100 62 C118 62 136 65 152 74" stroke="#D4AF37" stroke-width="4.6" fill="none" stroke-linecap="round"/>
-                    <circle cx="100" cy="62.5" r="4" fill="#f9e076" stroke="#a8841f" stroke-width="1"/>
+                    <g transform="translate(100 134) scale(1.1) translate(-100 -134)">
+                        <g class="k-tail"><path d="M146 54 C164 62 168 88 160 112 C155 104 150 94 147 84Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.4"/><path d="M152 70 C158 80 159 92 157 102" stroke="#d6c999" stroke-width="1.2" fill="none"/></g>
+                        <circle cx="58" cy="100" r="8.5" fill="#eebd92"/><circle cx="142" cy="100" r="8.5" fill="#eebd92"/>
+                        <ellipse cx="100" cy="97" rx="43" ry="40" fill="url(#kSk)"/>
+                        <!-- خدود منفوخة + وجنات -->
+                        <circle cx="68" cy="111" r="9" fill="#f08e7c" opacity=".5"/><circle cx="132" cy="111" r="9" fill="#f08e7c" opacity=".5"/>
+                        <path d="M76 80 Q84 75 92 79" stroke="#6a4f3c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                        <path d="M108 79 Q116 75 124 80" stroke="#6a4f3c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                        <!-- عيون كبيرة لامعة -->
+                        <g class="k-eye"><ellipse cx="82" cy="97" rx="8" ry="9.6" fill="#1b140e"/><circle cx="85" cy="93" r="3.2" fill="#fff"/><circle cx="79.5" cy="101" r="1.5" fill="#fff"/></g>
+                        <g class="k-eye"><ellipse cx="118" cy="97" rx="8" ry="9.6" fill="#1b140e"/><circle cx="121" cy="93" r="3.2" fill="#fff"/><circle cx="115.5" cy="101" r="1.5" fill="#fff"/></g>
+                        <!-- مناخير صغيرة وضحكة مفتوحة -->
+                        <ellipse cx="100" cy="107" rx="2.6" ry="1.9" fill="#d99a76"/>
+                        <path d="M89 114 Q100 130 111 114Z" fill="#8a3f2c" stroke="#8a3f2c" stroke-width="1.6" stroke-linejoin="round"/>
+                        <path d="M93 121.5 Q100 126 107 121.5 Q100 118.5 93 121.5Z" fill="#ee8a78"/>
+                        <!-- العمامة (أصغر وعلى قد راس طفل) -->
+                        <g transform="translate(100 70) scale(.94) translate(-100 -70)">
+                            <path d="M47 76 C42 40 68 17 100 17 C132 17 158 40 153 76 C141 67 122 63 100 63 C78 63 59 67 47 76Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.5"/>
+                            <path d="M54 62 C74 38 112 28 149 52" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+                            <path d="M50 70 C80 46 122 40 151 64" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+                            <path d="M68 32 C88 26 118 26 136 36" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            <path d="M100 18 C95 34 98 50 110 63" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            <path d="M48 74 C64 65 82 62 100 62 C118 62 136 65 152 74" stroke="#D4AF37" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+                            <circle cx="100" cy="62.5" r="4" fill="#f9e076" stroke="#a8841f" stroke-width="1"/>
+                        </g>
+                    </g>
                 </g>
             </svg>
         </div>
@@ -109,6 +118,9 @@
         </button>
         <button class="rt-ic" onclick="setMark()" aria-label="حفظ العلامة" title="حفظ العلامة">
             <svg viewBox="0 0 24 24"><path d="M6.5 4h11a1 1 0 0 1 1 1v15l-6.5-3.8L5.5 20V5a1 1 0 0 1 1-1z"/></svg>
+        </button>
+        <button class="rt-ic" onclick="downloadSurahAudio()" aria-label="تنزيل صوت السورة" title="تنزيل صوت السورة">
+            <svg viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
         </button>
         <button class="rt-ic rt-play" id="rtPlay" onclick="toggleAudio()" aria-label="استماع" title="استماع">
             <svg viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>
@@ -264,10 +276,18 @@
     </div>
 
     <div id="p-settings" class="page">
-        <div class="settings-section">
-            <div class="settings-title">عن التطبيق (أَثَر)</div>
-            <div class="settings-text">
-                تطبيق "أَثَر" هو صدقة جارية وعمل إسلامي يهدف إلى تيسير الوصول للقرآن الكريم، ومواقيت الصلاة، والأذكار اليومية بطريقة سلسة وواجهة مريحة للعين. 
+        <div class="pf-card" id="pfCard">
+            <div class="pf-cover"><i></i><i></i><i></i></div>
+            <div class="pf-avatar"><img src="icon-192.png" alt="" width="84" height="84" decoding="async"></div>
+            <div class="pf-name">أَثَر</div>
+            <div class="pf-sub">صدقة جارية · مصحف • تفسير • مواقيت • أذكار</div>
+            <div class="pf-stats">
+                <div class="pf-stat"><b id="pfTasbih">٠</b><span>تسبيحاتك</span></div>
+                <div class="pf-stat"><b id="pfReciter">—</b><span>قارئك</span></div>
+                <div class="pf-stat"><b id="pfTheme">—</b><span>المظهر</span></div>
+            </div>
+            <div class="pf-about">
+                تطبيق "أَثَر" هو صدقة جارية وعمل إسلامي يهدف إلى تيسير الوصول للقرآن الكريم، ومواقيت الصلاة، والأذكار اليومية بطريقة سلسة وواجهة مريحة للعين.
                 <br><br>
                 تم تصميم التطبيق لترك أثر طيب وتوفير بيئة خالية من المشتتات تتيح لك الخشوع والتأمل في آيات الله وذكره.
                 <br><br>
@@ -401,10 +421,10 @@
 <script src="js/features/storage.js"></script>
 <script src="js/app.js"></script>
 <script>
-/* إخفاء السبلاش بسلاسة: بعد ما الصفحة تجهز وبحد أدنى ~4.4 ثانية عشان الأنيميشن يكمل */
+/* إخفاء السبلاش بسلاسة: بعد ما الصفحة تجهز وبحد أدنى ~5.6 ثانية عشان الأنيميشن يكمل */
 (function () {
     var el = document.getElementById('splash'); if (!el) return;
-    var t0 = Date.now(), MIN = 4400, MAX = 7000, done = false;
+    var t0 = Date.now(), MIN = 5600, MAX = 8000, done = false;
     function hide() {
         if (done) return; done = true;
         var wait = Math.max(0, MIN - (Date.now() - t0));

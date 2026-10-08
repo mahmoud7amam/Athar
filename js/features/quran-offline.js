@@ -44,11 +44,7 @@ async function downloadQuranOffline(silent = false) {
     await pool(ids, 4, async i => {
         const url = qurl('surah', i);
         try {
-            if (!(await cache.match(url))) {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('bad');
-                await cache.put(url, res);
-            }
+            if (!(await cache.match(url, { ignoreVary: true }))) await fetchAndCache(cache, url, { tries: 3, timeout: 25000, validate: validJsonData, type: 'application/json' });
         } catch (e) { failed++; }
         done++;
         if (!silent) { bar.style.width = (done / 114 * 100) + '%'; txt.innerText = `جاري حفظ المصحف... ${A(done)}/${A(114)}`; }

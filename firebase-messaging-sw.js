@@ -1,5 +1,5 @@
 /* أَثَر — Service Worker موحّد: كاش للتطبيق + إشعارات Firebase (بدون أي إعلانات) */
-const VERSION = 'athar-v8';
+const VERSION = 'athar-v9';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
 const TAFSIR_CACHE = 'tafsir-cache-v1';
@@ -24,6 +24,7 @@ const APP_ASSETS = [
   './css/player.css',
   './css/sheets.css',
   './css/storage.css',
+  './css/settings.css',
   './js/config.js',
   './js/core/utils.js',
   './js/core/firebase.js',
@@ -109,6 +110,15 @@ self.addEventListener('fetch', (event) => {
       } catch (e) {
         return (await caches.match('./index.html')) || (await caches.match('./')) || Response.error();
       }
+    })());
+    return;
+  }
+
+  // التلاوات المحفوظة: من الكاش أولاً (ضروري للملفات المحفوظة بوضع no-cors) وإلا من الشبكة
+  if (url.hostname === 'everyayah.com') {
+    event.respondWith((async () => {
+      try { const c = await caches.open(AUDIO_CACHE); const hit = await c.match(req.url, { ignoreVary: true }); if (hit) return hit; } catch (e) {}
+      return fetch(req);
     })());
     return;
   }

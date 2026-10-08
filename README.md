@@ -11,6 +11,7 @@ js/config.js               أسماء الكاش وإعدادات Firebase
 js/core/                   أدوات مشتركة، Firebase، الجهاز، الحالة العامة
 js/data/                   بيانات ثابتة (دول، سور، أذكار، أحاديث، قرّاء)
 js/ui/                     التنبيه السريع، المظهر، التنقل
+css/settings.css           كارت البروفايل في أول الإعدادات
 js/features/               كل ميزة في ملفها (مصحف، تفسير، مواقيت، صوت، مسبحة...)
 js/app.js                  نقطة التشغيل init()
 firebase-messaging-sw.js   Service Worker الموحّد (كاش + إشعارات)

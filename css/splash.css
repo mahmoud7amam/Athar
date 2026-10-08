@@ -1,4 +1,4 @@
-/* أَثَر — شاشة البداية: لوجو أَثَر بدون خلفية، وشخصية صغيرة بعمامة تطلع من ورا اللوجو وتسلّم.
+/* أَثَر — شاشة البداية: لوجو أَثَر بدون خلفية، وطفل صغير بعمامة بيطل من الشمال واليمين وبعدين يطلع من تحت ويسلّم.
    ملف مستقل. لإلغائها امسح الملف وسطر الـ link وكتلة #splash والسكريبت الصغير في آخر index.html */
 
 #splash {
@@ -40,8 +40,8 @@
 /* ===== الشخصية: ورا اللوجو، وجزئها التحتاني بيدوب ===== */
 #splash .sp-peek {
     position: relative; z-index: 1; width: min(48vw, 188px); margin-bottom: -30px;
-    opacity: 0; transform: translateY(78px) scale(.72); transform-origin: 50% 100%;
-    animation: kRise 1.05s cubic-bezier(.3, 1.45, .5, 1) 1.3s forwards;
+    opacity: 0; transform: translate(-62vw, 40px) rotate(-24deg) scale(.8); transform-origin: 50% 100%;
+    animation: kPeek 3.9s cubic-bezier(.35, 0, .25, 1) .8s forwards;
 }
 #splash .sp-kid {
     display: block; width: 100%; height: auto; overflow: visible;
@@ -50,9 +50,9 @@
     filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .55));
 }
 #splash .sp-kid * { transform-box: view-box; }
-#splash .k-body { transform-origin: 100px 190px; animation: kBreath 3s ease-in-out 2.4s infinite alternate; }
-#splash .k-head { transform-origin: 100px 130px; animation: kHead 2.6s ease-in-out 2s both, kBob 3s ease-in-out 4.6s infinite alternate; }
-#splash .k-arm  { transform-origin: 148px 164px; animation: kWave 2.1s ease-in-out 2.15s both; }
+#splash .k-body { transform-origin: 100px 190px; animation: kBreath 3s ease-in-out 4.6s infinite alternate; }
+#splash .k-head { transform-origin: 100px 130px; animation: kHead 2.4s ease-in-out 4.5s both, kBob 3s ease-in-out 6.9s infinite alternate; }
+#splash .k-arm  { transform-origin: 148px 164px; animation: kWave 2.1s ease-in-out 4.6s both; }
 #splash .k-tail { transform-origin: 148px 56px; animation: kSway 2.2s ease-in-out 2s infinite alternate; }
 #splash .k-eye  { transform-box: fill-box; transform-origin: 50% 50%; animation: kBlink 3.4s ease-in-out 2.2s infinite; }
 
@@ -68,7 +68,7 @@
 }
 #splash .sp-hi {
     margin-top: -2px; font-family: 'Amiri', 'Alexandria', serif; font-size: 21px; color: #e8cf86; letter-spacing: .5px;
-    opacity: 0; animation: spUp .9s cubic-bezier(.2, .8, .2, 1) 2.3s forwards;
+    opacity: 0; animation: spUp .9s cubic-bezier(.2, .8, .2, 1) 4.4s forwards;
 }
 #splash .sp-bar {
     position: relative; width: 96px; height: 2px; margin-top: 20px; border-radius: 2px; overflow: hidden;
@@ -81,7 +81,25 @@
 }
 
 /* ===== الحركات ===== */
-@keyframes kRise   { 0% { opacity: 0; transform: translateY(78px) scale(.72); } 18% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+/* الطفل بيطل من الشمال، وبعدين من اليمين، وبعدين يطلع من تحت ويسلّم */
+@keyframes kPeek {
+    0%   { opacity: 0; transform: translate(-62vw, 40px) rotate(-24deg) scale(.8); }
+    8%   { opacity: 1; }
+    18%  { opacity: 1; transform: translate(-24vw, 12px) rotate(-14deg) scale(.92); }
+    27%  { opacity: 1; transform: translate(-25vw, 12px) rotate(-9deg) scale(.92); }
+    36%  { opacity: 1; transform: translate(-70vw, 30px) rotate(-26deg) scale(.85); }
+    37%  { opacity: 0; transform: translate(-70vw, 30px) rotate(-26deg) scale(.85); }
+    38%  { opacity: 0; transform: translate(62vw, 40px) rotate(24deg) scale(.8); }
+    46%  { opacity: 1; }
+    56%  { opacity: 1; transform: translate(24vw, 12px) rotate(14deg) scale(.92); }
+    65%  { opacity: 1; transform: translate(25vw, 12px) rotate(9deg) scale(.92); }
+    74%  { opacity: 1; transform: translate(70vw, 30px) rotate(26deg) scale(.85); }
+    75%  { opacity: 0; transform: translate(70vw, 30px) rotate(26deg) scale(.85); }
+    77%  { opacity: 0; transform: translate(0, 90px) rotate(0) scale(.72); }
+    84%  { opacity: 1; }
+    93%  { opacity: 1; transform: translate(0, -10px) rotate(0) scale(1.04); }
+    100% { opacity: 1; transform: none; }
+}
 @keyframes kBreath { from { transform: scale(1); } to { transform: scale(1.012) translateY(-1px); } }
 @keyframes kBob    { from { transform: rotate(-1.2deg); } to { transform: rotate(1.2deg); } }
 @keyframes kHead   { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-8deg); } 66% { transform: rotate(6deg); } }

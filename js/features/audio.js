@@ -19,8 +19,11 @@ function visibleAyahIndex() {
 }
 async function audioSrc(url) {
     try {
-        const c = await caches.open(AUD_CACHE), hit = await c.match(url);
-        if (hit) { const b = await hit.blob(); if (aObjUrl) URL.revokeObjectURL(aObjUrl); aObjUrl = URL.createObjectURL(b); return aObjUrl; }
+        const c = await caches.open(AUD_CACHE), hit = await c.match(url, { ignoreVary: true });
+        if (hit) {
+            if (hit.type === 'opaque') return url;          // محفوظ بوضع no-cors: الـ Service Worker هو اللي بيقدّمه
+            const b = await hit.blob(); if (b.size > 1000) { if (aObjUrl) URL.revokeObjectURL(aObjUrl); aObjUrl = URL.createObjectURL(b); return aObjUrl; }
+        }
     } catch (e) {}
     return url;
 }
@@ -103,26 +106,60 @@ function pickReciter(id) {
     if (aOpen && aIdx >= 0) playIndex(aIdx); else toast('القارئ: ' + recName());
 }
 
-// تنزيل صوت السورة الحالية للاستماع بدون إنترنت
+// مرايا CORS لنفس القرّاء (cdn.islamic.network) — بنستخدمها لو everyayah.com رفض التنزيل من المتصفح
+const AUDIO_MIRROR = {
+    'Alafasy_128kbps': 'ar.alafasy', 'Abdul_Basit_Murattal_64kbps': 'ar.abdulbasitmurattal', 'Husary_128kbps': 'ar.husary',
+    'Minshawy_Murattal_128kbps': 'ar.minshawi', 'Hudhaify_128kbps': 'ar.hudhaify', 'Maher_AlMuaiqly_64kbps': 'ar.mahermuaiqly',
+    'Abdurrahmaan_As-Sudais_64kbps': 'ar.abdurrahmaansudais', 'Saood_ash-Shuraym_128kbps': 'ar.saoodshuraym',
+    'ahmed_ibn_ali_al_ajamy_128kbps': 'ar.ahmedajamy', 'Hani_Rifai_64kbps': 'ar.hanirifai',
+    'Muhammad_Ayyoub_128kbps': 'ar.muhammadayyoub', 'Muhammad_Jibreel_128kbps': 'ar.muhammadjibreel'
+};
+const ayahGlobal = (s, n) => AYAH_COUNTS.slice(0, s - 1).reduce((a, b) => a + b, 0) + n;
+const mirrorUrl = (s, n, r = recId) => AUDIO_MIRROR[r] ? `https://cdn.islamic.network/quran/audio/128/${AUDIO_MIRROR[r]}/${ayahGlobal(s, n)}.mp3` : null;
+const validAudio = async b => b && b.size > 2000;
+
+// يحفظ آية واحدة: (1) everyayah مباشرة (2) المرآة (3) وضع no-cors كحل أخير — بيرجّع 'ok' | 'opaque' | 'fail'
+async function cacheAyahAudio(c, s, n) {
+    const url = audioUrl(s, n);
+    if (await c.match(url, { ignoreVary: true })) return 'ok';
+    try { await fetchAndCache(c, url, { tries: 2, timeout: 30000, validate: validAudio, type: 'audio/mpeg' }); return 'ok'; } catch (e) {}
+    const m = mirrorUrl(s, n);
+    if (m) {
+        try { const r = await fetchWithTimeout(m, 30000); if (r.ok) { const b = await r.blob(); if (b.size > 2000) { await putRebuilt(c, url, b, 'audio/mpeg'); return 'ok'; } } } catch (e) {}
+    }
+    try { const r = await fetchWithTimeout(url, 30000, { mode: 'no-cors' }); await c.put(url, r); return 'opaque'; } catch (e) {}
+    return 'fail';
+}
+
+// السورة اللي هتتنزّل: اللي شغّالة دلوقتي، أو اللي ظاهرة في الشاشة، أو السورة المفتوحة
+function audioTargetSurah() {
+    if (aIdx >= 0 && aList[aIdx]) return +aList[aIdx].dataset.s;
+    collectAyahs();
+    if (aList.length) return +aList[Math.min(visibleAyahIndex(), aList.length - 1)].dataset.s;
+    return currentType === 'surah' ? +currentId : 0;
+}
+let audioDlBusy = false;
 async function downloadSurahAudio() {
-    if (aIdx < 0 || !aList[aIdx]) { toast('شغّل آية أولاً'); return; }
+    if (audioDlBusy) { toast('التنزيل شغّال بالفعل...'); return; }
+    const s = audioTargetSurah(); if (!s) { toast('افتح سورة الأول'); return; }
     if (!isOnline()) { toast('محتاج إنترنت للتنزيل'); return; }
-    const s = +aList[aIdx].dataset.s, count = AYAH_COUNTS[s - 1];
+    const count = AYAH_COUNTS[s - 1], rec = recId, recLabel = recName();
     const c = await openCache(AUD_CACHE); if (!c) { toast('المتصفح لا يدعم الحفظ'); return; }
-    persistStorage();
-    let done = 0, failed = 0, blocked = false;
+    audioDlBusy = true; persistStorage();
+    const pos = $('plPos'), show = t => { if (pos) pos.textContent = t; }, keep = pos ? pos.textContent : '';
+    let done = 0, failed = 0, opaque = 0;
     const items = Array.from({ length: count }, (_, i) => i + 1);
-    toast(`جاري تنزيل سورة ${surahs[s - 1]} بصوت ${recName()}...`);
-    await pool(items, 3, async n => {
-        if (blocked) return;
-        const url = audioUrl(s, n);
-        try { if (!(await c.match(url))) { const r = await fetch(url); if (!r.ok) throw new Error('bad'); await c.put(url, r); } }
-        catch (e) { failed++; if (e instanceof TypeError && done === 0 && failed >= 2) blocked = true; }
-        done++; $('plPos').textContent = `تنزيل ${A(done)}/${A(count)}`;
-    });
-    markPlaying(aList[aIdx]);
-    $('plPos').textContent = `سورة ${surahs[aList[aIdx].dataset.s - 1]} · آية ${A(aList[aIdx].dataset.n)}`;
-    if (blocked) toast('السيرفر لا يسمح بالتنزيل — الاستماع أونلاين فقط');
-    else if (failed) toast(`تعذر تنزيل ${A(failed)} آية`); else toast('تم حفظ صوت السورة ✓');
+    toast(`جاري تنزيل سورة ${surahs[s - 1]} بصوت ${recLabel}...`);
+    try {
+        await pool(items, 3, async n => {
+            const r = await cacheAyahAudio(c, s, n);
+            if (r === 'opaque') opaque++; else if (r === 'fail') failed++;
+            done++; show(`تنزيل ${A(done)}/${A(count)}`);
+        });
+    } finally { audioDlBusy = false; }
+    if (aIdx >= 0 && aList[aIdx]) { markPlaying(aList[aIdx]); show(`سورة ${surahs[aList[aIdx].dataset.s - 1]} · آية ${A(aList[aIdx].dataset.n)}`); } else show(keep);
+    if (failed === count) toast('السيرفر لا يسمح بالتنزيل حالياً — الاستماع أونلاين فقط');
+    else if (failed) toast(`تم حفظ ${A(count - failed)} آية وتعذر ${A(failed)} — اضغط تنزيل للإكمال`);
+    else toast(`تم حفظ سورة ${surahs[s - 1]} بصوت ${recLabel} ✓`);
     renderStorageInfo();
 }

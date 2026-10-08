@@ -1,0 +1,17 @@
+/* أَثَر — الإعدادات: كارت بشكل بروفايل في أول الصفحة */
+
+.pf-card { position: relative; background: var(--card); border: 1px solid var(--gold-fade); border-radius: 22px; padding: 0 18px 20px; margin-bottom: 20px; overflow: hidden; text-align: center; box-shadow: 0 8px 26px rgba(0,0,0,.18); }
+body.light-mode .pf-card { border-color: #eadfbf; box-shadow: 0 8px 22px rgba(80,60,0,.08); }
+.pf-cover { position: relative; height: 92px; margin: 0 -18px; overflow: hidden; background: linear-gradient(135deg, #3a2f0c 0%, #8a6d1a 45%, #D4AF37 100%); }
+.pf-cover::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 140% at 80% 0%, rgba(255,240,170,.35), transparent 60%); }
+.pf-cover i { position: absolute; width: 9px; height: 9px; background: #fff6c8; opacity: .8; clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
+.pf-cover i:nth-child(1) { left: 14%; top: 24%; } .pf-cover i:nth-child(2) { left: 74%; top: 52%; width: 12px; height: 12px; } .pf-cover i:nth-child(3) { left: 40%; top: 66%; width: 7px; height: 7px; }
+.pf-avatar { position: relative; z-index: 1; width: 84px; height: 84px; margin: -42px auto 0; border-radius: 50%; padding: 3px; background: var(--gold-metal); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.pf-avatar img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #000; border: 3px solid var(--card); box-sizing: border-box; }
+.pf-name { margin-top: 10px; font-family: 'Amiri', 'Reem Kufi', serif; font-size: 30px; font-weight: 700; line-height: 1.2; color: var(--gold); }
+.pf-sub { margin-top: 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.pf-stats { display: flex; gap: 8px; margin: 16px 0 14px; }
+.pf-stat { flex: 1; min-width: 0; padding: 10px 6px; border-radius: 14px; background: var(--gold-fade); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; }
+.pf-stat b { color: var(--gold); font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-stat span { font-size: 11px; font-weight: 600; color: var(--muted); }
+.pf-about { padding-top: 14px; border-top: 1px dashed var(--line); line-height: 1.8; font-size: 14.5px; text-align: justify; color: var(--text); }
