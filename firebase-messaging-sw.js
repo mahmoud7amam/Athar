@@ -1,9 +1,58 @@
 /* أَثَر — Service Worker موحّد: كاش للتطبيق + إشعارات Firebase (بدون أي إعلانات) */
-const VERSION = 'athar-v3';
+const VERSION = 'athar-v7';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
+const TAFSIR_CACHE = 'tafsir-cache-v1';
+const ASSETS_CACHE = 'athar-assets-v1'; // خطوط وصور محفوظة من زر التنزيل
+const AUDIO_CACHE = 'quran-audio-v1';
 const QURAN_CACHE = 'quran-cache-v1'; // لا يُحذف أبداً (مصحف الأوفلاين)
-const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+// ملفات الواجهة (CSS/JS) — لازم تتسجل هنا عشان التطبيق يفتح أوفلاين من أول زيارة
+const APP_ASSETS = [
+  './css/base.css',
+  './css/components.css',
+  './css/layout.css',
+  './css/mushaf.css',
+  './css/feedback.css',
+  './css/theme.css',
+  './css/reader.css',
+  './css/tasbih.css',
+  './css/nav-cards.css',
+  './css/tafsir.css',
+  './css/hadith.css',
+  './css/reader-bar.css',
+  './css/player.css',
+  './css/sheets.css',
+  './css/storage.css',
+  './js/config.js',
+  './js/core/utils.js',
+  './js/core/firebase.js',
+  './js/core/device.js',
+  './js/data/countries.js',
+  './js/data/quran-meta.js',
+  './js/data/azkar.js',
+  './js/data/hadith.js',
+  './js/data/reciters.js',
+  './js/core/state.js',
+  './js/ui/toast.js',
+  './js/ui/theme.js',
+  './js/ui/navigation.js',
+  './js/features/notifications.js',
+  './js/features/prayer-times.js',
+  './js/features/search.js',
+  './js/features/admin.js',
+  './js/features/quran-api.js',
+  './js/features/quran-offline.js',
+  './js/features/reader.js',
+  './js/features/quran-lists.js',
+  './js/features/duas.js',
+  './js/features/tafsir.js',
+  './js/features/hadith.js',
+  './js/features/tasbih.js',
+  './js/features/audio.js',
+  './js/features/storage.js',
+  './js/app.js'
+];
+const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', ...APP_ASSETS];
 
 // Firebase للإشعارات — لو الإنترنت مقطوع وقت التثبيت ما نفشلش التثبيت
 let messaging = null;
@@ -31,7 +80,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
     await Promise.all(keys
-      .filter((k) => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== QURAN_CACHE)
+      .filter((k) => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== QURAN_CACHE && k !== TAFSIR_CACHE && k !== ASSETS_CACHE && k !== AUDIO_CACHE)
       .map((k) => caches.delete(k)));
     await self.clients.claim();
   })());
@@ -67,7 +116,7 @@ self.addEventListener('fetch', (event) => {
   if (url.origin === self.location.origin || RUNTIME_HOSTS.includes(url.hostname)) {
     event.respondWith((async () => {
       const cache = await caches.open(RUNTIME_CACHE);
-      const cached = await cache.match(req);
+      const cached = (await cache.match(req)) || (await caches.match(req, { ignoreVary: true }));
       const fetching = fetch(req).then((res) => { if (cacheable(res)) cache.put(req, res.clone()); return res; }).catch(() => null);
       return cached || (await fetching) || Response.error();
     })());

@@ -3,5 +3,13 @@
   "version": "1.0.0",
   "description": "Athar Project Mobile App",
   "main": "index.html",
-  "author": "Mahmoud Hamam"
+  "author": "Mahmoud Hamam",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npx --yes serve ."
+  },
+  "private": true,
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
 }
