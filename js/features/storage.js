@@ -3,7 +3,7 @@ const fmtMB = b => b >= 1073741824 ? (b / 1073741824).toFixed(2) + ' GB' : (b / 
 async function renderStorageInfo() {
     if (!$('stUsage')) return;
     try {
-        if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); $('stUsage').textContent = fmtMB(e.usage || 0); }
+        if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); $('stUsage').textContent = fmtMB(e.usage || 0); if (e.quota && $('stUsageBar')) $('stUsageBar').style.width = Math.max(2, Math.min(100, (e.usage || 0) / e.quota * 100)) + '%'; }
         const n = await countSurahsCached(); $('stQuran').textContent = n >= 114 ? 'كامل ✓' : n ? `${A(n)}/${A(114)}` : 'غير محفوظ';
         const tn = await tafsirCachedCount(); $('stTafsir').textContent = tn >= TF_TOTAL ? 'كامل ✓' : tn ? `${A(tn)}/${A(TF_TOTAL)}` : 'غير محفوظ';
         const ac = await openCache(AUD_CACHE); const an = ac ? (await ac.keys()).length : 0; $('stAudio').textContent = an ? `${A(an)} آية` : 'لا يوجد';
@@ -13,7 +13,12 @@ async function renderStorageInfo() {
     } catch (e) {}
 }
 async function requestPersist() { const ok = await persistStorage(); toast(ok ? 'تم تفعيل الحفظ الدائم ✓' : 'المتصفح لم يوافق على الحفظ الدائم'); renderStorageInfo(); }
-async function clearAudioCache() { try { await caches.delete(AUD_CACHE); toast('تم مسح الصوتيات المحفوظة'); } catch (e) {} renderStorageInfo(); }
+async function clearAudioCache() {
+    if (fullDl || audioDlBusy) { toast('استنى لحد ما التنزيل يخلص'); return; }
+    if (!confirm('مسح كل الصوتيات المحفوظة؟ هتحتاج تنزّلها تاني.')) return;
+    try { await caches.delete(AUD_CACHE); toast('تم مسح الصوتيات المحفوظة'); } catch (e) {}
+    renderStorageInfo(); renderAudioCard();
+}
 
 /* كارت البروفايل في أول الإعدادات */
 function renderProfileCard() {
