@@ -276,54 +276,27 @@
     </div>
 
     <div id="p-settings" class="page">
-
-        <!-- تعريفي: Mahmoud Hamam -->
         <div class="pf-card" id="pfCard">
-            <div class="pf-cover"><i></i><i></i><i></i><i></i></div>
-            <div class="pf-avatar"><span>MH</span></div>
-            <div class="pf-name">Mahmoud Hamam</div>
-            <div class="pf-role">مطوّر تطبيق أَثَر</div>
-            <p class="pf-bio">أبني "أَثَر" ليكون صدقة جارية: مصحف وتفسير ومواقيت وأذكار في مكان واحد، بواجهة هادئة وبدون إعلانات ولا مشتتات. لا تنسونا من صالح دعائكم.</p>
-            <a href="mailto:mahmoud7amam0m@gmail.com" class="pf-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg><span>تواصل معي</span></a>
-        </div>
-
-        <div class="pf-stats">
-            <div class="pf-stat"><b id="pfTasbih">٠</b><span>تسبيحاتك</span></div>
-            <div class="pf-stat"><b id="pfReciter">—</b><span>قارئك</span></div>
-            <div class="pf-stat"><b id="pfTheme">—</b><span>المظهر</span></div>
-        </div>
-
-        <!-- عن التطبيق -->
-        <div class="sx-card">
-            <div class="sx-head"><span class="sx-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/></svg></span><b>عن أَثَر</b><small>الإصدار ١٠</small></div>
-            <div class="sx-text">
-                تطبيق "أَثَر" صدقة جارية وعمل إسلامي يهدف إلى تيسير الوصول إلى القرآن الكريم ومواقيت الصلاة والأذكار اليومية بواجهة مريحة للعين.
+            <div class="pf-cover"><i></i><i></i><i></i></div>
+            <div class="pf-avatar"><img src="icon-192.png" alt="" width="84" height="84" decoding="async"></div>
+            <div class="pf-name">أَثَر</div>
+            <div class="pf-sub">صدقة جارية · مصحف • تفسير • مواقيت • أذكار</div>
+            <div class="pf-stats">
+                <div class="pf-stat"><b id="pfTasbih">٠</b><span>تسبيحاتك</span></div>
+                <div class="pf-stat"><b id="pfReciter">—</b><span>قارئك</span></div>
+                <div class="pf-stat"><b id="pfTheme">—</b><span>المظهر</span></div>
+            </div>
+            <div class="pf-about">
+                تطبيق "أَثَر" هو صدقة جارية وعمل إسلامي يهدف إلى تيسير الوصول للقرآن الكريم، ومواقيت الصلاة، والأذكار اليومية بطريقة سلسة وواجهة مريحة للعين.
                 <br><br>
-                صُمّم ليترك أثراً طيباً ويوفّر بيئة خالية من المشتتات تتيح لك الخشوع والتأمل في آيات الله وذكره.
+                تم تصميم التطبيق لترك أثر طيب وتوفير بيئة خالية من المشتتات تتيح لك الخشوع والتأمل في آيات الله وذكره.
                 <br><br>
                 نسأل الله العلي القدير أن يتقبل منا ومنكم صالح الأعمال، وأن يجعله في ميزان حسنات كل من استخدمه ونشره.
             </div>
-            <div class="sx-chips"><span>المصحف</span><span>التفسير</span><span>المواقيت</span><span>الأذكار</span><span>المسبحة</span><span>الأحاديث</span></div>
         </div>
 
-        <!-- التلاوة والصوت -->
-        <div class="sx-card" id="audCard">
-            <div class="sx-head"><span class="sx-ic"><svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V7a4 4 0 0 0-4-4z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><b>التلاوة والصوت</b></div>
-            <div class="st-row"><span>القارئ</span><button class="sx-pill" onclick="openReciterSheet()"><span id="audRecName">—</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
-            <div class="st-row"><span>جودة الصوت</span><button class="sx-pill" onclick="toggleAudioQuality()"><span id="audQualVal">—</span><svg viewBox="0 0 24 24"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg></button></div>
-            <div class="st-row"><span>المحفوظ بهذا القارئ</span><b id="audStatus">—</b></div>
-            <button class="download-btn sx-dl" id="audFullBtn" onclick="downloadFullQuranAudio()">
-                <span id="audFullText">📥 تنزيل المصحف كاملاً</span>
-                <div id="audFullBarWrap" class="download-progress-container"><div id="audFullBar" class="download-progress-bar"></div></div>
-            </button>
-            <button class="st-btn danger" id="audFullStop" style="display:none;width:100%" onclick="stopFullAudioDownload()">إيقاف التنزيل</button>
-            <div class="sx-note">التلاوات المحفوظة تفضل على جهازك للأبد وتشتغل بدون إنترنت، ولا تُمسح إلا لو مسحتها بنفسك. الجودة العالية بتتفعّل تلقائياً للقرّاء اللي بيدعموها.</div>
-        </div>
-
-        <!-- التخزين -->
-        <div class="sx-card" id="storageCard">
-            <div class="sx-head"><span class="sx-ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span><b>التخزين والتنزيلات</b></div>
-            <div class="sx-usage"><div class="sx-bar"><i id="stUsageBar"></i></div></div>
+        <div class="settings-section" id="storageCard">
+            <div class="settings-title">التخزين والتنزيلات</div>
             <div class="st-row"><span>المساحة المستخدمة</span><b id="stUsage">—</b></div>
             <div class="st-row"><span>المصحف</span><b id="stQuran">—</b></div>
             <div class="st-row"><span>التفسير</span><b id="stTafsir">—</b></div>
@@ -336,11 +309,30 @@
             </div>
         </div>
 
-        <div class="sx-foot">
-            <div class="dev-signature">Developed by Mahmoud Hamam</div>
-            © 2026 أَثَر — جميع الحقوق محفوظة
+        <div class="dev-signature">Developed by Mahmoud Hamam</div>
+
+        <div class="settings-section" style="text-align: center;">
+            <div class="settings-title">المطور</div>
+            <div class="settings-text" style="text-align: center; font-weight: bold; font-size: 18px; color: var(--gold);">
+                Mahmoud Hamam
+            </div>
+            <div class="settings-text" style="text-align: center; margin-top: 10px;">
+                يسعدنا تواصلكم معنا لأي مقترحات، استفسارات، أو الإبلاغ عن أي مشكلة.
+            </div>
+
+            <a href="mailto:mahmoud7amam0m@gmail.com" class="contact-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg>
+                تواصل عبر البريد
+            </a>
+            <span class="dev-small-text">Developed by Mahmoud Hamam</span>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; margin-bottom: 20px; font-weight: 400; font-size: 13px; color: #888; opacity: 0.8;">
+            © 2026 أَثَر - جميع الحقوق محفوظة<br>
+            <span style="color: var(--gold);">Mahmoud Hamam</span>
         </div>
     </div>
+
 </div>
 
 <div class="font-controls" id="fControls"></div>

@@ -14,26 +14,6 @@ function marker(n) {
 }
 
 let readerMeta = null;
-let surahPg = null;   // نظام الصفحات داخل السورة: { id, pages: [{page, ayahs}], idx }
-
-function splitByPage(ayahs) {
-    const out = []; let cur = null;
-    ayahs.forEach(a => { if (!cur || cur.page !== a.page) { cur = { page: a.page, ayahs: [] }; out.push(cur); } cur.ayahs.push(a); });
-    return out;
-}
-function canGoNext() {
-    if (currentType === 'surah' && surahPg && surahPg.id === currentId) return surahPg.idx < surahPg.pages.length - 1 || currentId < 114;
-    return currentId < qLimit(currentType);
-}
-function pagerHTML() {
-    if (!surahPg) return '';
-    const d = toArabicDigits, n = surahPg.pages.length, i = surahPg.idx;
-    const first = i === 0 && surahPg.id === 1, last = i === n - 1 && surahPg.id === 114;
-    const chevR = '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>', chevL = '<svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>';
-    return `<div class="pg-bar"><button class="pg-btn" onclick="navigate('prev')"${first ? ' disabled' : ''} aria-label="الصفحة السابقة">${chevR}<span>السابقة</span></button>`
-        + `<div class="pg-ind">صفحة ${d(surahPg.pages[i].page)}<small>${d(i + 1)} من ${d(n)} في السورة</small></div>`
-        + `<button class="pg-btn" onclick="navigate('next')"${last ? ' disabled' : ''} aria-label="الصفحة التالية"><span>التالية</span>${chevL}</button></div>`;
-}
 
 function surahBanner(sNum, meta) {
     if (meta && meta.numberOfAyahs) surahInfoMem[sNum] = { type: meta.revelationType, count: meta.numberOfAyahs };
@@ -53,7 +33,7 @@ function partLabel(type, id, first) {
 function buildReaderHTML(type, data, title, highlight) {
     const ayahs = data.ayahs || [];
     let html = `<div class="mushaf-page"><div class="reading-area" style="font-size:${currentFontSize}px">`;
-    html += type === 'surah' && ayahs[0] ? partLabel('page', ayahs[0].page, ayahs[0]) : partLabel(type, currentId, ayahs[0] || {});
+    html += partLabel(type, currentId, ayahs[0] || {});
     let open = false;
     const closeP = () => { if (open) { html += '</p>'; open = false; } };
 
@@ -79,7 +59,7 @@ function buildReaderHTML(type, data, title, highlight) {
         html += `<span id="ayah-${a.number}" class="ayah${hl}" data-s="${sNum}" data-j="${a.juz}" data-h="${a.hizbQuarter}" data-p="${a.page}" data-n="${a.numberInSurah}">${head} <span class="nw">${last}${marker(a.numberInSurah)}</span></span> `;
     });
     closeP();
-    html += '</div>' + (type === 'surah' ? pagerHTML() : '') + '</div>';
+    html += '</div></div>';
     return html;
 }
 
@@ -105,12 +85,12 @@ function renderReaderInfo() {
         <div class="ri-foot"><div class="ri-q">${[0, 1, 2, 3].map(i => `<i class="${i <= q ? 'on' : ''}"></i>`).join('')}</div>${QUARTERS[q]} من الحزب ${d(Math.ceil(hq / 4))}</div>`;
 }
 
-async function loadContent(type, id, title, highlightAyahNumber = null, dir = null, startPage = null) {
+async function loadContent(type, id, title, highlightAyahNumber = null, dir = null) {
     id = parseInt(id);
     const qt = $('qText');
     const flip = !!dir && $('p-reader').classList.contains('active') && !!qt.querySelector('.mushaf-page');
     currentType = type; currentId = id;
-    lastReq = { type, id, title, hl: highlightAyahNumber, pg: startPage };
+    lastReq = { type, id, title, hl: highlightAyahNumber };
     const token = ++loadToken;
     nav('p-reader', null, flip);
     let outDone = Promise.resolve();
@@ -122,17 +102,7 @@ async function loadContent(type, id, title, highlightAyahNumber = null, dir = nu
         const ayahs = data.ayahs || [];
         if (!ayahs.length) throw new Error('empty');
 
-        // السورة بتتعرض صفحة صفحة (زي المصحف) مش كلها تحت بعض
-        let view = data; surahPg = null;
-        if (type === 'surah') {
-            const pages = splitByPage(ayahs); let pi = 0;
-            if (highlightAyahNumber) { const k = pages.findIndex(p => p.ayahs.some(a => a.number === highlightAyahNumber)); if (k >= 0) pi = k; }
-            else if (startPage === 'last') pi = pages.length - 1;
-            else if (typeof startPage === 'number') { const k = pages.findIndex(p => p.page === startPage); if (k >= 0) pi = k; }
-            surahPg = { id, pages, idx: pi };
-            view = Object.assign({}, data, { ayahs: pages[pi].ayahs });
-        }
-        const first = view.ayahs[0];
+        const first = ayahs[0];
         readerMeta = { s: first.surah ? first.surah.number : data.number, j: first.juz, h: first.hizbQuarter, p: first.page, n: first.numberInSurah };
 
         let displayTitle = (title || '').replace("سورة ", "").trim();
@@ -141,10 +111,10 @@ async function loadContent(type, id, title, highlightAyahNumber = null, dir = nu
         else if (type === 'hizb') displayTitle = "الحزب " + id;
         else displayTitle = "الصفحة " + id;
 
-        qt.innerHTML = buildReaderHTML(type, view, displayTitle, highlightAyahNumber);
+        qt.innerHTML = buildReaderHTML(type, data, displayTitle, highlightAyahNumber);
         qt.className = flip ? 'flip-in-' + dir : 'flip-in-open';
         setTimeout(() => { if (token === loadToken) qt.className = ''; }, 520);
-        currentView = { type, id, title: displayTitle, pg: surahPg ? surahPg.pages[surahPg.idx].page : null };
+        currentView = { type, id, title: displayTitle };
         renderReaderInfo();
         collectAyahs(); aIdx = -1; if (audioContinue) { audioContinue = false; playIndex(0); }
 
@@ -157,7 +127,7 @@ async function loadContent(type, id, title, highlightAyahNumber = null, dir = nu
         if (token !== loadToken) return;
         qt.className = '';
         qt.innerHTML = `<div class="state-msg err" style="padding-top:35vh;">حدث خطأ. تحقق من الإنترنت.<br>
-            <button class="retry-btn" onclick="loadContent(lastReq.type,lastReq.id,lastReq.title,lastReq.hl,null,lastReq.pg)">إعادة المحاولة</button></div>`;
+            <button class="retry-btn" onclick="loadContent(lastReq.type,lastReq.id,lastReq.title,lastReq.hl)">إعادة المحاولة</button></div>`;
     }
 }
 
@@ -165,7 +135,7 @@ async function loadContent(type, id, title, highlightAyahNumber = null, dir = nu
 function setMark() { if (currentView) { store.set('saved_athr', JSON.stringify(currentView)); toast('تم حفظ العلامة ✓'); } }
 function goMark() {
     let m = null; try { m = JSON.parse(store.get('saved_athr')); } catch (e) {}
-    if (m) loadContent(m.type, m.id, m.title, null, null, m.pg || null); else toast('لا توجد علامة محفوظة');
+    if (m) loadContent(m.type, m.id, m.title); else toast('لا توجد علامة محفوظة');
 }
 
 /* ---------- السحب للتنقل بين السور/الصفحات ---------- */
@@ -182,13 +152,6 @@ scrollContainer.addEventListener('touchend', e => {
 }, { passive: true });
 
 function navigate(dir) {
-    if (currentType === 'surah' && surahPg && surahPg.id === currentId) {
-        const ni = surahPg.idx + (dir === 'next' ? 1 : -1);
-        if (ni >= 0 && ni < surahPg.pages.length) { loadContent('surah', currentId, surahs[currentId - 1], null, dir, surahPg.pages[ni].page); return; }
-        const sid = dir === 'next' ? currentId + 1 : currentId - 1;
-        if (sid < 1 || sid > 114) return;
-        loadContent('surah', sid, surahs[sid - 1], null, dir, dir === 'prev' ? 'last' : null); return;
-    }
     const newId = dir === 'next' ? currentId + 1 : currentId - 1;
     if (newId < 1 || newId > qLimit(currentType)) return;
     const U = { page: 'الصفحة ', juz: 'الجزء ', hizb: 'الحزب ' };

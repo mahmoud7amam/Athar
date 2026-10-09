@@ -45,7 +45,7 @@ function nav(id, el, keepScroll) {
     if (id === 'p-tasbih') updateTasbihUI();
     if (id === 'p-duas' && !duasRendered) { renderDuasList(); duasRendered = true; }
     if (id === 'p-admin') attachAdminStats();
-    if (id === 'p-settings') { renderStorageInfo(); renderProfileCard(); renderAudioCard(); }
+    if (id === 'p-settings') { renderStorageInfo(); renderProfileCard(); }
     if (id === 'p-tafsir') checkTafsirState();
     if (id === 'p-prayers') refreshPrayerDlState();
     if (id === 'p-hadith') renderHadith();
@@ -77,7 +77,7 @@ function updateReaderUI() {
 }
 
 $('p-reader').addEventListener('click', function (e) {
-    if (e.target.closest('.r-btn') || e.target.closest('.font-btn') || e.target.closest('.retry-btn') || e.target.closest('.pg-btn')) return;
+    if (e.target.closest('.r-btn') || e.target.closest('.font-btn') || e.target.closest('.retry-btn')) return;
     readerUiVisible = !readerUiVisible;
     updateReaderUI();
     if (readerUiVisible && currentView) toggleReaderInfo(true);

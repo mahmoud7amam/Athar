@@ -1,53 +1,17 @@
-/* أَثَر — الإعدادات: كارت تعريفي + بطاقات الأقسام */
+/* أَثَر — الإعدادات: كارت بشكل بروفايل في أول الصفحة */
 
-#p-settings { padding-bottom: 8px; }
-
-/* ===== كارت التعريف ===== */
-.pf-card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 0 20px 22px; margin-bottom: 14px; overflow: hidden; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.22); }
-body.light-mode .pf-card { border-color: #eadfbf; box-shadow: 0 10px 26px rgba(80,60,0,.1); }
-.pf-cover { position: relative; height: 104px; margin: 0 -20px; overflow: hidden; background: linear-gradient(135deg, #2b2208 0%, #8a6d1a 48%, #e2bd48 100%); }
-.pf-cover::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 2px, transparent 2px 14px); }
-.pf-cover::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 140% at 80% 0%, rgba(255,240,170,.38), transparent 60%); }
-.pf-cover i { position: absolute; z-index: 1; width: 9px; height: 9px; background: #fff6c8; opacity: .85; clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
-.pf-cover i:nth-child(1) { left: 12%; top: 22%; } .pf-cover i:nth-child(2) { left: 72%; top: 54%; width: 12px; height: 12px; } .pf-cover i:nth-child(3) { left: 38%; top: 68%; width: 7px; height: 7px; } .pf-cover i:nth-child(4) { left: 88%; top: 20%; width: 7px; height: 7px; }
-.pf-avatar { position: relative; z-index: 1; width: 92px; height: 92px; margin: -46px auto 0; border-radius: 50%; padding: 3px; background: var(--gold-metal); box-shadow: 0 8px 22px rgba(0,0,0,.4); display: flex; }
-.pf-avatar span { flex: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #2a2210, #0b0905); border: 3px solid var(--card); box-sizing: border-box; font-family: 'Reem Kufi', 'Alexandria', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: 1px; color: var(--gold-light); direction: ltr; }
-body.light-mode .pf-avatar span { background: radial-gradient(circle at 35% 30%, #fff7da, #f1e2ae); color: #7c5d0b; }
-.pf-name { margin-top: 12px; font-family: 'Alexandria', sans-serif; font-size: 24px; font-weight: 800; line-height: 1.25; color: var(--gold); direction: ltr; letter-spacing: .3px; }
-.pf-role { display: inline-block; margin-top: 8px; padding: 4px 14px; border-radius: 20px; background: var(--gold-fade); border: 1px solid var(--line); color: var(--gold-light); font-size: 12.5px; font-weight: 700; }
-body.light-mode .pf-role { color: #7c5d0b; }
-.pf-bio { margin: 14px 0 16px; line-height: 1.9; font-size: 14px; color: var(--text); opacity: .9; }
-.pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 26px; border-radius: 14px; background: var(--gold-metal); color: #000; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 4px 16px rgba(212,175,55,.3); }
-.pf-btn:active { transform: scale(.96); }
-
-/* ===== ملخّص سريع ===== */
-.pf-stats { display: flex; gap: 8px; margin-bottom: 16px; }
-.pf-stat { flex: 1; min-width: 0; padding: 12px 6px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; text-align: center; }
+.pf-card { position: relative; background: var(--card); border: 1px solid var(--gold-fade); border-radius: 22px; padding: 0 18px 20px; margin-bottom: 20px; overflow: hidden; text-align: center; box-shadow: 0 8px 26px rgba(0,0,0,.18); }
+body.light-mode .pf-card { border-color: #eadfbf; box-shadow: 0 8px 22px rgba(80,60,0,.08); }
+.pf-cover { position: relative; height: 92px; margin: 0 -18px; overflow: hidden; background: linear-gradient(135deg, #3a2f0c 0%, #8a6d1a 45%, #D4AF37 100%); }
+.pf-cover::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 140% at 80% 0%, rgba(255,240,170,.35), transparent 60%); }
+.pf-cover i { position: absolute; width: 9px; height: 9px; background: #fff6c8; opacity: .8; clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
+.pf-cover i:nth-child(1) { left: 14%; top: 24%; } .pf-cover i:nth-child(2) { left: 74%; top: 52%; width: 12px; height: 12px; } .pf-cover i:nth-child(3) { left: 40%; top: 66%; width: 7px; height: 7px; }
+.pf-avatar { position: relative; z-index: 1; width: 84px; height: 84px; margin: -42px auto 0; border-radius: 50%; padding: 3px; background: var(--gold-metal); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.pf-avatar img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #000; border: 3px solid var(--card); box-sizing: border-box; }
+.pf-name { margin-top: 10px; font-family: 'Amiri', 'Reem Kufi', serif; font-size: 30px; font-weight: 700; line-height: 1.2; color: var(--gold); }
+.pf-sub { margin-top: 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.pf-stats { display: flex; gap: 8px; margin: 16px 0 14px; }
+.pf-stat { flex: 1; min-width: 0; padding: 10px 6px; border-radius: 14px; background: var(--gold-fade); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; }
 .pf-stat b { color: var(--gold); font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pf-stat span { font-size: 11px; font-weight: 600; color: var(--muted); }
-
-/* ===== بطاقات الأقسام ===== */
-.sx-card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px 16px 18px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.14); }
-body.light-mode .sx-card { border-color: #eadfbf; box-shadow: 0 6px 18px rgba(80,60,0,.07); }
-.sx-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-.sx-head b { flex: 1; color: var(--gold); font-size: 17px; font-weight: 800; }
-.sx-head small { color: var(--muted); font-size: 11.5px; font-weight: 700; }
-.sx-ic { width: 34px; height: 34px; flex: none; border-radius: 11px; background: var(--gold-fade); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--gold); }
-.sx-ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.sx-text { line-height: 1.85; font-size: 14.5px; text-align: justify; color: var(--text); }
-.sx-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-.sx-chips span { padding: 4px 12px; border-radius: 20px; background: var(--gold-fade); border: 1px solid var(--line); color: var(--gold); font-size: 12px; font-weight: 700; }
-.sx-pill { display: inline-flex; align-items: center; gap: 6px; max-width: 62%; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--gold-fade); color: var(--gold); font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
-.sx-pill span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sx-pill svg { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
-.sx-pill:active { transform: scale(.95); }
-.sx-dl { margin: 14px 0 0; }
-.sx-note { margin-top: 12px; font-size: 11.5px; line-height: 1.8; color: var(--muted); }
-.sx-usage { margin: 2px 0 6px; }
-.sx-bar { height: 7px; border-radius: 4px; background: var(--gold-fade); border: 1px solid var(--line); overflow: hidden; }
-.sx-bar i { display: block; height: 100%; width: 2%; border-radius: 4px; background: var(--gold-metal); transition: width .5s ease; }
-.sx-foot { text-align: center; margin: 22px 0 20px; font-size: 12.5px; color: var(--muted); opacity: .9; line-height: 1.9; }
-.sx-foot .dev-signature { margin: 0 0 2px; font-size: 14px; font-weight: 700; direction: ltr; }
-
-/* أرقام المساحة (٠٫٦ MB) تتعرض بترتيبها الصحيح داخل صفحة عربية */
-.st-row b { unicode-bidi: plaintext; }
+.pf-about { padding-top: 14px; border-top: 1px dashed var(--line); line-height: 1.8; font-size: 14.5px; text-align: justify; color: var(--text); }

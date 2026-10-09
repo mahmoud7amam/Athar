@@ -21,7 +21,6 @@ async function buildFromSurahs(type, id, cache) {
 }
 
 async function fetchQuran(type, id) {
-    if (type === 'surah' && surahMem.has(id)) return surahMem.get(id);
     const local = store.get('quran_downloaded') === 'true';
     if (type === 'hizb') {
         const cache = await openCache(QCACHE);
@@ -37,17 +36,17 @@ async function fetchQuran(type, id) {
     const url = qurl(type, id);
     const cache = await openCache(QCACHE);
     if (cache) {
-        const hit = await cache.match(url, { ignoreVary: true });
-        if (hit) { const j = await hit.json(); if (j && j.data) { if (type === 'surah') surahMem.set(id, j.data); return j.data; } }
+        const hit = await cache.match(url);
+        if (hit) { const j = await hit.json(); if (j && j.data) return j.data; }
         if (local && type !== 'surah') { const built = await buildFromSurahs(type, id, cache); if (built) return built; }
     }
     try {
-        const res = await fetchWithTimeout(url, 25000);
+        const res = await fetch(url);
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const blob = await res.blob();
-        const j = JSON.parse(await blob.text());
+        const copy = res.clone();
+        const j = await res.json();
         if (!j || !j.data) throw new Error('bad data');
-        if (cache) putRebuilt(cache, url, blob, 'application/json').catch(() => {});
+        if (cache) cache.put(url, copy).catch(() => {});
         if (type === 'surah') surahMem.set(id, j.data);
         return j.data;
     } catch (err) {

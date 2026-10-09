@@ -44,13 +44,3 @@ body.light-mode #reader-info{background:linear-gradient(160deg,#fffdf6,#f6efdc);
 .ri-foot{padding:0 16px 16px;font-size:12px;opacity:.85}
 .ri-q{display:flex;gap:5px;justify-content:center;margin-bottom:7px}
 .ri-q i{width:34px;height:5px;border-radius:3px;background:var(--line)}.ri-q i.on{background:var(--gold)}
-
-/* نظام الصفحات داخل السورة */
-.pg-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 2px 4px;direction:rtl}
-.pg-btn{display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:var(--gold-fade);color:var(--gold);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s,background .2s}
-.pg-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.pg-btn:active{transform:scale(.94);background:rgba(214,176,74,.25)}
-.pg-btn[disabled]{opacity:.3;pointer-events:none}
-.pg-ind{flex:1;text-align:center;font-weight:800;font-size:14px;line-height:1.5;color:var(--gold-light)}
-.pg-ind small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
-body.light-mode .pg-ind{color:#7c5d0b}

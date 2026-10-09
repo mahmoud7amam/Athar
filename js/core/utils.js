@@ -49,7 +49,6 @@ async function fetchAndCache(cache, url, { tries = 3, timeout = 20000, validate 
             return true;
         } catch (e) {
             last = e;
-            if (e && e.name === 'QuotaExceededError') break;   // المساحة ممتلئة: التكرار مش هيفيد
             if (e && e.status >= 400 && e.status < 500 && e.status !== 429) break;   // خطأ دائم: مفيش فايدة من التكرار
             if (i < tries - 1) await sleep(700 * (i + 1));
         }

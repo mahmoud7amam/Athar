@@ -20,7 +20,6 @@ function init() {
 
     registerSW().then(() => setupNotificationPrompt());
     setTimeout(setupAdminTracking, 1500);
-    setTimeout(audioHousekeeping, 6000);
 
     setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); checkHadithReminder(); }, 20000);
     setTimeout(checkHadithReminder, 5000);
