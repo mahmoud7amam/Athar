@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="css/sheets.css">
     <link rel="stylesheet" href="css/storage.css">
     <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/adhan.css">
 </head>
 <body>
 
@@ -295,6 +296,20 @@
             </div>
         </div>
 
+        <div class="settings-section" id="adhanCard">
+            <div class="settings-title">الأذان</div>
+            <div class="ad-row ad-master">
+                <span><b>تشغيل الأذان</b><small id="adSub"></small></span>
+                <label class="sw"><input type="checkbox" id="adOn" onchange="adhanToggleMaster(this.checked)"><i></i></label>
+            </div>
+            <div id="adList"></div>
+            <div class="ad-perm" id="adPerm" style="display:none"></div>
+            <div class="st-actions">
+                <button class="st-btn" onclick="testAdhan()">تجربة الأذان</button>
+            </div>
+            <div class="ad-note" id="adNote"></div>
+        </div>
+
         <div class="settings-section" id="storageCard">
             <div class="settings-title">التخزين والتنزيلات</div>
             <div class="st-row"><span>المساحة المستخدمة</span><b id="stUsage">—</b></div>
@@ -385,6 +400,17 @@
 </div>
 <div class="sh2-bd" id="rcBd" onclick="closeReciterSheet()"></div>
 <div class="sh2" id="rcSheet"><div class="sh2-head">اختر القارئ</div><div class="sh2-list" id="rcList"></div></div>
+<div id="adhanScreen" role="alertdialog" aria-label="الأذان">
+    <div class="ad-rings"><i></i><i></i><i></i></div>
+    <div class="ad-moon"><svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.5-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg></div>
+    <div class="ad-akbar">اللهُ أكبرُ اللهُ أكبرُ</div>
+    <div class="ad-title" id="adhanTitle"></div>
+    <div class="ad-sub" id="adhanSub"></div>
+    <div class="ad-clock" id="adhanClock"></div>
+    <button class="ad-tap" id="adhanTap" style="display:none" onclick="adhanTapPlay()">اضغط هنا لتشغيل الأذان</button>
+    <button class="ad-stop" onclick="stopAdhan()">إيقاف الأذان</button>
+    <div class="ad-dua">اللهم رب هذه الدعوة التامة والصلاة القائمة، آتِ محمداً الوسيلة والفضيلة</div>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <!-- Firebase: بيتحمّل في الآخر عشان ما يعطّلش ظهور الصفحة -->
@@ -418,6 +444,7 @@
 <script src="js/features/hadith.js"></script>
 <script src="js/features/tasbih.js"></script>
 <script src="js/features/audio.js"></script>
+<script src="js/features/adhan.js"></script>
 <script src="js/features/storage.js"></script>
 <script src="js/app.js"></script>
 <script>

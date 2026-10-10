@@ -41,3 +41,16 @@ npm run build     # ينتج dist/ (CSS و JS مجمّعين ومصغّرين)
 - قيّد مفتاح Firebase بالدومين وفعّل App Check، وراجع قواعد Realtime Database.
 - لوحة الأدمن لازم تتحمى بـ Firebase Auth (كلمة السر الحالية ظاهرة في الكود).
 - ما تكتبش باسورد الـ keystore في الـ workflow؛ استخدم GitHub Secrets وثبّت keystore واحد.
+
+## الأذان
+
+- **الإعدادات ← الأذان:** تفعيل عام + تفعيل/إيقاف كل صلاة لوحدها + زر تجربة.
+- **في المتصفح / PWA** (`js/features/adhan.js`): بيأذّن طول ما الصفحة شغّالة (حتى في الخلفية). ملف الصوت `videoplayback.m4a` بيتحفظ أوفلاين أول ما تفعّل الأذان.
+- **في تطبيق الأندرويد** (`android/`): الصفحة بتبعت جدول المواقيت (٤٥ يوم) لـ `window.AtharNative.setAdhanSchedule`، والتطبيق بيضبط منبّه `setAlarmClock` للأذان الجاي، فبيأذّن حتى والتطبيق مقفول والموبايل مقفول (خدمة Foreground + شاشة أذان فوق القفل + زر إيقاف). بيرجّع الضبط بعد إعادة تشغيل الموبايل.
+- لتغيير صوت الأذان: استبدل `videoplayback.m4a` (للويب) و `android/app/src/main/res/raw/adhan.m4a` (للتطبيق).
+
+## بناء APK
+
+1. ارفع المشروع على GitHub (الـ workflow في `.github/workflows/android.yml`).
+2. ضيف الـ Secrets الأربعة المكتوبين في أول ملف الـ workflow (لازم نفس keystore النسخة القديمة عشان التحديث ينزل فوقها).
+3. Actions ← Build Android APK ← Run workflow ← نزّل `athar-apk`.

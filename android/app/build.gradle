@@ -1,0 +1,44 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'app.athar.islamic'
+    compileSdk 34
+
+    defaultConfig {
+        // نفس اسم الحزمة بتاع نسخة PWABuilder القديمة عشان التحديث ينزل فوقها (لازم نفس الـ keystore)
+        applicationId "app.vercel.athar_silk.twa"
+        minSdk 26
+        targetSdk 34
+        versionCode 100
+        versionName "10.0.0"
+    }
+
+    signingConfigs {
+        release {
+            def ks = System.getenv("KEYSTORE_PATH")
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv("KEYSTORE_PATH")) signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}

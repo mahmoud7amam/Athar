@@ -1,5 +1,5 @@
 /* أَثَر — Service Worker موحّد: كاش للتطبيق + إشعارات Firebase (بدون أي إعلانات) */
-const VERSION = 'athar-v9';
+const VERSION = 'athar-v10';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
 const TAFSIR_CACHE = 'tafsir-cache-v1';
@@ -25,6 +25,7 @@ const APP_ASSETS = [
   './css/sheets.css',
   './css/storage.css',
   './css/settings.css',
+  './css/adhan.css',
   './js/config.js',
   './js/core/utils.js',
   './js/core/firebase.js',
@@ -51,6 +52,7 @@ const APP_ASSETS = [
   './js/features/hadith.js',
   './js/features/tasbih.js',
   './js/features/audio.js',
+  './js/features/adhan.js',
   './js/features/storage.js',
   './js/app.js'
 ];

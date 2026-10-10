@@ -41,6 +41,8 @@ function showPrayers(t) {
     prayerTimings = t;
     $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => `<div class="s-card"><b>${PRAYERS[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
     updateNextPrayer();
+    if (typeof adhanReschedule === 'function') adhanReschedule();
+    if (typeof renderAdhanSettings === 'function') renderAdhanSettings();
 }
 async function getPrayers(isManualChange = false) {
     const country = $('countrySelect').value, city = $('citySelect').value;

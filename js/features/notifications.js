@@ -10,6 +10,7 @@ function registerSW() {
 
 /* ---------- الإشعارات ---------- */
 async function showNotify(title, opts = {}) {
+    if (window.AtharNative) { try { window.AtharNative.notify(String(title || ''), String(opts.body || '')); } catch (e) {} return; }
     if (!hasNotif() || Notification.permission !== 'granted') return;
     const o = Object.assign({ icon: ICON, badge: ICON, dir: 'rtl', lang: 'ar' }, opts);
     try {
