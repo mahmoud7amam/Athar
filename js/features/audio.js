@@ -119,11 +119,11 @@ const mirrorUrl = (s, n, r = recId) => AUDIO_MIRROR[r] ? `https://cdn.islamic.ne
 const validAudio = async b => b && b.size > 2000;
 
 // يحفظ آية واحدة: (1) everyayah مباشرة (2) المرآة (3) وضع no-cors كحل أخير — بيرجّع 'ok' | 'opaque' | 'fail'
-async function cacheAyahAudio(c, s, n) {
-    const url = audioUrl(s, n);
+async function cacheAyahAudio(c, s, n, r = recId) {
+    const url = audioUrl(s, n, r);
     if (await c.match(url, { ignoreVary: true })) return 'ok';
     try { await fetchAndCache(c, url, { tries: 2, timeout: 30000, validate: validAudio, type: 'audio/mpeg' }); return 'ok'; } catch (e) {}
-    const m = mirrorUrl(s, n);
+    const m = mirrorUrl(s, n, r);
     if (m) {
         try { const r = await fetchWithTimeout(m, 30000); if (r.ok) { const b = await r.blob(); if (b.size > 2000) { await putRebuilt(c, url, b, 'audio/mpeg'); return 'ok'; } } } catch (e) {}
     }

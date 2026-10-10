@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="css/sheets.css">
     <link rel="stylesheet" href="css/storage.css">
     <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/qibla-azan.css">
 </head>
 <body>
 
@@ -185,6 +186,18 @@
             <span id="ptDlText">📥 تنزيل مواقيت الصلاة لـ 12 شهراً</span>
             <div id="ptBarWrap" class="download-progress-container"><div id="ptBar" class="download-progress-bar"></div></div>
         </button>
+        <div class="qa-grid">
+            <button class="qa-card" onclick="openQibla()" aria-label="اتجاه القبلة">
+                <span class="qa-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="36" height="34" rx="3" fill="#0d0d0c" stroke="#D4AF37" stroke-width="2.2"/><rect x="6" y="20" width="36" height="5" fill="#D4AF37"/><path d="M14 34h6v8h-6zM28 34h6v8h-6z" fill="#D4AF37" opacity=".7"/><path d="M24 2l3 4h-6z" fill="#D4AF37"/></svg></span>
+                <span class="qa-txt"><b>اتجاه القبلة</b><small>بوصلة تحدد الاتجاه من موقعك</small></span>
+            </button>
+            <div class="qa-card qa-azan">
+                <span class="qa-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6c-6 0-10 5-10 11v6l-4 6h28l-4-6v-6c0-6-4-11-10-11z" fill="#D4AF37"/><circle cx="24" cy="38" r="4" fill="#D4AF37"/></svg></span>
+                <span class="qa-txt"><b>الأذان <i id="azState" class="qa-state">مفعّل</i></b><small>يقول اسم الصلاة ويؤذّن عند الموعد</small></span>
+                <button class="sw" id="azSw" role="switch" aria-checked="true" onclick="toggleAzan()" aria-label="تشغيل الأذان"><span></span></button>
+                <button class="qa-test" onclick="testAzan()">جرّب الأذان</button>
+            </div>
+        </div>
         <div id="prayerList"></div>
     </div>
 
@@ -309,6 +322,25 @@
             </div>
         </div>
 
+        <div class="settings-section" id="recDlCard">
+            <div class="settings-title">تنزيل تلاوات الشيوخ</div>
+            <div class="settings-text">اختار القارئ والسور اللي عايزها، وتتحفظ عشان تسمعها أوفلاين من المشغّل.</div>
+            <label class="rd-lbl">القارئ<select id="rdRec" onchange="renderRec()"></select></label>
+            <div class="rd-range">
+                <label class="rd-lbl">من<select id="rdFrom" onchange="renderRec()"></select></label>
+                <label class="rd-lbl">إلى<select id="rdTo" onchange="renderRec()"></select></label>
+            </div>
+            <div class="rd-sum" id="rdSum"></div>
+            <div class="rd-list" id="rdList"></div>
+            <div class="st-actions">
+                <button class="st-btn" id="rdGo" onclick="rdDownload()">تنزيل المحدد</button>
+                <button class="st-btn danger" id="rdStop" onclick="rdStop()" style="display:none">إيقاف</button>
+                <button class="st-btn danger" onclick="rdDelete()">حذف تلاوات هذا القارئ</button>
+            </div>
+            <div class="download-progress-container" id="rdBarWrap" style="display:none"><div class="download-progress-bar" id="rdBar"></div></div>
+            <div class="rd-prog" id="rdProg"></div>
+        </div>
+
         <div class="dev-signature">Developed by Mahmoud Hamam</div>
 
         <div class="settings-section" style="text-align: center;">
@@ -407,6 +439,8 @@
 <script src="js/ui/navigation.js"></script>
 <script src="js/features/notifications.js"></script>
 <script src="js/features/prayer-times.js"></script>
+<script src="js/features/qibla.js"></script>
+<script src="js/features/azan.js"></script>
 <script src="js/features/search.js"></script>
 <script src="js/features/admin.js"></script>
 <script src="js/features/quran-api.js"></script>
@@ -419,6 +453,7 @@
 <script src="js/features/tasbih.js"></script>
 <script src="js/features/audio.js"></script>
 <script src="js/features/storage.js"></script>
+<script src="js/features/recitations.js"></script>
 <script src="js/app.js"></script>
 <script>
 /* إخفاء السبلاش بسلاسة: بعد ما الصفحة تجهز وبحد أدنى ~5.6 ثانية عشان الأنيميشن يكمل */
