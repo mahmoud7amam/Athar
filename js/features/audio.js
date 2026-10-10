@@ -119,11 +119,11 @@ const mirrorUrl = (s, n, r = recId) => AUDIO_MIRROR[r] ? `https://cdn.islamic.ne
 const validAudio = async b => b && b.size > 2000;
 
 // يحفظ آية واحدة: (1) everyayah مباشرة (2) المرآة (3) وضع no-cors كحل أخير — بيرجّع 'ok' | 'opaque' | 'fail'
-async function cacheAyahAudio(c, s, n, selectedReciter = recId) {
-    const url = audioUrl(s, n, selectedReciter);
+async function cacheAyahAudio(c, s, n) {
+    const url = audioUrl(s, n);
     if (await c.match(url, { ignoreVary: true })) return 'ok';
     try { await fetchAndCache(c, url, { tries: 2, timeout: 30000, validate: validAudio, type: 'audio/mpeg' }); return 'ok'; } catch (e) {}
-    const m = mirrorUrl(s, n, selectedReciter);
+    const m = mirrorUrl(s, n);
     if (m) {
         try { const r = await fetchWithTimeout(m, 30000); if (r.ok) { const b = await r.blob(); if (b.size > 2000) { await putRebuilt(c, url, b, 'audio/mpeg'); return 'ok'; } } } catch (e) {}
     }
@@ -161,64 +161,5 @@ async function downloadSurahAudio() {
     if (failed === count) toast('السيرفر لا يسمح بالتنزيل حالياً — الاستماع أونلاين فقط');
     else if (failed) toast(`تم حفظ ${A(count - failed)} آية وتعذر ${A(failed)} — اضغط تنزيل للإكمال`);
     else toast(`تم حفظ سورة ${surahs[s - 1]} بصوت ${recLabel} ✓`);
-    renderStorageInfo();
-}
-
-
-/* ---------- تنزيل تلاوة مختارة حسب القارئ والسورة ---------- */
-function initRecitationDownload() {
-    const readerSelect = $('downloadReciter'), surahSelect = $('downloadSurah');
-    if (!readerSelect || !surahSelect) return;
-    readerSelect.innerHTML = RECITERS.map(r => `<option value="${esc(r.id)}">${esc(r.name)}${r.sub ? ' — ' + esc(r.sub) : ''}</option>`).join('');
-    readerSelect.value = RECITERS.some(r => r.id === recId) ? recId : RECITERS[0].id;
-    surahSelect.innerHTML = surahs.map((name, i) => `<option value="${i + 1}">${String(i + 1).padStart(3, '0')} — ${esc(name)} (${A(AYAH_COUNTS[i])} آية)</option>`).join('');
-    surahSelect.value = String(currentType === 'surah' && currentId >= 1 && currentId <= 114 ? currentId : 1);
-}
-let chosenRecitationBusy = false;
-async function downloadChosenRecitation() {
-    const btn = $('recitationDlBtn'), txt = $('recitationDlText'), wrap = $('recitationDlBarWrap'), bar = $('recitationDlBar'), status = $('recitationDlStatus');
-    if (!btn || chosenRecitationBusy) { if (chosenRecitationBusy) toast('تنزيل التلاوة شغّال بالفعل…'); return; }
-    const readerSelect = $('downloadReciter'), surahSelect = $('downloadSurah');
-    const reader = RECITERS.find(r => r.id === (readerSelect && readerSelect.value));
-    const s = parseInt(surahSelect && surahSelect.value, 10);
-    if (!reader || !s || s < 1 || s > 114) { toast('اختر القارئ والسورة أولًا'); return; }
-    if (!isOnline()) { toast('اتصل بالإنترنت لبدء تنزيل هذه التلاوة'); return; }
-    // اعتماد القارئ المختار في المشغّل حتى يتعرف على الملفات المحفوظة عند الاستماع أوفلاين.
-    recId = reader.id; store.set('athr_reciter', recId);
-    const playerReciter = $('plRecName'); if (playerReciter) playerReciter.textContent = reader.name;
-    const cache = await openCache(AUD_CACHE);
-    if (!cache) { toast('المتصفح لا يدعم حفظ الصوتيات'); return; }
-    chosenRecitationBusy = true; btn.disabled = true; persistStorage();
-    if (wrap) wrap.style.display = 'block'; if (bar) bar.style.width = '0%';
-    if (txt) txt.textContent = `جاري تجهيز سورة ${surahs[s - 1]}…`;
-    if (status) status.textContent = `التنزيل بصوت ${reader.name}. لا تغلق الصفحة أثناء الحفظ.`;
-    const count = AYAH_COUNTS[s - 1]; let done = 0, failed = 0, opaque = 0;
-    try {
-        await pool(Array.from({ length: count }, (_, i) => i + 1), 3, async n => {
-            try {
-                const result = await cacheAyahAudio(cache, s, n, reader.id);
-                if (result === 'opaque') opaque++;
-                else if (result === 'fail') failed++;
-            } catch (e) { failed++; }
-            done++;
-            if (bar) bar.style.width = (done / count * 100) + '%';
-            if (txt) txt.textContent = `تنزيل سورة ${surahs[s - 1]}: ${A(done)} / ${A(count)} آية`;
-        });
-    } catch (e) { failed = Math.max(failed, count - done); }
-    finally {
-        chosenRecitationBusy = false; btn.disabled = false;
-        if (wrap) setTimeout(() => { wrap.style.display = 'none'; }, 1200);
-    }
-    if (failed === count) {
-        if (status) status.textContent = 'تعذر حفظ التلاوة من المصدر حاليًا؛ تحقق من الإنترنت وحاول مرة أخرى.';
-        toast('تعذر تنزيل التلاوة — حاول مرة أخرى');
-    } else if (failed) {
-        if (status) status.textContent = `تم حفظ ${A(count - failed)} من ${A(count)} آية. أعد التنزيل لاستكمال الآيات الناقصة.`;
-        toast(`حُفظت ${A(count - failed)} آية وتعذر ${A(failed)}`);
-    } else {
-        if (status) status.textContent = `تم حفظ سورة ${surahs[s - 1]} بصوت ${reader.name} للاستخدام بدون إنترنت ✓`;
-        if (txt) txt.textContent = `✅ تم حفظ ${surahs[s - 1]} — ${reader.name}`;
-        toast(`تم حفظ سورة ${surahs[s - 1]} بصوت ${reader.name} ✓`);
-    }
     renderStorageInfo();
 }
