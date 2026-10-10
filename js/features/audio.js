@@ -6,6 +6,7 @@ const aud = new Audio(); aud.preload = 'auto';
 let aList = [], aIdx = -1, aToken = 0, aObjUrl = null, audioContinue = false, aOpen = false;
 const recName = () => (RECITERS.find(r => r.id === recId) || RECITERS[0]).name;
 const audioUrl = (s, n, r = recId) => `https://everyayah.com/data/${r}/${String(s).padStart(3, '0')}${String(n).padStart(3, '0')}.mp3`;
+const AYAH_URL_RE = /\/data\/([^/]+)\/(\d{3})(\d{3})\.mp3$/;   // قارئ / سورة / آية في رابط الملف المحفوظ
 const ICO = {
     play: '<svg viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>',
     pause: '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4.2" height="14" rx="1.2"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2"/></svg>'
@@ -119,15 +120,16 @@ const mirrorUrl = (s, n, r = recId) => AUDIO_MIRROR[r] ? `https://cdn.islamic.ne
 const validAudio = async b => b && b.size > 2000;
 
 // يحفظ آية واحدة: (1) everyayah مباشرة (2) المرآة (3) وضع no-cors كحل أخير — بيرجّع 'ok' | 'opaque' | 'fail'
-async function cacheAyahAudio(c, s, n) {
-    const url = audioUrl(s, n);
+async function cacheAyahAudio(c, s, n, rec = recId, allowOpaque = true) {
+    const url = audioUrl(s, n, rec);
     if (await c.match(url, { ignoreVary: true })) return 'ok';
     try { await fetchAndCache(c, url, { tries: 2, timeout: 30000, validate: validAudio, type: 'audio/mpeg' }); return 'ok'; } catch (e) {}
-    const m = mirrorUrl(s, n);
+    const m = mirrorUrl(s, n, rec);
     if (m) {
         try { const r = await fetchWithTimeout(m, 30000); if (r.ok) { const b = await r.blob(); if (b.size > 2000) { await putRebuilt(c, url, b, 'audio/mpeg'); return 'ok'; } } } catch (e) {}
     }
-    try { const r = await fetchWithTimeout(url, 30000, { mode: 'no-cors' }); await c.put(url, r); return 'opaque'; } catch (e) {}
+    // وضع no-cors بياخد مساحة كبيرة جداً من الحصة في كل ملف — مسموح بس للتنزيل المحدود (مش تنزيل مصحف كامل)
+    if (allowOpaque) { try { const r = await fetchWithTimeout(url, 30000, { mode: 'no-cors' }); await c.put(url, r); return 'opaque'; } catch (e) {} }
     return 'fail';
 }
 

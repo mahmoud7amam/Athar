@@ -25,7 +25,9 @@ const APP_ASSETS = [
   './css/sheets.css',
   './css/storage.css',
   './css/settings.css',
+  './css/qibla.css',
   './css/adhan.css',
+  './css/audio-downloads.css',
   './js/config.js',
   './js/core/utils.js',
   './js/core/firebase.js',
@@ -41,6 +43,8 @@ const APP_ASSETS = [
   './js/ui/navigation.js',
   './js/features/notifications.js',
   './js/features/prayer-times.js',
+  './js/features/qibla.js',
+  './js/features/adhan.js',
   './js/features/search.js',
   './js/features/admin.js',
   './js/features/quran-api.js',
@@ -52,8 +56,8 @@ const APP_ASSETS = [
   './js/features/hadith.js',
   './js/features/tasbih.js',
   './js/features/audio.js',
-  './js/features/adhan.js',
   './js/features/storage.js',
+  './js/features/audio-downloads.js',
   './js/app.js'
 ];
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', ...APP_ASSETS];
@@ -116,6 +120,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // ملف الأذان: من الكاش أولاً بدون تحديث في الخلفية (3.6MB) وإلا من الشبكة
+  if (url.origin === self.location.origin && url.pathname.endsWith('/adhan.m4a')) {
+    event.respondWith((async () => {
+      const hit = await caches.match(req.url, { ignoreVary: true });
+      return hit || fetch(req);
+    })());
+    return;
+  }
+
   // التلاوات المحفوظة: من الكاش أولاً (ضروري للملفات المحفوظة بوضع no-cors) وإلا من الشبكة
   if (url.hostname === 'everyayah.com') {
     event.respondWith((async () => {
@@ -153,17 +166,24 @@ function showFromPayload(payload) {
     vibrate: [200, 100, 200],
     tag: 'athar-notif',
     renotify: true,
-    data: { url: self.registration.scope }
+    data: { url: self.registration.scope, prayer: d.prayer || '' }
   });
 }
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || self.registration.scope;
+  const data = event.notification.data || {};
+  const base = data.url || self.registration.scope;
+  const prayer = data.prayer || '';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-      for (const c of list) { if ('focus' in c) return c.focus(); }
-      return self.clients.openWindow(target);
+      for (const c of list) {
+        if ('focus' in c) {
+          if (prayer) c.postMessage({ type: 'prayer', k: prayer });   // التطبيق يعرض شاشة "صلاة كذا الآن"
+          return c.focus();
+        }
+      }
+      return self.clients.openWindow(prayer ? base + (base.includes('?') ? '&' : '?') + 'prayer=' + prayer : base);
     })
   );
 });

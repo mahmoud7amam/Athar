@@ -10,7 +10,6 @@ function registerSW() {
 
 /* ---------- الإشعارات ---------- */
 async function showNotify(title, opts = {}) {
-    if (window.AtharNative) { try { window.AtharNative.notify(String(title || ''), String(opts.body || '')); } catch (e) {} return; }
     if (!hasNotif() || Notification.permission !== 'granted') return;
     const o = Object.assign({ icon: ICON, badge: ICON, dir: 'rtl', lang: 'ar' }, opts);
     try {
@@ -65,22 +64,5 @@ function initRandomAzkarNotifications() {
 
 function sendNotify(title, body) { showNotify(title, { body: body }); }
 
-function checkPrayerNotifications() {
-    if (!prayerTimings || !prayerTimings.Fajr || !hasNotif() || Notification.permission !== 'granted') return;
-    const now = new Date();
-    const citySelect = $('citySelect');
-    const cityNameAr = (citySelect.options[citySelect.selectedIndex] || {}).text || "";
-    for (const k in PRAYERS) {
-        const d = prayerDate(k, now); if (!d) continue;
-        const diff = now - d;
-        if (diff >= 0 && diff < 3 * 60 * 1000) {
-            const key = k + "_" + now.toDateString();
-            if (!notifiedPrayers[key]) {
-                notifiedPrayers[key] = true;
-                showNotify(`حان الآن موعد صلاة ${PRAYERS[k]}`, {
-                    body: `الله أكبر، حان الآن موعد ${PRAYERS[k]} حسب توقيت ${cityNameAr}`, tag: 'prayer-' + k
-                });
-            }
-        }
-    }
-}
+// الإشعار والأذان وقت الصلاة بقوا في js/features/adhan.js
+function checkPrayerNotifications() { adhanTick(); }

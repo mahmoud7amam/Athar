@@ -39,10 +39,9 @@ function updateCities(savedCity = null, isManualChange = false) {
 let prayersSeq = 0;
 function showPrayers(t) {
     prayerTimings = t;
-    $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => `<div class="s-card"><b>${PRAYERS[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
+    $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => `<div class="s-card"><b>${typeof adBellHTML === 'function' ? adBellHTML(k) : ''}${PRAYERS[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
     updateNextPrayer();
-    if (typeof adhanReschedule === 'function') adhanReschedule();
-    if (typeof renderAdhanSettings === 'function') renderAdhanSettings();
+    if (typeof adhanSchedule === 'function') { adhanSchedule(); if (typeof nativeSync === 'function') nativeSync(); }
 }
 async function getPrayers(isManualChange = false) {
     const country = $('countrySelect').value, city = $('citySelect').value;
@@ -58,6 +57,7 @@ async function getPrayers(isManualChange = false) {
         if (!d.data || !d.data.timings) throw new Error('bad');
         timings = d.data.timings; fromNet = true;
         store.set(cacheKey, JSON.stringify(timings));
+        saveCityCoords(country, city, d.data.meta);
     } catch (e) {}
     if (seq !== prayersSeq) return;
     if (!timings) {
@@ -95,6 +95,17 @@ function formatTime12(s) {
     return `${h % 12 || 12}:${String(hm[1]).padStart(2, '0')} ${h >= 12 ? 'م' : 'ص'}`;
 }
 
+/* إحداثيات المدينة (بتيجي مع رد المواقيت) — بنحفظها عشان القبلة تشتغل أوفلاين */
+const cityLLKey = (c, ci) => `ll_${c}_${ci}`;
+function saveCityCoords(country, city, meta) {
+    const lat = meta && parseFloat(meta.latitude), lng = meta && parseFloat(meta.longitude);
+    if (isFinite(lat) && isFinite(lng)) { store.set(cityLLKey(country, city), JSON.stringify([lat, lng])); if (typeof onCityCoordsChanged === 'function') onCityCoordsChanged(); }
+}
+function cityCoords(country, city) {
+    try { const a = JSON.parse(store.get(cityLLKey(country, city))); if (a && isFinite(a[0]) && isFinite(a[1])) return { lat: a[0], lng: a[1], exact: true }; } catch (e) {}
+    return null;
+}
+
 /* ---------- حفظ المواقيت (تلقائي + تنزيل السنة) ---------- */
 const PT_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const ptKey = (c, ci, y) => `pt_year_${c}_${ci}_${y}`;
@@ -109,6 +120,7 @@ async function ptFetchMonth(country, city, y, m) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const j = await res.json();
     if (!j || !Array.isArray(j.data)) throw new Error('bad');
+    if (j.data[0]) saveCityCoords(country, city, j.data[0].meta);
     const out = {};
     j.data.forEach(d => {
         const [dd, mm] = d.date.gregorian.date.split('-');
@@ -145,6 +157,7 @@ async function autoSavePrayers(country, city) {
     const failed = await ptSaveMonths(country, city, need);
     if (!failed) store.set(key, today);
     refreshPrayerDlState();
+    if (typeof nativeSync === 'function') nativeSync();
 }
 function ptSavedUntil(country, city) {
     let last = null;
@@ -181,4 +194,5 @@ async function downloadPrayerYear() {
     setTimeout(() => { wrap.style.display = 'none'; }, 800);
     if (failed) toast(`تعذر تنزيل ${A(failed)} شهر — حاول مرة أخرى`); else toast('تم حفظ مواقيت 12 شهراً ✓');
     refreshPrayerDlState(); renderStorageInfo();
+    if (typeof nativeSync === 'function') nativeSync();
 }

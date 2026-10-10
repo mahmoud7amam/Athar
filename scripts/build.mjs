@@ -64,14 +64,14 @@ if (!assetsRe.test(sw)) throw new Error('APP_ASSETS غير موجودة في ' +
 await write(swPath, sw.replace(assetsRe, "const APP_ASSETS = ['./css/app.css', './js/app.js'];"));
 
 // ---- ملفات ثابتة
-const STATIC = ['sw.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'videoplayback.m4a'];
+const STATIC = ['sw.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'adhan.m4a'];
 for (const f of STATIC) await fs.copyFile(path.join(ROOT, f), path.join(DIST, f));
 await fs.cp(path.join(ROOT, '.well-known'), path.join(DIST, '.well-known'), { recursive: true });
 
 // ---- فحص نهائي
 const out = await fs.readFile(path.join(DIST, 'js/app.js'), 'utf8');
 const html2 = await fs.readFile(path.join(DIST, 'index.html'), 'utf8');
-for (const name of ['loadContent', 'nav', 'hit', 'closeReader', 'toggleReaderInfo', 'pickReciter', 'openTafsir', 'stopAdhan', 'testAdhan', 'adhanToggleMaster']) {
+for (const name of ['loadContent', 'nav', 'hit', 'closeReader', 'toggleReaderInfo', 'pickReciter', 'openTafsir']) {
   if (!new RegExp(`function ${name}\\b`).test(out)) throw new Error(`الدالة العامة ${name} اتغيّر اسمها`);
 }
 if (/css\/base\.css|js\/core\//.test(html2)) throw new Error('index.html ما زال يشير للملفات المصدرية');

@@ -45,9 +45,10 @@ function nav(id, el, keepScroll) {
     if (id === 'p-tasbih') updateTasbihUI();
     if (id === 'p-duas' && !duasRendered) { renderDuasList(); duasRendered = true; }
     if (id === 'p-admin') attachAdminStats();
-    if (id === 'p-settings') { renderStorageInfo(); renderProfileCard(); renderAdhanSettings(); }
+    if (id === 'p-settings') { renderStorageInfo(); renderProfileCard(); }
     if (id === 'p-tafsir') checkTafsirState();
     if (id === 'p-prayers') refreshPrayerDlState();
+    if (id === 'p-qibla') qiblaEnter(); else qiblaLeave();
     if (id === 'p-hadith') renderHadith();
     if (id === 'p-tafsir' && !$('tfList').childElementCount) renderTafsirList();
 }

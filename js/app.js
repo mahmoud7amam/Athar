@@ -17,9 +17,9 @@ function init() {
     checkOfflineState();
     scheduleAutoDownload();
     refreshPrayerDlState();
-    adhanInit();
 
     registerSW().then(() => setupNotificationPrompt());
+    adhanInit();
     setTimeout(setupAdminTracking, 1500);
 
     setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); checkHadithReminder(); }, 20000);

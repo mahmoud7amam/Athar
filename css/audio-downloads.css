@@ -1,0 +1,37 @@
+/* أَثَر — مركز تنزيل التلاوات */
+
+.sh2.dl-sheet { max-height: 90dvh; height: 90dvh; display: flex; flex-direction: column; }
+.dl-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 14px calc(14px + env(safe-area-inset-bottom)); }
+.dl-pick { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; border: 1px solid var(--line); background: var(--gold-fade); cursor: pointer; flex: none; -webkit-tap-highlight-color: transparent; }
+.dl-pick b { display: block; font-size: 16px; font-weight: 800; color: var(--text); }
+.dl-pick small { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+.dl-chev { width: 18px; height: 18px; fill: none; stroke: var(--gold); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.dl-sum { flex: none; margin: 10px 2px 8px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.dl-sum b { color: var(--gold); }
+.dl-actions { display: flex; gap: 8px; flex: none; margin-bottom: 10px; }
+.dl-actions .st-btn { min-width: 0; padding: 10px 6px; }
+.dl-actions .st-btn:disabled { opacity: .4; pointer-events: none; }
+.dl-actions.lock { opacity: .45; pointer-events: none; }
+.dl-prog { flex: none; margin-bottom: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.dl-prog-t { font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.dl-bar { height: 6px; border-radius: 4px; background: rgba(212,175,55,.18); overflow: hidden; }
+.dl-bar i { display: block; height: 100%; width: 0; background: var(--gold-metal); transition: width .25s; }
+.dl-stop { margin-top: 10px; width: 100%; padding: 8px; border-radius: 10px; border: 1px solid rgba(229,83,75,.4); background: rgba(229,83,75,.07); color: #e5534b; font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+.dl-list { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+.dl-top { display: flex; align-items: center; gap: 10px; flex: none; padding: 2px 0 10px; color: var(--gold); font-size: 15px; }
+.dl-back { background: none; border: 1px solid var(--line); color: var(--gold); border-radius: 12px; padding: 6px 12px; font-family: inherit; font-weight: 800; font-size: 13px; cursor: pointer; }
+.dl-badge { font-size: 11px; font-weight: 800; color: var(--gold); background: var(--gold-fade); border-radius: 8px; padding: 2px 8px; }
+.dl-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 6px; border-radius: 14px; border: 1px solid transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; content-visibility: auto; contain-intrinsic-size: auto 56px; }
+.dl-row:active { background: var(--gold-fade); }
+.dl-row.cur { background: var(--gold-fade); border-color: var(--line); }
+.dl-n { width: 34px; height: 34px; flex: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); color: var(--gold); font-family: 'Amiri', serif; font-weight: 700; font-size: 15px; }
+.dl-nm { flex: 1; min-width: 0; }
+.dl-nm b { display: block; font-size: 16px; font-weight: 800; color: var(--text); }
+.dl-nm small { font-size: 11px; color: var(--muted); font-weight: 600; }
+.dl-st { flex: none; font-size: 12px; font-weight: 800; display: flex; align-items: center; }
+.dl-st svg { width: 20px; height: 20px; fill: none; stroke: var(--gold); stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.dl-st em { font-style: normal; padding: 3px 9px; border-radius: 9px; }
+.dl-st .ok { color: #34c26b; background: rgba(52,194,107,.12); }
+.dl-st .part { color: var(--gold); background: var(--gold-fade); }
+.dl-st .go { color: #000; background: var(--gold-metal); }
+.dl-row.full { opacity: .8; }
