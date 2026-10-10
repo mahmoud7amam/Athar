@@ -14,6 +14,8 @@ function init() {
     $('countrySelect').appendChild(frag);
     updateCities(savedCity, false);
     renderQuranList();
+    initRecitationDownload();
+    initAdhanControls();
     checkOfflineState();
     scheduleAutoDownload();
     refreshPrayerDlState();
@@ -21,7 +23,7 @@ function init() {
     registerSW().then(() => setupNotificationPrompt());
     setTimeout(setupAdminTracking, 1500);
 
-    setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); checkHadithReminder(); }, 20000);
+    setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); checkHadithReminder(); }, 10000);
     setTimeout(checkHadithReminder, 5000);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
