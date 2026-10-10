@@ -65,11 +65,21 @@ function initRandomAzkarNotifications() {
 function sendNotify(title, body) { showNotify(title, { body: body }); }
 
 function checkPrayerNotifications() {
-    if (!prayerTimings || !prayerTimings.Fajr) return;
+    if (!prayerTimings || !prayerTimings.Fajr || !hasNotif() || Notification.permission !== 'granted') return;
     const now = new Date();
+    const citySelect = $('citySelect');
+    const cityNameAr = (citySelect.options[citySelect.selectedIndex] || {}).text || "";
     for (const k in PRAYERS) {
         const d = prayerDate(k, now); if (!d) continue;
         const diff = now - d;
-        if (diff >= 0 && diff < 3 * 60 * 1000) triggerAzan(k, now);   // الأذان الصوتي + الإشعار (azan.js)
+        if (diff >= 0 && diff < 3 * 60 * 1000) {
+            const key = k + "_" + now.toDateString();
+            if (!notifiedPrayers[key]) {
+                notifiedPrayers[key] = true;
+                showNotify(`حان الآن موعد صلاة ${PRAYERS[k]}`, {
+                    body: `الله أكبر، حان الآن موعد ${PRAYERS[k]} حسب توقيت ${cityNameAr}`, tag: 'prayer-' + k
+                });
+            }
+        }
     }
 }
