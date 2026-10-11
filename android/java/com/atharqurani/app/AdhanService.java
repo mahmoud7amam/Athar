@@ -91,6 +91,11 @@ public class AdhanService extends Service {
         else startForeground(NOTIF_ID, n);
         stopPlayback();
         play();
+        // نحاول نفتح شاشة الأذان مباشرة كمان (لو النظام منعها، fullScreenIntent/الإشعار يكفوا)
+        try {
+            startActivity(new Intent(this, AdhanActivity.class).putExtra("idx", idx).putExtra("epoch", epoch)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        } catch (Exception ignored) { }
         // شاشة الأذان تظهر عن طريق fullScreenIntent (فوق القفل) أو الضغط على الإشعار
         h.removeCallbacksAndMessages(null);
         h.postDelayed(new Runnable() { @Override public void run() { stopSelf(); } }, 5 * 60 * 1000L + 30000L);

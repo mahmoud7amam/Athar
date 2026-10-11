@@ -73,6 +73,7 @@ final class AdhanScheduler {
         long[] next = AdhanPrefs.on(c) ? nextAfter(c, after) : null;
         if (next == null) {
             am.cancel(PendingIntent.getBroadcast(c, 7001, in, piFlags()));
+            am.cancel(PendingIntent.getBroadcast(c, 7003, new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM), piFlags()));
             return;
         }
         in.putExtra("idx", (int) next[1]).putExtra("epoch", next[0]);
@@ -80,5 +81,18 @@ final class AdhanScheduler {
         Intent launch = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
         PendingIntent show = PendingIntent.getActivity(c, 7002, launch != null ? launch : new Intent(), piFlags());
         am.setAlarmClock(new AlarmManager.AlarmClockInfo(next[0], show), op);
+
+        // منبّه احتياطي بنفس الوقت: لو نظام الجهاز (شاومي/هواوي/سامسونج...) لغى الأول، التاني يشتغل. التكرار بيتمنع في AdhanReceiver.
+        try {
+            Intent in2 = new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM).putExtra("idx", (int) next[1]).putExtra("epoch", next[0]);
+            PendingIntent op2 = PendingIntent.getBroadcast(c, 7003, in2, piFlags());
+            try {
+                if (Build.VERSION.SDK_INT >= 23) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next[0], op2);
+                else am.setExact(AlarmManager.RTC_WAKEUP, next[0], op2);
+            } catch (SecurityException se) {
+                if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next[0], op2);
+                else am.set(AlarmManager.RTC_WAKEUP, next[0], op2);
+            }
+        } catch (Exception ignored) { }
     }
 }

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 
 /**
@@ -67,6 +68,16 @@ public class SyncActivity extends Activity {
                 AdhanPrefs.setAsked(this, "fsi");
                 try {
                     startActivity(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:" + getPackageName())));
+                } catch (Exception ignored) { }
+            }
+        }
+        // استثناء التطبيق من توفير البطارية: أقوى ضمان إن الأذان ما يتأخرش ولا يتلغي (مرة واحدة)
+        if (Build.VERSION.SDK_INT >= 23 && !AdhanPrefs.asked(this, "batt")) {
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
+                AdhanPrefs.setAsked(this, "batt");
+                try {
+                    startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName())));
                 } catch (Exception ignored) { }
             }
         }

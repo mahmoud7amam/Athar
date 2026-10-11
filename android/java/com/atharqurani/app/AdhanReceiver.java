@@ -19,7 +19,11 @@ public class AdhanReceiver extends BroadcastReceiver {
         long epoch = i.getLongExtra("epoch", 0);
         long now = System.currentTimeMillis();
         // لو الجهاز كان مطفي وقت الأذان وعدّى أكتر من 10 دقايق، ما نشغّلش أذان متأخر
-        if (AdhanPrefs.on(c) && now - epoch < 10 * 60 * 1000L) AdhanService.begin(c, idx, epoch);
+        // ونمنع التكرار: المنبّه الأساسي والاحتياطي بيصحّوا بنفس الوقت، الأول بس هو اللي يشغّل
+        if (AdhanPrefs.on(c) && now - epoch < 10 * 60 * 1000L && epoch > AdhanPrefs.lastPlayed(c)) {
+            AdhanPrefs.setLastPlayed(c, epoch);
+            AdhanService.begin(c, idx, epoch);
+        }
         AdhanScheduler.scheduleAfter(c, Math.max(epoch, now));
     }
 }
