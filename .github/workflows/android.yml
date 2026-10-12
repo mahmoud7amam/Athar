@@ -7,11 +7,10 @@ on:
   workflow_dispatch:
 
 # الأسرار المطلوبة (Settings → Secrets and variables → Actions):
-#   ANDROID_KEYSTORE_B64      = محتوى signing.keystore بصيغة base64  (الأمر:  base64 -w0 signing.keystore)
+#   ANDROID_KEYSTORE_B64      = محتوى signing.keystore بصيغة base64
 #   ANDROID_KEYSTORE_PASSWORD = باسورد الـ keystore
 #   ANDROID_KEY_ALIAS         = my-key-alias
 #   ANDROID_KEY_PASSWORD      = باسورد المفتاح
-# لازم نفس الـ keystore بتاع نسخة جوجل بلاي الحالية، وإلا Play هيرفض التحديث.
 
 jobs:
   build:
@@ -23,8 +22,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-
-      # (حذفنا setup-android: السيرفر فيه Android SDK جاهز، والخطوة دي كانت بتفشل)
 
       - name: Install SDK platform
         run: |
@@ -43,8 +40,43 @@ jobs:
       - name: Prepare assets
         run: |
           RES=android/app/src/main/res
+          mkdir -p $RES/raw
           cp adhan.m4a $RES/raw/adhan.m4a
-          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do cp icon-192.png $RES/mipmap-$d/ic_launcher.png; done
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            mkdir -p $RES/mipmap-$d
+            cp icon-192.png $RES/mipmap-$d/ic_launcher.png
+          done
+
+      # إصلاح إيرور: style/Theme.AppCompat.NoActionBar not found
+      # الحل: إضافة مكتبة appcompat لو مش موجودة، ولو معرفناش نضيفها نغيّر الثيم لثيم النظام
+      - name: Fix AppCompat theme error
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          GRADLE=""
+          for f in android/app/build.gradle android/app/build.gradle.kts; do
+            [ -f "$f" ] && GRADLE="$f" && break
+          done
+          echo "gradle file: $GRADLE"
+
+          if [ -n "$GRADLE" ] && grep -q "androidx.appcompat:appcompat" "$GRADLE"; then
+            echo "appcompat already present"
+          elif [ -n "$GRADLE" ] && grep -q "dependencies *{" "$GRADLE"; then
+            case "$GRADLE" in
+              *.kts) LINE='    implementation("androidx.appcompat:appcompat:1.7.0")' ;;
+              *)     LINE='    implementation "androidx.appcompat:appcompat:1.7.0"' ;;
+            esac
+            # نضيف السطر بعد أول dependencies {
+            awk -v line="$LINE" '{print} !done && /dependencies *\{/ {print line; done=1}' "$GRADLE" > "$GRADLE.tmp" && mv "$GRADLE.tmp" "$GRADLE"
+            echo "appcompat added to $GRADLE"
+          else
+            echo "could not add appcompat, switching manifest theme"
+            sed -i 's#@style/Theme.AppCompat.NoActionBar#@android:style/Theme.Material.NoActionBar#g' "$MANIFEST"
+          fi
+
+          echo "---- themes in manifest ----"
+          grep -n "Theme" "$MANIFEST" || true
+          echo "---- dependencies ----"
+          grep -n "implementation\|dependencies" "$GRADLE" || true
 
       - name: Decode keystore
         env:
@@ -60,7 +92,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: gradle assembleRelease bundleRelease --no-daemon --stacktrace
+        run: gradle assembleRelease bundleRelease --no-daemon --console=plain
 
       - uses: actions/upload-artifact@v4
         with:
