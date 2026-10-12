@@ -147,7 +147,7 @@ public class AdhanService extends Service {
                 int max = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
                 if (am.getStreamVolume(AudioManager.STREAM_ALARM) < Math.max(1, max / 2)) am.setStreamVolume(AudioManager.STREAM_ALARM, Math.max(1, (int) (max * 0.6)), 0);
             } catch (Exception ignored) { }
-            am.requestAudioFocus(null, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+            try { am.requestAudioFocus(null, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT); } catch (Exception ignored) { }   // لو فشل ما يوقفش الأذان
             mp = new MediaPlayer();
             mp.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
             AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.adhan);
