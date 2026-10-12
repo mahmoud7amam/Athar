@@ -3,22 +3,32 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 jobs:
   apply:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Replace project with zip contents
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -e
-          ZIP=$(ls *.zip | head -1)
-          mkdir /tmp/new
+          # أحدث نسخة (v15 قبل v14 مش العكس): ترتيب بالإصدار مش بالأبجدية
+          ZIP=$(ls *.zip 2>/dev/null | sort -V | tail -1)
+          [ -n "$ZIP" ] || { echo "مفيش ملف .zip في جذر الريبو. ارفع الـ zip في الصفحة الرئيسية للريبو الأول."; exit 1; }
+          echo "Using zip: $ZIP"
+          rm -rf /tmp/new && mkdir /tmp/new
           unzip -q "$ZIP" -d /tmp/new
+          [ -d /tmp/new/Athar ] || { echo "الـ zip لازم يحتوي فولدر اسمه Athar"; ls /tmp/new; exit 1; }
           rm -rf /tmp/new/Athar/.github
           find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github -exec rm -rf {} +
           cp -a /tmp/new/Athar/. .
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add -A
-          git commit -m "Reorganize project into css/js modules"
+          if git diff --cached --quiet; then echo "No changes to commit"; exit 0; fi
+          git commit -m "Apply $ZIP"
           git push
+          # الـ push من الـ workflow مبيشغّلش workflow تاني لوحده، فبنشغّل بناء الأندرويد يدوياً
+          gh workflow run android.yml --ref "$GITHUB_REF_NAME" || echo "مقدرتش أشغّل بناء الأندرويد تلقائياً، شغّله يدوياً من Actions"
