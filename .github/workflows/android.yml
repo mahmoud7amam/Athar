@@ -102,6 +102,22 @@ jobs:
           fi
           tail -n 8 "$GRADLE"
 
+      # حل سريع للكراش: ثيم الـ Activities لازم يكون AppCompat (ده آمن حتى لو الـ Activity عادية)
+      - name: Fix activity themes
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          sed -i 's#@android:style/Theme.DeviceDefault.NoActionBar#@style/Theme.AppCompat.NoActionBar#g' "$MANIFEST"
+          echo "---- themes after fix ----"
+          grep -n "theme" "$MANIFEST" || true
+
+      # طباعة معلومات للتشخيص (تظهر في لوج الخطوة)
+      - name: Print debug info
+        run: |
+          echo "==== AndroidManifest.xml ===="
+          cat android/app/src/main/AndroidManifest.xml
+          echo "==== Activities / Services classes ===="
+          grep -rn "extends .*Activity\|extends .*Service\|extends .*Receiver" android/app/src/main/java 2>/dev/null || true
+
       - name: Decode keystore
         env:
           KS: ${{ secrets.ANDROID_KEYSTORE_B64 }}
