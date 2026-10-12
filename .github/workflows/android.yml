@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
+      # (حذفنا setup-android: السيرفر فيه Android SDK جاهز، والخطوة دي كانت بتفشل)
 
       - name: Install SDK platform
         run: |
