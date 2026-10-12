@@ -78,6 +78,30 @@ jobs:
           echo "---- dependencies ----"
           grep -n "implementation\|dependencies" "$GRADLE" || true
 
+      # إصلاح إيرور: Duplicate class kotlin.* (kotlin-stdlib مع stdlib-jdk7 / jdk8)
+      # من Kotlin 1.8 فوق الـ jdk7 والـ jdk8 بقوا جوه stdlib نفسها، فبنشيلهم من الـ build
+      - name: Fix duplicate Kotlin classes
+        run: |
+          GRADLE=""
+          for f in android/app/build.gradle android/app/build.gradle.kts; do
+            [ -f "$f" ] && GRADLE="$f" && break
+          done
+          [ -n "$GRADLE" ] || { echo "no app gradle file"; exit 1; }
+          if grep -q "kotlin-stdlib-jdk7" "$GRADLE"; then
+            echo "exclude already present"
+          else
+            case "$GRADLE" in
+              *.kts)
+                printf '\nconfigurations.all {\n    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")\n    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")\n}\n' >> "$GRADLE"
+                ;;
+              *)
+                printf "\nconfigurations.all {\n    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'\n    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'\n}\n" >> "$GRADLE"
+                ;;
+            esac
+            echo "added kotlin excludes to $GRADLE"
+          fi
+          tail -n 8 "$GRADLE"
+
       - name: Decode keystore
         env:
           KS: ${{ secrets.ANDROID_KEYSTORE_B64 }}
