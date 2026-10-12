@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- إذن الموقع لزر «موقعي بالـ GPS» في صفحة القبلة -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <!-- الأذان الأصلي: يشتغل والتطبيق مقفول / الشاشة مطفية / بدون نت -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -13,7 +13,9 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- «العرض فوق التطبيقات»: يخلّي شاشة الأذان تفتح حتى والموبايل مفتوح وفي تطبيق تاني قدامك -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
     <application
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
@@ -35,7 +37,7 @@
             <meta-data android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
                 android:resource="@color/backgroundColor"/>
             <meta-data android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
-                android:value="com.atharqurani.app.fileprovider"/>
+                android:value="app.vercel.athar_silk.twa.fileprovider"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -48,7 +50,16 @@
             </intent-filter>
         </activity>
 
-        <!-- جسر الويب ← الأصلي: الصفحة تبعت مواقيت الصلاة، فيضبط المنبّهات (بدون واجهة تقريباً) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="app.vercel.athar_silk.twa.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths"/>
+        </provider>
+
+        <!-- جسر الويب ← الأصلي: الصفحة تبعت مواقيت الصلاة، فيضبط المنبّهات -->
         <activity
             android:name="com.atharqurani.app.SyncActivity"
             android:exported="true"

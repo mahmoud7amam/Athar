@@ -11,12 +11,16 @@ import android.content.pm.ServiceInfo;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.provider.Settings;
+import android.view.View;
+import android.view.WindowManager;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -89,17 +93,47 @@ public class AdhanService extends Service {
         Notification n = build(this, idx, epoch, false);
         if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         else startForeground(NOTIF_ID, n);
+        h.removeCallbacksAndMessages(null);
         stopPlayback();
         play();
-        // نحاول نفتح شاشة الأذان مباشرة كمان (لو النظام منعها، fullScreenIntent/الإشعار يكفوا)
+        launchScreen(idx, epoch);
+        // شاشة الأذان تظهر عن طريق fullScreenIntent (فوق القفل) أو الضغط على الإشعار
+        h.postDelayed(new Runnable() { @Override public void run() { stopSelf(); } }, 5 * 60 * 1000L + 30000L);
+        return START_NOT_STICKY;
+    }
+
+    private View overlay;
+
+    /**
+     * فتح شاشة الأذان من الخلفية. أندرويد بيمنع أي تطبيق يفتح شاشة وهو في الخلفية، فعندنا طريقتين:
+     *  1) fullScreenIntent في الإشعار: بيفتحها فوق القفل لو الموبايل مقفول/الشاشة مطفية.
+     *  2) لو المستخدم أدّى إذن «العرض فوق التطبيقات»: بنحط نافذة شفافة 1×1 لحظياً (ده الشرط في أندرويد 15+)
+     *     وبعدها نفتح الشاشة مباشرة حتى والموبايل مفتوح وفي تطبيق تاني قدامك.
+     */
+    private void launchScreen(int idx, long epoch) {
+        removeOverlay();
+        try {
+            if (Build.VERSION.SDK_INT >= 23 && Settings.canDrawOverlays(this)) {
+                WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                int type = Build.VERSION.SDK_INT >= 26 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams(1, 1, type,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, PixelFormat.TRANSLUCENT);
+                View v = new View(this);
+                wm.addView(v, lp);
+                overlay = v;
+            }
+        } catch (Exception e) { overlay = null; }
         try {
             startActivity(new Intent(this, AdhanActivity.class).putExtra("idx", idx).putExtra("epoch", epoch)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
         } catch (Exception ignored) { }
-        // شاشة الأذان تظهر عن طريق fullScreenIntent (فوق القفل) أو الضغط على الإشعار
-        h.removeCallbacksAndMessages(null);
-        h.postDelayed(new Runnable() { @Override public void run() { stopSelf(); } }, 5 * 60 * 1000L + 30000L);
-        return START_NOT_STICKY;
+        h.postDelayed(new Runnable() { @Override public void run() { removeOverlay(); } }, 4000L);
+    }
+
+    private void removeOverlay() {
+        if (overlay == null) return;
+        try { ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).removeView(overlay); } catch (Exception ignored) { }
+        overlay = null;
     }
 
     private void play() {
@@ -137,6 +171,7 @@ public class AdhanService extends Service {
     @Override
     public void onDestroy() {
         h.removeCallbacksAndMessages(null);
+        removeOverlay();
         stopPlayback();
         try { if (am != null) am.abandonAudioFocus(null); } catch (Exception ignored) { }
         try { if (wl != null && wl.isHeld()) wl.release(); } catch (Exception ignored) { }

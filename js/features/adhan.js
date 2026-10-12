@@ -169,9 +169,9 @@ function adhanSchedule() {
    الويب لوحده ما يقدرش يشغّل أذان والتطبيق مقفول، فالـ APK فيه منبّه نظام + خدمة صوت + شاشة أذان أصلية.
    الصفحة بتبعتلها المواقيت (40 يوم) عبر رابط intent:// مع أول لمسة، وبعدها الأذان بيشتغل بدون ما التطبيق يكون مفتوح ولا فيه نت. */
 const TWA = { is: false, armed: false, waiting: null, sawHidden: false, tries: 0 };
-const NATIVE_PKG = 'com.atharqurani.app';
+const NATIVE_PKG = 'app.vercel.athar_silk.twa';   // applicationId لتطبيق جوجل بلاي (لازم يطابق android/app/build.gradle)
 function detectTWA() {
-    try { if (/[?&]twa=1/.test(location.search) || (document.referrer || '').indexOf('android-app://' + NATIVE_PKG) === 0) store.set('athar_twa', '1'); } catch (e) {}
+    try { if (/[?&]twa=1/.test(location.search) || (document.referrer || '').indexOf('android-app://') === 0) store.set('athar_twa', '1'); } catch (e) {}
     TWA.is = store.get('athar_twa') === '1' && /Android/i.test(navigator.userAgent);
     return TWA.is;
 }
@@ -254,6 +254,8 @@ function testAdhan() {
     if (nativeOk()) { adhanOverlay(k); nativeGo('test', 'i=' + Math.max(0, PT_KEYS.indexOf(k))); adNativeMode(k); return; }
     adhanUnlock(); adhanOverlay(k); adhanPlay(k);
 }
+// يفتح أذونات الأندرويد اللازمة لظهور شاشة الأذان وصوته والتطبيق مقفول (بتتطلب لمسة من المستخدم)
+function adhanPerms() { if (TWA.is) nativeGo('perms'); }
 async function enableAdhanNotif() {
     if (!hasNotif()) { toast('المتصفح لا يدعم الإشعارات'); return; }
     if (Notification.permission === 'denied') { toast('الإشعارات محظورة — فعّلها من إعدادات الموقع'); return; }
@@ -272,7 +274,8 @@ function adRenderSettings() {
         : perm === 'granted' ? '🔔 الإشعارات مفعّلة — ستصلك إشعارة «صلاة كذا الآن» عند كل صلاة.'
         : perm === 'denied' ? '🔕 الإشعارات محظورة من إعدادات المتصفح؛ الأذان سيعمل داخل التطبيق فقط.'
         : perm === 'unsupported' ? 'هذا المتصفح لا يدعم الإشعارات.' : '🔔 فعّل الإشعارات ليصلك تنبيه الصلاة حتى والتطبيق في الخلفية.';
-    $('adNotifBtn').style.display = perm === 'granted' || perm === 'unsupported' ? 'none' : '';
+    $('adNotifBtn').style.display = TWA.is || perm === 'granted' || perm === 'unsupported' ? 'none' : '';
+    const pb = $('adPermBtn'); if (pb) pb.style.display = TWA.is ? '' : 'none';
 }
 
 function adhanInit() {

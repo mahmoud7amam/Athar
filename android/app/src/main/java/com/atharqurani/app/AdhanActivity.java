@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -42,6 +43,15 @@ public class AdhanActivity extends Activity {
         root.setPadding(dp(24), dp(24), dp(24), dp(24));
         root.setBackgroundColor(Color.parseColor("#0B0A07"));
         if (Build.VERSION.SDK_INT >= 17) root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        if (Build.VERSION.SDK_INT >= 27) { setShowWhenLocked(true); setTurnScreenOn(true); }
+        // أندرويد 15+ بيرسم التطبيق تحت شريط الحالة/التنقل: نزوّد الحشو بمقدار الحواف
+        root.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override public WindowInsets onApplyWindowInsets(View v, WindowInsets in) {
+                v.setPadding(dp(24) + in.getSystemWindowInsetLeft(), dp(24) + in.getSystemWindowInsetTop(),
+                        dp(24) + in.getSystemWindowInsetRight(), dp(24) + in.getSystemWindowInsetBottom());
+                return in;
+            }
+        });
 
         TextView icon = new TextView(this);
         icon.setText("🕌");
@@ -102,6 +112,14 @@ public class AdhanActivity extends Activity {
 
         IntentFilter f = new IntentFilter(AdhanService.ACTION_ENDED);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(endedRx, f, Context.RECEIVER_NOT_EXPORTED); else registerReceiver(endedRx, f);
+    }
+
+    /** أذان جديد وصل والشاشة لسه مفتوحة (singleTop): نعيد بناءها ببيانات الصلاة الجديدة. */
+    @Override
+    protected void onNewIntent(Intent i) {
+        super.onNewIntent(i);
+        setIntent(i);
+        recreate();
     }
 
     private void markEnded() {

@@ -1,0 +1,43 @@
+plugins { id 'com.android.application' }
+
+// التوقيع: متغيّرات بيئة (الـ workflow بيملاها من GitHub Secrets). لو مش موجودة بيطلع APK/AAB غير موقّع.
+def ksPath = System.getenv("KEYSTORE_PATH")
+
+android {
+    namespace 'com.atharqurani.app'          // حزمة كود جافا + R
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "app.vercel.athar_silk.twa"   // نفس حزمة تطبيق جوجل بلاي (عشان يتحدّث فوقه)
+        minSdk 21
+        targetSdk 36
+        versionCode 10                              // لازم يكون أكبر من آخر نسخة مرفوعة في Play Console
+        versionName "2.0.0"
+    }
+
+    signingConfigs {
+        release {
+            if (ksPath) {
+                storeFile file(ksPath)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (ksPath) signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    implementation 'com.google.androidbrowserhelper:locationdelegation:1.1.1'
+}

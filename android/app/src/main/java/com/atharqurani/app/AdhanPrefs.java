@@ -23,5 +23,6 @@ final class AdhanPrefs {
     static long lastPlayed(Context c) { return sp(c).getLong("last_played", 0L); }
     static void setLastPlayed(Context c, long t) { sp(c).edit().putLong("last_played", t).apply(); }
     static boolean asked(Context c, String k) { return sp(c).getBoolean("asked_" + k, false); }
+    static void resetAsked(Context c) { sp(c).edit().remove("asked_notif").remove("asked_fsi").remove("asked_overlay").remove("asked_batt").apply(); }
     static void setAsked(Context c, String k) { sp(c).edit().putBoolean("asked_" + k, true).apply(); }
 }
