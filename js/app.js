@@ -1,6 +1,7 @@
 /* ---------- التشغيل ---------- */
 function init() {
     if (store.get('theme_athr') === 'light') toggleTheme();
+    applyReaderTheme(); renderReaderThemes();
 
     const savedCountry = store.get('saved_country') || "Egypt";
     const savedCity = store.get('saved_city');

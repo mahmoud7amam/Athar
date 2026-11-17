@@ -2,7 +2,7 @@
 
 const ADHAN_FILE = 'adhan.m4a';
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
-const AD = { audio: null, url: null, playing: false, k: null, unlocked: false, closeT: 0, timer: 0, ended: false };
+const AD = { audio: null, url: null, playing: false, k: null, unlocked: false, closeT: 0, timer: 0, ended: false, mode: 'adhan', iqAt: 0, iqT: 0 };
 
 const adOn = () => store.get('adhan_on') !== '0';
 const adPrayerOn = k => store.get('adhan_p_' + k) !== '0';
@@ -10,11 +10,28 @@ const adVol = () => { const v = parseFloat(store.get('adhan_vol')); return isFin
 const adDay = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 const adCity = () => { const s = $('citySelect'); return s && s.options[s.selectedIndex] ? s.options[s.selectedIndex].text : ''; };
 
+/* ---------- الإقامة: عدد الدقائق بعد الأذان (0 = بدون) ---------- */
+const IQ_OPTS = [0, 5, 10, 15, 20, 25, 30, 40, 45];
+const iqDelay = k => { const v = parseInt(store.get('iqama_' + k)); return IQ_OPTS.indexOf(v) > 0 ? v : 0; };
+const iqDate = (k, base) => { const d = iqDelay(k) && prayerDate(k, base || new Date()); return d ? new Date(d.getTime() + iqDelay(k) * 60000) : null; };
+const iqLabel = m => m ? 'بعد ' + A(m) + ' د' : 'بدون';
+function iqPickHTML(k) {
+    const cur = iqDelay(k), d = iqDate(k);
+    return `<label class="iq-pick" onclick="event.stopPropagation()"><small>الإقامة</small><select class="iq-sel" data-k="${k}" aria-label="الإقامة بعد الأذان — ${PRAYERS[k]}" onchange="setIqama('${k}',this.value)">${IQ_OPTS.map(m => `<option value="${m}"${m === cur ? ' selected' : ''}>${iqLabel(m)}</option>`).join('')}</select><em class="iq-time" data-k="${k}">${d ? formatTime12(pad2(d.getHours()) + ':' + pad2(d.getMinutes())) : '—'}</em></label>`;
+}
+function iqRefresh() {
+    document.querySelectorAll('.iq-time').forEach(e => { const d = iqDate(e.dataset.k); e.textContent = d ? formatTime12(pad2(d.getHours()) + ':' + pad2(d.getMinutes())) : '—'; });
+}
+function setIqama(k, v) {
+    store.set('iqama_' + k, String(parseInt(v) || 0)); iqRefresh(); adhanSchedule();
+    toast(parseInt(v) ? `إقامة ${PRAYERS[k]}: بعد ${A(parseInt(v))} دقيقة من الأذان` : `إقامة ${PRAYERS[k]}: متوقفة`);
+}
+
 /* ---------- الصوت ---------- */
 function adAudio() {
     if (!AD.audio) {
         const a = new Audio(); a.preload = 'auto';
-        a.addEventListener('ended', () => { AD.playing = false; AD.ended = true; adUI(); clearTimeout(AD.closeT); AD.closeT = setTimeout(adhanClose, 60000); });
+        a.addEventListener('ended', () => { AD.playing = false; AD.ended = true; adUI(); adSchedClose(); });
         a.addEventListener('pause', () => { if (!a.ended) { AD.playing = false; adUI(); } });
         a.addEventListener('play', () => { AD.playing = true; AD.ended = false; adUI(); });
         a.addEventListener('error', () => { if (a.getAttribute('src') && a.src !== SILENT_WAV) { AD.playing = false; adUI(); toast('تعذر تشغيل الأذان'); } });
@@ -84,7 +101,13 @@ function adNativeMode(k) {
     AD.native = true; AD.playing = true; AD.ended = false; clearTimeout(AD.nt);
     AD.nt = setTimeout(adNativeEnd, 235000); adUI();
 }
-function adNativeEnd() { clearTimeout(AD.nt); AD.playing = false; AD.ended = true; adUI(); clearTimeout(AD.closeT); AD.closeT = setTimeout(adhanClose, 60000); }
+function adNativeEnd() { clearTimeout(AD.nt); AD.playing = false; AD.ended = true; adUI(); adSchedClose(); }
+// الشاشة تفضل مفتوحة لحد الإقامة لو متحددة، وبعدها تتقفل لوحدها
+function adSchedClose() {
+    clearTimeout(AD.closeT);
+    if (AD.mode === 'adhan' && AD.iqAt && AD.iqAt > Date.now()) return;
+    AD.closeT = setTimeout(adhanClose, AD.mode === 'iqama' ? 120000 : 60000);
+}
 
 /* ---------- الشاشة ---------- */
 const ADHAN_DUA = 'اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ';
@@ -93,22 +116,63 @@ function adUI() {
     const b = $('adhPlay');
     b.innerHTML = AD.playing ? '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> إيقاف الأذان' : '<svg viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14z"/></svg> ' + (AD.ended ? 'إعادة الأذان' : 'تشغيل الأذان');
     ov.classList.toggle('playing', AD.playing);
-    $('adhDua').hidden = !AD.ended;
-    $('adhPhrase').hidden = AD.ended;
+    const iq = AD.mode === 'iqama';
+    ov.classList.toggle('iqama', iq);
+    $('adhDua').hidden = iq || !AD.ended;
+    $('adhPhrase').hidden = !iq && AD.ended;
 }
 function adhanOverlay(k, opts = {}) {
     const ov = $('adhanOv'); if (!ov) return;
-    AD.k = k; AD.ended = false; clearTimeout(AD.closeT);
+    AD.k = k; AD.ended = false; AD.mode = 'adhan'; clearTimeout(AD.closeT);
     const d = prayerDate(k, new Date());
+    // وقت الإقامة: من وقت الأذان الفعلي (أو من دلوقتي لو تجربة)
+    const dl = iqDelay(k), from = opts.from || d;
+    AD.iqAt = dl && from ? from.getTime() + dl * 60000 : 0;
+    if (AD.iqAt && AD.iqAt <= Date.now()) AD.iqAt = 0;
     $('adhTitle').textContent = `صلاة ${PRAYERS[k] || ''} الآن`;
     $('adhSub').textContent = `حسب توقيت ${adCity() || 'مدينتك'}` + (d ? ` • ${formatTime12(prayerTimings[k])}` : '');
     $('adhPhrase').textContent = k === 'Fajr' ? 'الصلاة خير من النوم' : 'حيّ على الصلاة، حيّ على الفلاح';
     $('adhDua').textContent = ADHAN_DUA;
     ov.classList.add('open'); document.body.classList.add('adhan-open');
+    iqCountdownStart();
     adUI();
 }
+/* عدّاد الإقامة داخل شاشة الأذان، وعند صفره تتحول الشاشة لشاشة الإقامة */
+function iqCountdownStart() {
+    clearInterval(AD.iqT);
+    const box = $('adhIq'); if (!box) return;
+    box.hidden = !AD.iqAt;
+    if (!AD.iqAt) return;
+    const tick = () => {
+        const left = AD.iqAt - Date.now();
+        if (left <= 0) { clearInterval(AD.iqT); iqamaFire(AD.k, true); return; }
+        const s = Math.ceil(left / 1000);
+        $('adhIqT').textContent = A(pad2(Math.floor(s / 60))) + ':' + A(pad2(s % 60));
+    };
+    tick(); AD.iqT = setInterval(tick, 1000);
+}
+function iqamaScreen(k) {
+    const ov = $('adhanOv'); if (!ov) return;
+    clearInterval(AD.iqT); clearTimeout(AD.closeT);
+    try { adhanStop(); } catch (e) {}
+    if (AD.native && AD.playing) nativeGo('stop');
+    AD.k = k; AD.mode = 'iqama'; AD.iqAt = 0;
+    $('adhIq').hidden = true;
+    $('adhTitle').textContent = `إقامة صلاة ${PRAYERS[k] || ''}`;
+    $('adhSub').textContent = `حسب توقيت ${adCity() || 'مدينتك'} • ${formatTime12(prayerTimings[k])} + ${A(iqDelay(k))} د`;
+    $('adhPhrase').textContent = 'قد قامت الصلاة — سَوُّوا صفوفكم';
+    ov.classList.add('open'); document.body.classList.add('adhan-open');
+    adUI(); AD.closeT = setTimeout(adhanClose, 120000);
+}
+// تنبيه الإقامة (شاشة لو التطبيق ظاهر، وإشعار لو في الخلفية)
+function iqamaFire(k, force) {
+    const d = iqDate(k); if (!d) return;
+    store.set('iqama_last_' + k, adDay(d));
+    if (!document.hidden) iqamaScreen(k);
+    else showNotify(`🕌 إقامة صلاة ${PRAYERS[k]}`, { body: `قد قامت الصلاة — إقامة ${PRAYERS[k]} الآن.`, tag: 'iqama-' + k, renotify: true, requireInteraction: true, vibrate: [300, 150, 300], data: { url: location.href.split('?')[0], prayer: k } });
+}
 function adhanClose() {
-    clearTimeout(AD.closeT);
+    clearTimeout(AD.closeT); clearInterval(AD.iqT); AD.iqAt = 0; AD.mode = 'adhan';
     if (AD.native) { if (AD.playing) nativeGo('stop'); AD.native = false; clearTimeout(AD.nt); AD.playing = false; }
     adhanStop();
     const ov = $('adhanOv'); if (ov) ov.classList.remove('open');
@@ -144,6 +208,8 @@ function adhanTick() {
         const d = prayerDate(k, now); if (!d) continue;
         const age = now - d;
         if (age >= 0 && age < 600000 && store.get('adhan_last_' + k) !== adDay(d)) adhanFire(k, d, age);
+        const q = iqDate(k, now);
+        if (q) { const qa = now - q; if (qa >= 0 && qa < 300000 && store.get('iqama_last_' + k) !== adDay(q)) iqamaFire(k); }
     }
 }
 // أقرب صلاة قادمة (وفجر بكرة من مواقيت بكرة المحفوظة لو متاحة)
@@ -160,7 +226,9 @@ function adhanNextTime() {
 // مؤقّت دقيق على ثانية دخول الوقت (مش بانتظار الـ 20 ثانية)
 function adhanSchedule() {
     clearTimeout(AD.timer);
-    const t = adhanNextTime(); if (!t) return;
+    let t = adhanNextTime(); if (!t) return;
+    const now = new Date();
+    for (const k in PRAYERS) { const q = iqDate(k, now); if (q && q > now && q < t) t = q; }
     const ms = Math.min(t - Date.now(), 2147000000);
     AD.timer = setTimeout(() => { adhanTick(); adhanSchedule(); }, Math.max(ms, 0) + 250);
 }
@@ -251,8 +319,8 @@ function setAdhanPrayer(k, v) { store.set('adhan_p_' + k, v ? '1' : '0'); native
 function setAdhanVol(v) { store.set('adhan_vol', String(v / 100)); if (AD.audio) AD.audio.volume = adVol(); }
 function testAdhan() {
     const k = (nextPrayer() || {}).k || 'Dhuhr';
-    if (nativeOk()) { adhanOverlay(k); nativeGo('test', 'i=' + Math.max(0, PT_KEYS.indexOf(k))); adNativeMode(k); return; }
-    adhanUnlock(); adhanOverlay(k); adhanPlay(k);
+    if (nativeOk()) { adhanOverlay(k, { from: new Date() }); nativeGo('test', 'i=' + Math.max(0, PT_KEYS.indexOf(k))); adNativeMode(k); return; }
+    adhanUnlock(); adhanOverlay(k, { from: new Date() }); adhanPlay(k);
 }
 // يفتح أذونات الأندرويد اللازمة لظهور شاشة الأذان وصوته والتطبيق مقفول (بتتطلب لمسة من المستخدم)
 function adhanPerms() { if (TWA.is) nativeGo('perms'); }

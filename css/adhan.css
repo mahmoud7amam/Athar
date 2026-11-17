@@ -43,3 +43,32 @@ body.adhan-open { overflow: hidden; }
 .ad-chip.on { background: var(--gold-metal); color: #000; border-color: transparent; }
 .ad-range { width: 150px; accent-color: var(--gold); }
 .ad-note { margin-top: 12px; font-size: 12px; line-height: 1.8; color: var(--muted); }
+
+/* عدّاد الإقامة وشاشة الإقامة */
+.adh-iq { margin: 18px auto 0; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 26px; border: 1px solid rgba(212,175,55,.4); border-radius: 18px; background: rgba(212,175,55,.08); }
+.adh-iq[hidden] { display: none; }
+.adh-iq small { font-size: 12px; font-weight: 700; color: #cbbf9a; }
+.adh-iq b { font-family: 'Alexandria', sans-serif; font-size: 34px; font-weight: 800; color: #f9e076; letter-spacing: 2px; direction: ltr; line-height: 1.3; }
+.adh-ov.iqama #adhPlay { display: none; }
+.adh-ov.iqama .adh-pulse { animation: iqBeat 1.6s ease-in-out infinite; }
+@keyframes iqBeat { 50% { transform: scale(1.06); box-shadow: 0 8px 46px rgba(249,224,118,.7); } }
+
+/* اختيار الإقامة جنب كل صلاة */
+.pr-card { gap: 8px; }
+.pr-card b { flex: 1; min-width: 0; }
+.iq-pick { display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: default; }
+.iq-pick small { font-size: 10px; font-weight: 700; color: var(--muted); line-height: 1.2; }
+select.iq-sel { width: auto; margin: 0; padding: 3px 6px; border-radius: 9px; font-size: 12px; font-weight: 700; box-shadow: none; background: var(--gold-fade); color: var(--text); border: 1px solid var(--line); cursor: pointer; text-align: center; }
+body.light-mode select.iq-sel { background: var(--gold-fade); color: var(--text); border-color: var(--line); }
+select.iq-sel option { background: #1a1a1a; color: #fff; }
+.iq-time { font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted); line-height: 1.3; }
+
+/* ألوان صفحة القراءة في الإعدادات */
+.rd-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.rd-opt { padding: 6px; border-radius: 14px; border: 2px solid var(--line); background: transparent; color: var(--text); font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
+.rd-opt small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.rd-opt.on { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-fade); }
+.rd-opt.on small { color: var(--gold); }
+.rd-prev { width: 100%; padding: 12px 2px; border-radius: 9px; font-family: 'Amiri Quran', 'Amiri', serif; font-size: 16px; text-align: center; border: 1px solid rgba(128,128,128,.3); box-sizing: border-box; }
+.rd-opt.auto .rd-prev { background: linear-gradient(105deg, #fffbef 50%, #0c0b09 50%); color: transparent; }
+.rd-opt:active { transform: scale(.96); }

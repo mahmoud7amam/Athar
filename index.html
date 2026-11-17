@@ -352,6 +352,13 @@
             <div class="ad-note">عند دخول الوقت تظهر شاشة «صلاة كذا الآن» ويُرفع الأذان. في تطبيق أندرويد يعمل الأذان تلقائياً حتى والتطبيق مغلق وبدون إنترنت.</div>
         </div>
 
+        <div class="settings-section" id="readerThemeCard">
+            <div class="settings-title">شكل صفحة القراءة</div>
+            <div class="ad-label">اختر لون صفحة المصحف</div>
+            <div class="rd-grid" id="rdGrid" role="radiogroup" aria-label="لون صفحة القراءة"></div>
+            <div class="ad-note">يؤثر على صفحة قراءة المصحف فقط، ولا يغيّر مظهر باقي التطبيق (الليلي / النهاري).</div>
+        </div>
+
         <div class="settings-section" id="storageCard">
             <div class="settings-title">التخزين والتنزيلات</div>
             <button class="download-btn" id="adlOpenBtn" onclick="openAudioDl()" style="margin-bottom:12px">
@@ -460,6 +467,7 @@
         <div class="adh-title" id="adhTitle">صلاة الظهر الآن</div>
         <div class="adh-sub" id="adhSub"></div>
         <div class="adh-phrase" id="adhPhrase"></div>
+        <div class="adh-iq" id="adhIq" hidden><small>الإقامة بعد</small><b id="adhIqT">--:--</b></div>
         <div class="adh-dua" id="adhDua" hidden></div>
         <div class="adh-actions">
             <button class="adh-btn main" id="adhPlay" onclick="adhanToggle()"></button>
