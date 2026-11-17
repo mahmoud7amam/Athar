@@ -39,7 +39,7 @@ function updateCities(savedCity = null, isManualChange = false) {
 let prayersSeq = 0;
 function showPrayers(t) {
     prayerTimings = t;
-    $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => `<div class="s-card pr-card"><b>${typeof adBellHTML === 'function' ? adBellHTML(k) : ''}${PRAYERS[k]}</b>${typeof iqPickHTML === 'function' ? iqPickHTML(k) : ''}<span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
+    $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => `<div class="s-card"><b>${typeof adBellHTML === 'function' ? adBellHTML(k) : ''}${PRAYERS[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
     updateNextPrayer();
     if (typeof adhanSchedule === 'function') { adhanSchedule(); if (typeof nativeSync === 'function') nativeSync(); }
 }

@@ -28,6 +28,8 @@ const APP_ASSETS = [
   './css/qibla.css',
   './css/adhan.css',
   './css/audio-downloads.css',
+  './css/tutorial.css',
+  './css/nav-glass.css',
   './js/config.js',
   './js/core/utils.js',
   './js/core/firebase.js',
@@ -58,6 +60,7 @@ const APP_ASSETS = [
   './js/features/audio.js',
   './js/features/storage.js',
   './js/features/audio-downloads.js',
+  './js/features/tutorial.js',
   './js/app.js'
 ];
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', ...APP_ASSETS];

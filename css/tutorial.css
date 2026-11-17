@@ -1,0 +1,77 @@
+/* أَثَر — جولة التعريف بالتطبيق (الطفل أبو عمامة بيشرح بالأسهم) + نافذة التأكيد الزجاجية.
+   ملف مستقل: js/features/tutorial.js */
+
+.tut { position: fixed; inset: 0; z-index: 99000; display: none; direction: rtl; font-family: 'Alexandria', sans-serif; }
+.tut.open { display: block; }
+.tut-shield { position: absolute; inset: 0; touch-action: none; background: transparent; }
+.tut.notarget .tut-shield { background: radial-gradient(120% 90% at 50% 30%, rgba(30,24,8,.82), rgba(0,0,0,.9)); }
+.tut.notarget .tut-spot, .tut.notarget .tut-arrow { opacity: 0; }
+
+/* بقعة الضوء: الظل الكبير حواليها بيعتّم باقي الشاشة */
+.tut-spot {
+    position: absolute; pointer-events: none; border-radius: 18px; border: 2px solid #f3d977;
+    box-shadow: 0 0 0 100vmax rgba(0,0,0,.76), 0 0 26px 2px rgba(243,217,119,.55);
+    transition: top .38s cubic-bezier(.3,.8,.2,1), left .38s cubic-bezier(.3,.8,.2,1), width .38s cubic-bezier(.3,.8,.2,1), height .38s cubic-bezier(.3,.8,.2,1), opacity .25s;
+    animation: tutPulse 1.9s ease-in-out infinite;
+}
+@keyframes tutPulse { 0%,100% { border-color: rgba(243,217,119,.95); } 50% { border-color: rgba(243,217,119,.35); } }
+
+/* السهم */
+.tut-arrow { position: absolute; width: 38px; height: 44px; pointer-events: none; transition: top .38s cubic-bezier(.3,.8,.2,1), left .38s cubic-bezier(.3,.8,.2,1), opacity .25s; }
+.tut-arrow svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 8px rgba(243,217,119,.8)); animation: tutBounceDown .9s ease-in-out infinite; }
+.tut-arrow.up svg { transform: rotate(180deg); animation-name: tutBounceUp; }
+.tut-arrow path { fill: none; stroke: #f3d977; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes tutBounceDown { 0%,100% { translate: 0 0; } 50% { translate: 0 9px; } }
+@keyframes tutBounceUp   { 0%,100% { translate: 0 0; } 50% { translate: 0 -9px; } }
+
+/* الكارت */
+.tut-card {
+    position: absolute; left: 50%; width: min(calc(100vw - 28px), 400px); box-sizing: border-box; transform: translateX(-50%);
+    padding: 40px 18px 16px; border-radius: 26px; color: #f6efd9; text-align: right;
+    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.03)), rgba(22,19,12,.82);
+    -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(243,217,119,.35); border-top-color: rgba(255,255,255,.3);
+    box-shadow: 0 18px 44px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.2);
+    transition: top .38s cubic-bezier(.3,.8,.2,1), bottom .38s cubic-bezier(.3,.8,.2,1);
+}
+.tut-card.pop { animation: tutPop .42s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes tutPop { from { opacity: 0; scale: .94; } to { opacity: 1; scale: 1; } }
+
+.tut-kid {
+    position: absolute; top: -38px; width: 76px; height: 76px; border-radius: 50%; overflow: hidden;
+    background: radial-gradient(circle at 50% 35%, #fff2b8, #d4af37 78%); border: 3px solid #f3d977;
+    box-shadow: 0 8px 20px rgba(0,0,0,.5), 0 0 22px rgba(243,217,119,.4);
+}
+.tut-card.kid-r .tut-kid { right: 18px; } .tut-card.kid-l .tut-kid { left: 18px; }
+.tut-kid svg { position: absolute; width: 100%; height: 100%; display: block; animation: tutBob 2.6s ease-in-out infinite alternate; }
+.tut-kid svg * { transform-box: view-box; }
+.tut-kid .k-eye { transform-box: fill-box; transform-origin: 50% 50%; animation: kBlink 3.2s ease-in-out infinite; }
+.tut-kid .k-tail { transform-origin: 148px 56px; animation: kSway 2.2s ease-in-out infinite alternate; }
+@keyframes tutBob { from { transform: rotate(-3deg) translateY(1px); } to { transform: rotate(3deg) translateY(-2px); } }
+
+.tut-card.kid-r .tut-step { text-align: left; } .tut-card.kid-l .tut-step { text-align: right; }
+.tut-step { font-size: 11px; font-weight: 800; color: #cbbf9a; letter-spacing: .3px; }
+.tut-title { margin-top: 2px; font-family: 'Amiri', serif; font-size: 25px; font-weight: 700; color: #f9e076; line-height: 1.35; }
+.tut-text { margin-top: 6px; font-size: 13.5px; line-height: 1.95; color: #efe7d0; }
+.tut-dots { display: flex; gap: 5px; margin-top: 12px; }
+.tut-dots i { height: 5px; width: 5px; border-radius: 5px; background: rgba(243,217,119,.28); transition: width .3s, background .3s; }
+.tut-dots i.on { width: 20px; background: #f3d977; }
+.tut-actions { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.tut-btn { font-family: inherit; font-size: 14px; font-weight: 800; border-radius: 15px; padding: 12px 14px; cursor: pointer; border: 1px solid rgba(243,217,119,.45); background: rgba(212,175,55,.1); color: #f9e076; -webkit-tap-highlight-color: transparent; }
+.tut-btn:active { transform: scale(.95); }
+.tut-btn.main { flex: 1.7; border-color: transparent; color: #1a1405; background: linear-gradient(145deg, #D4AF37, #f9e076 50%, #D4AF37); }
+.tut-btn.back { flex: 1; } .tut-btn.back[disabled] { opacity: .35; pointer-events: none; }
+.tut-btn.skip { background: transparent; border-color: transparent; color: #a79d7e; padding: 12px 6px; font-weight: 700; font-size: 12.5px; }
+
+/* نافذة تأكيد زجاجية (بتُستخدم لقفل الصلاة) */
+.at-dlg { position: fixed; inset: 0; z-index: 99500; display: flex; align-items: center; justify-content: center; padding: 22px; direction: rtl; background: rgba(0,0,0,.66); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: atFade .25s both; font-family: 'Alexandria', sans-serif; }
+.at-dlg > div { width: 100%; max-width: 360px; padding: 22px 20px 16px; border-radius: 26px; text-align: right; color: #f6efd9; background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.03)), rgba(24,20,12,.9); border: 1px solid rgba(243,217,119,.35); box-shadow: 0 20px 50px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.2); animation: tutPop .35s cubic-bezier(.2,.9,.3,1.2) both; }
+.at-dlg h3 { margin: 0 0 8px; font-family: 'Amiri', serif; font-size: 24px; color: #f9e076; }
+.at-dlg p { margin: 0; font-size: 13.5px; line-height: 1.95; color: #efe7d0; white-space: pre-line; }
+.at-dlg .tut-actions { margin-top: 18px; }
+@keyframes atFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* زرار الإعدادات + صف قفل الصلاة */
+.ad-row small { display: block; margin-top: 3px; font-size: 11.5px; font-weight: 600; color: var(--muted); line-height: 1.6; }
+
+@media (prefers-reduced-motion: reduce) { .tut *, .at-dlg * { animation: none !important; } }

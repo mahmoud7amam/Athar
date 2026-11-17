@@ -11,8 +11,8 @@ android {
         applicationId "app.vercel.athar_silk.twa"   // نفس حزمة تطبيق جوجل بلاي (عشان يتحدّث فوقه)
         minSdk 21
         targetSdk 36
-        versionCode 11                              // لازم يكون أكبر من آخر نسخة مرفوعة في Play Console
-        versionName "2.0.1"
+        versionCode 12                              // لازم يكون أكبر من آخر نسخة مرفوعة في Play Console
+        versionName "2.1.0"
     }
 
     signingConfigs {

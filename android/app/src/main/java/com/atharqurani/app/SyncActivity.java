@@ -16,6 +16,7 @@ import android.provider.Settings;
  * جسر الويب ← الأصلي. الصفحة بتفتح رابط intent://... فيوصل هنا:
  *   athar-adhan://sync?on=1&p=11111&v=90&c=القاهرة&t=مواقيت   → حفظ + ضبط المنبّهات
  *   athar-adhan://test?i=1                                    → تجربة الأذان فوراً
+ *   athar-adhan://locktest?i=1                                → تجربة قفل الصلاة (لو مفعّل)
  *   athar-adhan://stop                                        → إيقاف الأذان
  *   athar-adhan://perms                                       → إعادة طلب الأذونات (إشعارات/شاشة كاملة/فوق التطبيقات/بطارية)
  * مفيش واجهة: بيخلّص ويرجّع التطبيق فوراً (إلا لو محتاج إذن الإشعارات).
@@ -34,7 +35,19 @@ public class SyncActivity extends Activity {
                 int v = 90;
                 try { v = Integer.parseInt(u.getQueryParameter("v")); } catch (Exception ignored) { }
                 AdhanPrefs.save(this, !"0".equals(u.getQueryParameter("on")), p, v, nz(u.getQueryParameter("c")), u.getQueryParameter("t"));
+                String lkp = u.getQueryParameter("lk");     // قفل الصلاة (لو الصفحة بعتته)
+                if (lkp != null) {
+                    boolean lk = "1".equals(lkp), was = AdhanPrefs.lockOn(this);
+                    AdhanPrefs.setLockOn(this, lk);
+                    if (!lk) AdhanPrefs.clearLock(this);
+                    // لسه مفعّل دلوقتي ومفيش إذن «العرض فوق التطبيقات»: نطلبه (حتى لو اتطلب قبل كده)
+                    if (lk && !was && Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) AdhanPrefs.clearAsked(this, "overlay");
+                }
                 AdhanScheduler.schedule(this);
+            } else if ("locktest".equals(host)) {
+                int i = 1;
+                try { i = Integer.parseInt(u.getQueryParameter("i")); } catch (Exception ignored) { }
+                AdhanService.begin(this, i, System.currentTimeMillis(), AdhanPrefs.lockOn(this));
             } else if ("test".equals(host)) {
                 int i = 1;
                 try { i = Integer.parseInt(u.getQueryParameter("i")); } catch (Exception ignored) { }

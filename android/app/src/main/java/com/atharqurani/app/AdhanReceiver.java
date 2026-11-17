@@ -22,7 +22,7 @@ public class AdhanReceiver extends BroadcastReceiver {
         // ونمنع التكرار: المنبّه الأساسي والاحتياطي بيصحّوا بنفس الوقت، الأول بس هو اللي يشغّل
         if (AdhanPrefs.on(c) && now - epoch < 10 * 60 * 1000L && epoch > AdhanPrefs.lastPlayed(c)) {
             AdhanPrefs.setLastPlayed(c, epoch);
-            AdhanService.begin(c, idx, epoch);
+            AdhanService.begin(c, idx, epoch, AdhanPrefs.lockOn(c));
         }
         AdhanScheduler.scheduleAfter(c, Math.max(epoch, now));
     }

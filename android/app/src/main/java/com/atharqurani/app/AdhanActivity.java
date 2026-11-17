@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -23,6 +24,9 @@ import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.PowerManager;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,11 +36,15 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.TextView;
 
 /**
  * شاشة الأذان الأصلية (فوق شاشة القفل): نفس تصميم شاشة الويب بالظبط —
  * خلفية ذهبية متدرجة، دايرة ذهبية بأيقونة مسجد وحلقات بتنبض أثناء الأذان، خط أميري، وزرّين (إيقاف الأذان + إغلاق).
+ *
+ * وضع «قفل الصلاة» (لو مفعّل من الإعدادات): مفيش زرار إغلاق ولا رجوع، والشاشة بترجع قدامك لو خرجت منها،
+ * ومتتفتحش غير لما تعلّم «أحلف بالله إني صليت» وتدوس «تم». فيه مخرج طوارئ: ضغط مطوّل 4 ثواني.
  */
 public class AdhanActivity extends Activity {
     private static final int GOLD = Color.parseColor("#D4AF37"), GOLD_L = Color.parseColor("#F9E076");
@@ -53,6 +61,12 @@ public class AdhanActivity extends Activity {
     private int idx;
     private long epoch;
 
+    // ---- قفل الصلاة ----
+    private boolean lockMode, released, sworn;
+    private final Handler hh = new Handler(Looper.getMainLooper());
+    private TextView checkBox;
+    private PillButton doneBtn;
+
     private final BroadcastReceiver endedRx = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) { markEnded(); }
     };
@@ -67,6 +81,7 @@ public class AdhanActivity extends Activity {
         idx = Math.max(0, Math.min(4, getIntent().getIntExtra("idx", 1)));
         epoch = getIntent().getLongExtra("epoch", 0);
         String name = AdhanScheduler.NAMES[idx], city = AdhanPrefs.city(this);
+        lockMode = AdhanPrefs.lockOn(this) && AdhanPrefs.lockPending(this) && AdhanPrefs.lockIdx(this) == idx && AdhanPrefs.lockEpoch(this) == epoch;
 
         loadFonts();
 
@@ -129,18 +144,21 @@ public class AdhanActivity extends Activity {
         LinearLayout.LayoutParams l1 = new LinearLayout.LayoutParams(0, dp(52), 1.6f);
         row.addView(stop, l1);
 
-        PillButton close = new PillButton(this, false);
-        close.setLabel("إغلاق", "");
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { finish(); }
-        });
-        LinearLayout.LayoutParams l2 = new LinearLayout.LayoutParams(0, dp(52), 1f);
-        l2.setMarginEnd(dp(10));
-        row.addView(close, l2);
+        if (!lockMode) {   // في وضع القفل مفيش إغلاق: المخرج الوحيد هو «تم» بعد الحلف
+            PillButton close = new PillButton(this, false);
+            close.setLabel("إغلاق", "");
+            close.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { finish(); }
+            });
+            LinearLayout.LayoutParams l2 = new LinearLayout.LayoutParams(0, dp(52), 1f);
+            l2.setMarginEnd(dp(10));
+            row.addView(close, l2);
+        }
 
         LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         rp.topMargin = dp(26);
         col.addView(row, rp);
+        if (lockMode) buildLockPanel(col, name);
 
         // ScrollView: لو الشاشة صغيرة/أفقية المحتوى يتسكرول بدل ما يتقص، ولو كبيرة يتوسّط
         int maxW = dp(380);   // نفس max-width بتاع كارت الويب
@@ -179,6 +197,11 @@ public class AdhanActivity extends Activity {
         intro.start();
 
         pulse.setPlaying(true);
+        if (lockMode && Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, new android.window.OnBackInvokedCallback() {
+                @Override public void onBackInvoked() { if (!lockHeld()) finish(); }
+            });
+        }
 
         IntentFilter f = new IntentFilter(AdhanService.ACTION_ENDED);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(endedRx, f, Context.RECEIVER_NOT_EXPORTED); else registerReceiver(endedRx, f);
@@ -188,11 +211,161 @@ public class AdhanActivity extends Activity {
     @Override
     protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
+        if (i.getBooleanExtra("keep", false)) { setIntent(i); return; }   // رجوع تلقائي من وضع القفل: ما نبنيش من جديد
         // نفس الأذان والشاشة شغّالة: ما نعيدش البناء (بيمنع الوميض لما الإشعار والخدمة يفتحوها مع بعض)
         boolean same = i.getIntExtra("idx", 1) == idx && i.getLongExtra("epoch", 0) == epoch;
         setIntent(i);
         if (!ended && same) return;
         recreate();
+    }
+
+    /* =================== قفل الصلاة =================== */
+
+    private boolean lockHeld() { return lockMode && !released && AdhanPrefs.lockPending(this); }
+
+    @Override
+    public void onBackPressed() { if (lockHeld()) return; super.onBackPressed(); }
+
+    @Override
+    protected void onStart() { super.onStart(); hh.removeCallbacks(relaunch); }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // خرج من الشاشة (هوم / تطبيق تاني / الأخيرة): نرجّعها قدامه. شغّالة بفضل إذن «العرض فوق التطبيقات».
+        if (lockHeld() && !isFinishing()) { hh.removeCallbacks(relaunch); hh.postDelayed(relaunch, 500); }
+    }
+
+    private final Runnable relaunch = new Runnable() {
+        @Override public void run() {
+            if (isDestroyed() || !lockHeld()) return;
+            try {
+                PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                int mode = am == null ? AudioManager.MODE_NORMAL : am.getMode();
+                boolean inCall = mode == AudioManager.MODE_IN_CALL || mode == AudioManager.MODE_RINGTONE || mode == AudioManager.MODE_IN_COMMUNICATION;
+                boolean screenOn = pm == null || pm.isInteractive();
+                if (!inCall && screenOn) {   // مكالمة شغّالة: ما نخطفش الشاشة منه
+                    startActivity(new Intent(AdhanActivity.this, AdhanActivity.class).putExtra("idx", idx).putExtra("epoch", epoch).putExtra("keep", true)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                }
+            } catch (Exception ignored) { }
+            hh.postDelayed(this, 1500);
+        }
+    };
+
+    private void buildLockPanel(LinearLayout col, String name) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(16), dp(16), dp(16), dp(14));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.argb(24, 255, 255, 255));
+        bg.setStroke(dp(1), Color.argb(90, 212, 175, 55));
+        bg.setCornerRadius(dp(22));
+        box.setBackground(bg);
+        if (Build.VERSION.SDK_INT >= 17) box.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+
+        TextView head = text("🔒 قفل الصلاة", 16, GOLD_L, sans, true);
+        box.addView(head, wrap());
+        TextView info = text("الموبايل مقفول لحد ما تصلّي. بعد الصلاة علّم على الحلف وادوس «تم».", 13, MUTED, sans, false);
+        info.setLineSpacing(0, 1.5f);
+        LinearLayout.LayoutParams ip = wrap();
+        ip.topMargin = dp(6);
+        box.addView(info, ip);
+
+        LinearLayout oath = new LinearLayout(this);
+        oath.setOrientation(LinearLayout.HORIZONTAL);
+        oath.setGravity(Gravity.CENTER_VERTICAL);
+        if (Build.VERSION.SDK_INT >= 17) oath.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        oath.setPadding(dp(12), dp(10), dp(12), dp(10));
+        GradientDrawable ob = new GradientDrawable();
+        ob.setColor(Color.argb(20, 212, 175, 55));
+        ob.setStroke(dp(1), Color.argb(70, 212, 175, 55));
+        ob.setCornerRadius(dp(16));
+        oath.setBackground(ob);
+        checkBox = new TextView(this);
+        checkBox.setGravity(Gravity.CENTER);
+        checkBox.setTextColor(DARK);
+        checkBox.setTextSize(16);
+        checkBox.setTypeface(Typeface.DEFAULT_BOLD);
+        checkBox.setIncludeFontPadding(false);
+        drawCheck();
+        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(dp(28), dp(28));
+        cp.setMarginEnd(dp(12));
+        oath.addView(checkBox, cp);
+        TextView oathTxt = text("أحلف بالله العظيم إني صليت صلاة " + name, 15, TEXT, sans, true);
+        oathTxt.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        oathTxt.setLineSpacing(0, 1.3f);
+        oath.addView(oathTxt, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        oath.setClickable(true);
+        oath.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                sworn = !sworn;
+                drawCheck();
+                if (doneBtn != null) doneBtn.animate().alpha(sworn ? 1f : 0.4f).setDuration(180).start();
+            }
+        });
+        LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        op.topMargin = dp(14);
+        box.addView(oath, op);
+
+        doneBtn = new PillButton(this, true);
+        doneBtn.setLabel("تم", "✓  ");
+        doneBtn.setAlpha(0.4f);
+        doneBtn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (!sworn) { Toast.makeText(AdhanActivity.this, "علّم على الحلف الأول", Toast.LENGTH_SHORT).show(); return; }
+                release(true);
+            }
+        });
+        LinearLayout.LayoutParams dpp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52));
+        dpp.topMargin = dp(12);
+        box.addView(doneBtn, dpp);
+
+        // مخرج الطوارئ: ضغط مطوّل 4 ثواني
+        final TextView em = text("طوارئ؟ اضغط مطوّلاً 4 ثواني", 12, MUTED, sans, false);
+        em.setPadding(dp(8), dp(12), dp(8), dp(4));
+        final Runnable fire = new Runnable() { @Override public void run() { release(false); } };
+        em.setOnTouchListener(new View.OnTouchListener() {
+            @Override public boolean onTouch(View v, MotionEvent e) {
+                switch (e.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN: em.setTextColor(GOLD_L); hh.postDelayed(fire, 4000); return true;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL: em.setTextColor(MUTED); hh.removeCallbacks(fire); return true;
+                    default: return true;
+                }
+            }
+        });
+        LinearLayout.LayoutParams ep = wrap();
+        ep.gravity = Gravity.CENTER_HORIZONTAL;
+        box.addView(em, ep);
+
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        bp.topMargin = dp(22);
+        col.addView(box, bp);
+    }
+
+    private void drawCheck() {
+        GradientDrawable g = new GradientDrawable();
+        g.setShape(GradientDrawable.OVAL);
+        if (sworn) { g.setColor(GOLD); g.setStroke(dp(2), GOLD_L); checkBox.setText("✓"); }
+        else { g.setColor(Color.TRANSPARENT); g.setStroke(dp(2), Color.argb(150, 212, 175, 55)); checkBox.setText(""); }
+        checkBox.setBackground(g);
+    }
+
+    /** فك القفل. openApp = true (دوس «تم»): نوقف الأذان ونفتح التطبيق. false (طوارئ): نفك بس. */
+    private void release(boolean openApp) {
+        released = true;
+        AdhanPrefs.clearLock(this);
+        hh.removeCallbacksAndMessages(null);
+        if (openApp) {
+            try { stopService(new Intent(this, AdhanService.class)); } catch (Exception ignored) { }
+            try {
+                Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
+                if (open != null) { open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); startActivity(open); }
+            } catch (Exception ignored) { }
+        }
+        finish();
     }
 
     private void markEnded() {
@@ -243,6 +416,7 @@ public class AdhanActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        hh.removeCallbacksAndMessages(null);
         if (intro != null) intro.cancel();
         if (pulse != null) pulse.setPlaying(false);
         try { unregisterReceiver(endedRx); } catch (Exception ignored) { }

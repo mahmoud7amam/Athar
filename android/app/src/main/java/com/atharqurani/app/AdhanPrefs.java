@@ -22,6 +22,22 @@ final class AdhanPrefs {
     }
     static long lastPlayed(Context c) { return sp(c).getLong("last_played", 0L); }
     static void setLastPlayed(Context c, long t) { sp(c).edit().putLong("last_played", t).apply(); }
+    /* ---------- قفل الصلاة ---------- */
+    static final long LOCK_MAX_MS = 90 * 60 * 1000L;   // القفل بيفك لوحده بعد 90 دقيقة (عدّى وقت الصلاة)
+    static boolean lockOn(Context c) { return sp(c).getBoolean("lock", false); }
+    static void setLockOn(Context c, boolean v) { sp(c).edit().putBoolean("lock", v).apply(); }
+    static void setLockPending(Context c, int idx, long epoch) {
+        sp(c).edit().putInt("lock_idx", idx).putLong("lock_epoch", epoch).putLong("lock_t", System.currentTimeMillis()).apply();
+    }
+    static boolean lockPending(Context c) {
+        long t = sp(c).getLong("lock_t", 0L);
+        return t > 0 && System.currentTimeMillis() - t < LOCK_MAX_MS;
+    }
+    static int lockIdx(Context c) { return sp(c).getInt("lock_idx", -1); }
+    static long lockEpoch(Context c) { return sp(c).getLong("lock_epoch", -1L); }
+    static void clearLock(Context c) { sp(c).edit().remove("lock_t").remove("lock_idx").remove("lock_epoch").apply(); }
+    static void clearAsked(Context c, String k) { sp(c).edit().remove("asked_" + k).apply(); }
+
     static boolean asked(Context c, String k) { return sp(c).getBoolean("asked_" + k, false); }
     static void resetAsked(Context c) { sp(c).edit().remove("asked_notif").remove("asked_fsi").remove("asked_overlay").remove("asked_batt").apply(); }
     static void setAsked(Context c, String k) { sp(c).edit().putBoolean("asked_" + k, true).apply(); }

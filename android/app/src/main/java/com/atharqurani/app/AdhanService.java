@@ -36,9 +36,12 @@ public class AdhanService extends Service {
     private final Handler h = new Handler(Looper.getMainLooper());
     private AudioManager am;
 
-    /** تشغيل الأذان لصلاة رقم idx (0..4) */
-    static void begin(Context c, int idx, long epoch) {
-        Intent s = new Intent(c, AdhanService.class).putExtra("idx", idx).putExtra("epoch", epoch);
+    /** تشغيل الأذان لصلاة رقم idx (0..4) بدون قفل */
+    static void begin(Context c, int idx, long epoch) { begin(c, idx, epoch, false); }
+
+    /** lock = true: بعد الأذان بتفضل شاشة القفل قدام المستخدم لحد ما يحلف إنه صلّى ويدوس «تم» */
+    static void begin(Context c, int idx, long epoch, boolean lock) {
+        Intent s = new Intent(c, AdhanService.class).putExtra("idx", idx).putExtra("epoch", epoch).putExtra("lock", lock);
         try {
             if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(s); else c.startService(s);
         } catch (Exception e) {
@@ -90,6 +93,7 @@ public class AdhanService extends Service {
     public int onStartCommand(Intent in, int flags, int startId) {
         int idx = in == null ? 1 : in.getIntExtra("idx", 1);
         long epoch = in == null ? 0 : in.getLongExtra("epoch", 0);
+        if (in != null && in.getBooleanExtra("lock", false) && AdhanPrefs.lockOn(this)) AdhanPrefs.setLockPending(this, idx, epoch);
         Notification n = build(this, idx, epoch, false);
         if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         else startForeground(NOTIF_ID, n);
