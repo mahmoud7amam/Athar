@@ -36,6 +36,7 @@
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/qibla.css">
     <link rel="stylesheet" href="css/adhan.css">
+    <link rel="stylesheet" href="css/prayer-ui.css">
     <link rel="stylesheet" href="css/audio-downloads.css">
     <link rel="stylesheet" href="css/tutorial.css">
     <link rel="stylesheet" href="css/nav-glass.css">
@@ -182,15 +183,64 @@
     </div>
 
     <div id="p-prayers" class="page active">
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
-            <select id="countrySelect" onchange="updateCities(null, true)" style="margin-bottom: 0;"></select>
-            <select id="citySelect" onchange="getPrayers(true)" style="margin-bottom: 0;"></select>
+        <div class="prayer-location glass-panel">
+            <div class="prayer-location-label">موقع المواقيت</div>
+            <div class="prayer-location-selects">
+                <select id="countrySelect" onchange="updateCities(null, true)" aria-label="الدولة"></select>
+                <select id="citySelect" onchange="getPrayers(true)" aria-label="المدينة"></select>
+            </div>
         </div>
+        <section class="prayer-clock-card glass-panel" id="prayerClockCard" aria-live="polite">
+            <div class="pc-topline"><span class="pc-kicker">الصلاة القادمة</span><span class="pc-location" id="pcLocation">—</span></div>
+            <div class="pc-main">
+                <div class="pc-clock-wrap">
+                    <svg class="pc-ring" viewBox="0 0 180 180" aria-hidden="true">
+                        <circle class="pc-ring-track" cx="90" cy="90" r="78"></circle>
+                        <circle class="pc-ring-progress" id="pcProgress" cx="90" cy="90" r="78"></circle>
+                    </svg>
+                    <div class="pc-clock-center"><b id="pcCountdown">--:--:--</b><span>الوقت المتبقي</span></div>
+                </div>
+                <div class="pc-details">
+                    <strong id="pcPrayerName">جاري حساب المواقيت</strong>
+                    <div><span>الأذان</span><b id="pcPrayerAt">—</b></div>
+                    <div><span>الإقامة المقدّرة</span><b id="pcIqamaAt">—</b></div>
+                    <button class="pc-open-iqama" onclick="openIqamaScreen()">شاشة الإقامة <span>←</span></button>
+                </div>
+            </div>
+            <div class="pc-footnote">العدّاد يتحدّث تلقائيًا حسب توقيت المدينة المختارة</div>
+        </section>
         <button class="download-btn" id="ptDlBtn" onclick="downloadPrayerYear()">
             <span id="ptDlText">📥 تنزيل مواقيت الصلاة لـ 12 شهراً</span>
             <div id="ptBarWrap" class="download-progress-container"><div id="ptBar" class="download-progress-bar"></div></div>
         </button>
+        <div class="prayer-list-heading"><span>مواقيت اليوم</span><small>الأذان والإقامة</small></div>
         <div id="prayerList"></div>
+    </div>
+
+    <div id="p-iqama" class="page">
+        <div class="iqama-page-head">
+            <button class="iq-back" onclick="nav('p-prayers')" aria-label="العودة للمواقيت">→</button>
+            <div><strong>إقامة الصلاة</strong><small id="iqamaCityLabel">حسب المدينة المختارة</small></div>
+        </div>
+        <section class="iqama-hero glass-panel" aria-live="polite">
+            <div class="iqama-hero-kicker">الوقت المتبقي للإقامة القادمة</div>
+            <div class="iqama-dial">
+                <svg viewBox="0 0 190 190" aria-hidden="true">
+                    <circle class="iq-dial-track" cx="95" cy="95" r="82"></circle>
+                    <circle class="iq-dial-progress" id="iqamaProgress" cx="95" cy="95" r="82"></circle>
+                </svg>
+                <div class="iqama-dial-center"><b id="iqamaCountdown">--:--:--</b><span id="iqamaCountdownLabel">جارٍ حساب الإقامة</span></div>
+            </div>
+            <div class="iqama-next-name" id="iqamaNextName">—</div>
+            <div class="iqama-next-time"><span>موعد الإقامة المتوقع</span><b id="iqamaNextAt">—</b></div>
+        </section>
+        <section class="iqama-settings glass-panel">
+            <div class="iqama-settings-title"><strong>ضبط مواعيد الإقامة</strong><span>دقائق بعد الأذان</span></div>
+            <p>تختلف الإقامة من مسجد لآخر، لذلك تُحفظ هذه المدد كإعدادات محلية للمدينة المختارة وليست مواعيد رسمية للدولة. عدّلها حسب مسجدك.</p>
+            <div id="iqamaPrayerSettings"></div>
+            <button class="iqama-reset" onclick="resetIqamaDefaults()">استعادة المدد المقترحة</button>
+        </section>
+        <button class="iqama-done" onclick="nav('p-prayers')">العودة إلى مواقيت الصلاة</button>
     </div>
 
     <div id="p-qibla" class="page">
@@ -339,21 +389,34 @@
             </div>
         </div>
 
+        <div class="settings-section palette-settings" id="paletteCard">
+            <div class="settings-title">ألوان الواجهة</div>
+            <div class="settings-text palette-intro">اختَر اللون الذي تحبه، وسيتم حفظه على هذا الجهاز.</div>
+            <div class="palette-grid" id="paletteGrid">
+                <button class="palette-option" type="button" data-theme-palette="gold" onclick="setPalette('gold')" aria-pressed="false"><i style="--swatch:#D4AF37"></i><span>ذهبي</span></button>
+                <button class="palette-option" type="button" data-theme-palette="emerald" onclick="setPalette('emerald')" aria-pressed="false"><i style="--swatch:#36B58A"></i><span>زمردي</span></button>
+                <button class="palette-option" type="button" data-theme-palette="ocean" onclick="setPalette('ocean')" aria-pressed="false"><i style="--swatch:#4C9FE8"></i><span>أزرق</span></button>
+                <button class="palette-option" type="button" data-theme-palette="rose" onclick="setPalette('rose')" aria-pressed="false"><i style="--swatch:#E47A9B"></i><span>وردي</span></button>
+                <button class="palette-option" type="button" data-theme-palette="violet" onclick="setPalette('violet')" aria-pressed="false"><i style="--swatch:#A78BFA"></i><span>بنفسجي</span></button>
+                <button class="palette-option" type="button" data-theme-palette="teal" onclick="setPalette('teal')" aria-pressed="false"><i style="--swatch:#48BFC2"></i><span>فيروزي</span></button>
+            </div>
+        </div>
+
         <div class="settings-section" id="adhanCard">
             <div class="settings-title">الأذان والتنبيهات</div>
             <label class="ad-row"><span>تشغيل الأذان عند دخول وقت الصلاة</span><span class="ad-sw"><input type="checkbox" id="adOn" onchange="setAdhanOn(this.checked)"><i></i></span></label>
             <div class="ad-label">الصلوات التي يُرفع لها الأذان</div>
             <div class="ad-prayers" id="adPrayers"></div>
             <div class="ad-row"><span>مستوى الصوت</span><input type="range" id="adVol" class="ad-range" min="5" max="100" step="5" oninput="setAdhanVol(this.value)" onchange="nativeSync(true)"></div>
-            <label class="ad-row" id="adLockRow" style="display:none"><span>🔒 قفل الصلاة<small>وقت الصلاة تظهر شاشة فوق كل التطبيقات ومتتفتحش غير لما تحلف إنك صليت وتدوس «تم»</small></span><span class="ad-sw"><input type="checkbox" id="adLock" onchange="setPrayerLock(this.checked)"><i></i></span></label>
+            <label class="ad-row" id="adLockRow"><span>🔒 تذكير الصلاة<small>يعرض شاشة تذكير اختيارية وقت الصلاة، ويمكنك إغلاقها أو تأجيلها في أي وقت.</small></span><span class="ad-sw"><input type="checkbox" id="adLock" onchange="setPrayerLock(this.checked)"><i></i></span></label>
             <div class="st-actions">
                 <button class="st-btn" onclick="testAdhan()">▶ تجربة الأذان</button>
-                <button class="st-btn" id="adLockTestBtn" onclick="testPrayerLock()" style="display:none">🔒 تجربة قفل الصلاة</button>
+                <button class="st-btn" id="adLockTestBtn" onclick="testPrayerLock()" style="display:none">🔒 تجربة تذكير الصلاة</button>
                 <button class="st-btn" id="adNotifBtn" onclick="enableAdhanNotif()">🔔 تفعيل الإشعارات</button>
-                <button class="st-btn" id="adPermBtn" onclick="adhanPerms()" style="display:none">⚙️ ضبط أذونات الأذان (الشاشة الكاملة • فوق التطبيقات • البطارية)</button>
+                <button class="st-btn" id="adPermBtn" onclick="adhanPerms()" style="display:none">⚙️ ضبط أذونات الأذان (الشاشة الكاملة • البطارية)</button>
             </div>
             <div class="ad-note" id="adStatus"></div>
-            <div class="ad-note">عند دخول الوقت تظهر شاشة «صلاة كذا الآن» ويُرفع الأذان. في تطبيق أندرويد يعمل الأذان تلقائياً حتى والتطبيق مغلق وبدون إنترنت.</div>
+            <div class="ad-note">عند دخول الوقت تظهر شاشة الصلاة داخل التطبيق. في تطبيق أندرويد يمكن جدولة الأذان محليًا؛ أما تشغيل الصوت تلقائيًا في المتصفح فيعتمد على قيود النظام وأذونات الإشعارات.</div>
         </div>
 
         <div class="settings-section" id="tutSettingsCard">
@@ -473,7 +536,8 @@
         <div class="adh-dua" id="adhDua" hidden></div>
         <div class="adh-actions">
             <button class="adh-btn main" id="adhPlay" onclick="adhanToggle()"></button>
-            <button class="adh-btn" onclick="adhanClose()">إغلاق</button>
+            <button class="adh-btn" id="adhLockDone" onclick="adhanClose()" style="display:none">تم، متابعة التطبيق</button>
+            <button class="adh-btn" id="adhClose" onclick="adhanClose()">إغلاق</button>
         </div>
     </div>
 </div>

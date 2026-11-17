@@ -1,6 +1,6 @@
 /* ---------- التشغيل ---------- */
 function init() {
-    if (store.get('theme_athr') === 'light') toggleTheme();
+    applyThemeMode();
 
     const savedCountry = store.get('saved_country') || "Egypt";
     const savedCity = store.get('saved_city');
@@ -23,7 +23,7 @@ function init() {
     tutorialAuto();
     setTimeout(setupAdminTracking, 1500);
 
-    setInterval(() => { updateNextPrayer(); checkPrayerNotifications(); checkHadithReminder(); }, 20000);
+    setInterval(() => { updateNextPrayer(); updatePrayerClock(); updateIqamaClock(); checkPrayerNotifications(); checkHadithReminder(); }, 1000);
     setTimeout(checkHadithReminder, 5000);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

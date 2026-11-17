@@ -24,5 +24,7 @@ function renderProfileCard() {
     if (!$('pfCard')) return;
     $('pfTasbih').textContent = A(parseInt(store.get('total_athr')) || totalCount || 0);
     $('pfReciter').textContent = recName();
-    $('pfTheme').textContent = document.body.classList.contains('light-mode') ? 'نهاري' : 'ليلي';
+    const mode = document.body.classList.contains('light-mode') ? 'نهاري' : 'ليلي';
+    const palette = (ATHAR_PALETTES && ATHAR_PALETTES[store.get('athar_palette') || 'gold']) || ATHAR_PALETTES.gold;
+    $('pfTheme').textContent = mode + ' • ' + palette.label;
 }

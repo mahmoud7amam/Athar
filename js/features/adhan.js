@@ -96,6 +96,9 @@ function adUI() {
     ov.classList.toggle('playing', AD.playing);
     $('adhDua').hidden = !AD.ended;
     $('adhPhrase').hidden = AD.ended;
+    const lockDone = $('adhLockDone'), close = $('adhClose');
+    if (lockDone) lockDone.style.display = adLock() ? '' : 'none';
+    if (close) close.textContent = adLock() ? 'لاحقًا' : 'إغلاق';
 }
 function adhanOverlay(k, opts = {}) {
     const ov = $('adhanOv'); if (!ov) return;
@@ -258,26 +261,26 @@ function testAdhan() {
 // يفتح أذونات الأندرويد اللازمة لظهور شاشة الأذان وصوته والتطبيق مقفول (بتتطلب لمسة من المستخدم)
 function adhanPerms() { if (TWA.is) nativeGo('perms'); }
 
-/* ---------- قفل الصلاة (تطبيق أندرويد فقط) ----------
-   وقت الصلاة: شاشة كاملة فوق كل التطبيقات بتفضل قدامك، ومتتقفلش غير لما تحلف إنك صليت وتدوس «تم».
-   محتاجة إذن «العرض فوق التطبيقات» (بيتطلب أول ما تفعّلها). */
+/* ---------- تذكير الصلاة ----------
+   شاشة اختيارية داخل التطبيق. لا تمنع استخدام الهاتف أو مكالمات الطوارئ، ويمكن إغلاقها أو تأجيلها في أي وقت. */
 async function setPrayerLock(v) {
-    if (!TWA.is) { adRenderSettings(); return; }
     if (v) {
         const ok = await atConfirm({
-            title: 'تفعيل قفل الصلاة 🔒',
-            text: 'عند دخول وقت أي صلاة هيتشغّل الأذان وتظهر شاشة كاملة فوق كل التطبيقات، ومش هتتفتح غير لما تحلف إنك صليت وتدوس «تم».\n\nهنطلب منك إذن «العرض فوق التطبيقات» عشان الشاشة تفضل قدامك.\n\nلو في طوارئ: اضغط مطوّلاً 4 ثواني على «طوارئ» في الشاشة.',
-            ok: 'تفعيل', cancel: 'مش دلوقتي'
+            title: 'تفعيل تذكير الصلاة 🔔',
+            text: 'عند دخول وقت الصلاة ستظهر شاشة تذكير داخل التطبيق. يمكنك الضغط على «تم» أو «لاحقًا» وإغلاقها في أي وقت؛ لن يتم قفل الهاتف أو منعك من استخدامه.',
+            ok: 'تفعيل التذكير', cancel: 'ليس الآن'
         });
         if (!ok) { adRenderSettings(); return; }
     }
-    store.set('adhan_lock', v ? '1' : '0'); nativeSync(true); adRenderSettings();
-    toast(v ? 'تم تفعيل قفل الصلاة 🔒' : 'تم إيقاف قفل الصلاة');
+    store.set('adhan_lock', v ? '1' : '0');
+    nativeSync(true);
+    adRenderSettings();
+    toast(v ? 'تم تفعيل تذكير الصلاة' : 'تم إيقاف تذكير الصلاة');
 }
 function testPrayerLock() {
-    if (!TWA.is || !adLock()) return;
     const k = (nextPrayer() || {}).k || 'Dhuhr';
-    nativeGo('locktest', 'i=' + Math.max(0, PT_KEYS.indexOf(k)));
+    if (nativeOk()) nativeGo('locktest', 'i=' + Math.max(0, PT_KEYS.indexOf(k)));
+    else { adhanOverlay(k); adUI(); }
 }
 async function enableAdhanNotif() {
     if (!hasNotif()) { toast('المتصفح لا يدعم الإشعارات'); return; }
@@ -299,9 +302,9 @@ function adRenderSettings() {
         : perm === 'unsupported' ? 'هذا المتصفح لا يدعم الإشعارات.' : '🔔 فعّل الإشعارات ليصلك تنبيه الصلاة حتى والتطبيق في الخلفية.';
     $('adNotifBtn').style.display = TWA.is || perm === 'granted' || perm === 'unsupported' ? 'none' : '';
     const pb = $('adPermBtn'); if (pb) pb.style.display = TWA.is ? '' : 'none';
-    const lr = $('adLockRow'); if (lr) lr.style.display = TWA.is ? '' : 'none';
+    const lr = $('adLockRow'); if (lr) lr.style.display = '';
     const lc = $('adLock'); if (lc) lc.checked = adLock();
-    const lt = $('adLockTestBtn'); if (lt) lt.style.display = TWA.is && adLock() ? '' : 'none';
+    const lt = $('adLockTestBtn'); if (lt) lt.style.display = adLock() ? '' : 'none';
 }
 
 function adhanInit() {

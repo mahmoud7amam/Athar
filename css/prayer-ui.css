@@ -1,0 +1,124 @@
+/* أَثَر — واجهة المواقيت والإقامة ولوحة ألوان زجاجية */
+.glass-panel,
+.settings-section,
+.s-card,
+.download-btn,
+.sh2,
+.reader-tools,
+.plr {
+    border: 1px solid var(--line) !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.025) 58%, rgba(255,255,255,.06)), var(--card) !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.025) 58%, rgba(255,255,255,.065)), color-mix(in srgb, var(--card) 76%, transparent) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(155%);
+    backdrop-filter: blur(22px) saturate(155%);
+    box-shadow: 0 12px 30px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.10);
+}
+body.light-mode .glass-panel,
+body.light-mode .settings-section,
+body.light-mode .s-card,
+body.light-mode .download-btn,
+body.light-mode .sh2,
+body.light-mode .reader-tools,
+body.light-mode .plr {
+    background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.63)), var(--card) !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.63)), color-mix(in srgb, var(--card) 88%, transparent) !important;
+    box-shadow: 0 10px 26px rgba(70,55,20,.09), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.prayer-location { border-radius: 20px; padding: 13px; margin-bottom: 14px; }
+.prayer-location-label { color: var(--muted); font-size: 11px; font-weight: 800; margin: 0 2px 8px; }
+.prayer-location-selects { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.prayer-location select { width: 100%; min-width: 0; margin: 0 !important; border-radius: 13px !important; border: 1px solid var(--line) !important; background-color: rgba(255,255,255,.055) !important; color: var(--text) !important; padding: 11px 10px !important; font: inherit; font-size: 12px; outline: none; }
+body.light-mode .prayer-location select { background-color: rgba(255,255,255,.72) !important; }
+.prayer-clock-card { position: relative; overflow: hidden; border-radius: 26px; padding: 17px 16px 13px; margin-bottom: 16px; }
+.prayer-clock-card::before { content:""; position:absolute; width:190px; height:190px; border-radius:50%; background:var(--gold-fade); filter:blur(10px); top:-120px; left:-45px; pointer-events:none; }
+.pc-topline { display:flex; justify-content:space-between; align-items:center; gap:10px; position:relative; }
+.pc-kicker { color:var(--gold-light); font-size:12px; font-weight:900; }
+.pc-location { color:var(--muted); font-size:11px; font-weight:700; }
+.pc-main { display:flex; align-items:center; gap:16px; justify-content:center; position:relative; padding:12px 0 5px; }
+.pc-clock-wrap { width:154px; height:154px; flex:none; position:relative; display:grid; place-items:center; }
+.pc-ring { width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
+.pc-ring circle { fill:none; stroke-width:7; }
+.pc-ring-track { stroke:var(--line); }
+.pc-ring-progress { stroke:var(--gold); stroke-linecap:round; filter:drop-shadow(0 0 5px var(--gold-fade)); transition:stroke-dashoffset .75s linear; }
+.pc-clock-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+.pc-clock-center b { color:var(--text); font-size:20px; letter-spacing:1px; font-variant-numeric:tabular-nums; direction:ltr; }
+.pc-clock-center span { color:var(--muted); font-size:10px; font-weight:700; }
+.pc-details { min-width:0; flex:1; display:flex; flex-direction:column; gap:9px; }
+.pc-details > strong { color:var(--gold-light); font-family:'Amiri',serif; font-size:25px; line-height:1.15; }
+.pc-details > div { display:flex; align-items:center; justify-content:space-between; gap:7px; font-size:11px; }
+.pc-details > div span { color:var(--muted); }
+.pc-details > div b { color:var(--text); font-size:12px; white-space:nowrap; }
+.pc-open-iqama { align-self:stretch; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:2px; padding:10px 12px; border:1px solid var(--line); border-radius:13px; background:var(--gold-fade); color:var(--gold-light); font:inherit; font-size:12px; font-weight:900; cursor:pointer; }
+.pc-open-iqama span { font-size:18px; }
+.pc-footnote { border-top:1px solid var(--line); padding-top:9px; margin-top:7px; color:var(--muted); font-size:10px; text-align:center; }
+.prayer-list-heading { display:flex; justify-content:space-between; align-items:center; margin:5px 3px 9px; color:var(--text); font-size:14px; font-weight:900; }
+.prayer-list-heading small { color:var(--muted); font-size:10px; font-weight:700; }
+.prayer-time-card { display:flex !important; align-items:center; justify-content:space-between; gap:12px; padding:14px 13px !important; border-radius:18px !important; margin-bottom:9px !important; }
+.prayer-time-card.is-next { border-color:var(--gold) !important; box-shadow:0 0 0 1px var(--gold-fade), 0 10px 24px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.12) !important; }
+.pt-name-wrap { display:flex; align-items:center; gap:9px; min-width:80px; }
+.pt-name { color:var(--text); font-weight:900; font-size:14px; }
+.pt-name small { display:block; color:var(--gold); font-size:9px; margin-top:2px; }
+.pt-times { display:flex; align-items:center; gap:13px; }
+.pt-times > div { display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:55px; }
+.pt-times small { color:var(--muted); font-size:9px; }
+.pt-times b { color:var(--text); font-size:12px; white-space:nowrap; }
+.pt-times > div:last-child b { color:var(--gold-light); }
+
+/* شاشة الإقامة */
+.iqama-page-head { display:flex; align-items:center; gap:12px; margin:3px 0 16px; }
+.iq-back { width:42px; height:42px; border-radius:14px; border:1px solid var(--line); color:var(--gold-light); background:var(--gold-fade); font-size:22px; cursor:pointer; }
+.iqama-page-head strong { display:block; color:var(--gold-light); font-size:20px; font-family:'Amiri',serif; }
+.iqama-page-head small { display:block; color:var(--muted); font-size:11px; margin-top:2px; }
+.iqama-hero { text-align:center; border-radius:28px; padding:20px 14px 17px; overflow:hidden; }
+.iqama-hero-kicker { color:var(--muted); font-size:12px; font-weight:800; }
+.iqama-dial { width:190px; height:190px; margin:11px auto 8px; position:relative; display:grid; place-items:center; }
+.iqama-dial svg { width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
+.iqama-dial circle { fill:none; stroke-width:8; }
+.iq-dial-track { stroke:var(--line); }
+.iq-dial-progress { stroke:var(--gold); stroke-linecap:round; filter:drop-shadow(0 0 7px var(--gold-fade)); transition:stroke-dashoffset .75s linear; }
+.iqama-dial-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; }
+.iqama-dial-center b { color:var(--text); font-size:24px; letter-spacing:1px; direction:ltr; font-variant-numeric:tabular-nums; }
+.iqama-dial-center span { color:var(--muted); font-size:10px; }
+.iqama-next-name { color:var(--gold-light); font-family:'Amiri',serif; font-weight:800; font-size:23px; }
+.iqama-next-time { display:flex; justify-content:center; gap:9px; align-items:center; margin-top:6px; color:var(--muted); font-size:11px; }
+.iqama-next-time b { color:var(--text); font-size:13px; }
+.iqama-settings { border-radius:22px; padding:16px 14px; margin-top:14px; }
+.iqama-settings-title { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.iqama-settings-title strong { color:var(--gold-light); font-size:15px; }
+.iqama-settings-title span { color:var(--muted); font-size:10px; }
+.iqama-settings > p { color:var(--muted); font-size:11px; line-height:1.8; margin:9px 0 12px; }
+.iqama-setting-row { display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--line); padding:11px 0; }
+.iqama-setting-name { color:var(--text); font-size:13px; font-weight:900; }
+.iqama-setting-name small { display:block; color:var(--muted); font-size:10px; font-weight:500; margin-top:3px; }
+.iqama-mins { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:10px; }
+.iqama-mins input { width:56px; border:1px solid var(--line); border-radius:10px; padding:8px 5px; background:rgba(255,255,255,.06); color:var(--text); text-align:center; font:inherit; font-size:13px; }
+body.light-mode .iqama-mins input { background:rgba(255,255,255,.8); }
+.iqama-reset, .iqama-done { width:100%; border:1px solid var(--line); border-radius:14px; padding:12px; background:var(--gold-fade); color:var(--gold-light); font:inherit; font-size:12px; font-weight:900; cursor:pointer; margin-top:11px; }
+.iqama-done { background:var(--gold-metal); color:#17130a; border:0; margin:14px 0 24px; }
+
+/* لوحة الألوان */
+.palette-intro { font-size:12px; color:var(--muted); margin-bottom:13px; }
+.palette-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
+.palette-option { display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:13px; padding:10px 8px; color:var(--text); background:rgba(255,255,255,.04); font:inherit; font-size:11px; font-weight:800; cursor:pointer; transition:transform .18s,border-color .18s,background .18s; }
+.palette-option i { width:18px; height:18px; display:block; border-radius:50%; background:var(--swatch); box-shadow:0 0 0 3px color-mix(in srgb,var(--swatch) 18%,transparent),inset 0 1px 2px rgba(255,255,255,.45); }
+.palette-option.active { border-color:var(--gold); background:var(--gold-fade); box-shadow:0 0 0 1px var(--gold-fade); }
+.palette-option:active { transform:scale(.96); }
+
+/* المظهر الزجاجي للقوائم والحقول */
+select, input:not([type="checkbox"]):not([type="range"]), textarea { border-color:var(--line); }
+.sh2 { border-top-left-radius:24px !important; border-top-right-radius:24px !important; }
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .glass-panel,.settings-section,.s-card,.download-btn,.sh2 { background:var(--card) !important; }
+}
+@media (max-width:390px) {
+    .pc-main { gap:10px; }
+    .pc-clock-wrap { width:132px; height:132px; }
+    .pc-clock-center b { font-size:17px; }
+    .pc-details > strong { font-size:22px; }
+    .pt-times { gap:8px; }
+    .pt-times > div { min-width:48px; }
+    .pt-times b { font-size:11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pc-ring-progress,.iq-dial-progress,.palette-option { transition:none !important; }
+}

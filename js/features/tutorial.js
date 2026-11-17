@@ -13,7 +13,7 @@ const TUT_STEPS = [
     { sel: 'nav .nav-item[data-page="p-qibla"]', title: 'القبلة', text: 'بوصلة بتوريك اتجاه القبلة من مكانك. أمسك الموبايل مفرود، ولما الكعبة تقابل السهم هتنوّر بالأخضر.' },
     { sel: 'nav', title: 'وفي باقي الأقسام', text: 'التفسير • المسبحة • الأحاديث • الأدعية. كلهم في القائمة اللي تحت، والمسبحة بتحفظ عدّادك لوحدها.' },
     { page: 'p-settings', sel: '#adhanCard .ad-row', title: 'ظبط الأذان', text: 'من هنا تتحكم في الأذان: اختار الصلوات اللي عايزها، وظبّط مستوى الصوت، وجرّب الأذان في أي وقت.' },
-    { page: 'p-settings', sel: '#adLockRow', only: 'twa', title: 'قفل الصلاة 🔒', text: 'لو فعّلتها، وقت الصلاة بتظهر شاشة فوق كل التطبيقات ومبتتفتحش غير لما تحلف إنك صليت وتدوس «تم».' },
+    { page: 'p-settings', sel: '#adLockRow', title: 'تذكير الصلاة 🔔', text: 'فعّل تذكيرًا اختياريًا يظهر وقت الصلاة داخل التطبيق، ويمكنك إغلاقه أو تأجيله في أي وقت.' },
     { page: 'p-settings', sel: '#tutReplayBtn', title: 'عايز الشرح تاني؟', text: 'تقدر ترجع للجولة دي في أي وقت من الزرار ده. جعله الله في ميزان حسناتك 🤍' }
 ];
 
@@ -53,7 +53,7 @@ function startTutorial(manual) {
     if (TUT.open) return;
     const cur = document.querySelector('.page.active');
     TUT.from = manual && cur && cur.id !== 'p-reader' ? cur.id : 'p-prayers';
-    TUT.steps = TUT_STEPS.filter(s => s.only !== 'twa' || (typeof TWA !== 'undefined' && TWA.is));
+    TUT.steps = TUT_STEPS.slice();
     TUT.i = 0; TUT.open = true;
     if (document.body.classList.contains('reading-mode')) nav('p-prayers');
     const el = tutBuild(); el.classList.add('open');

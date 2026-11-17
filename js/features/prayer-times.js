@@ -13,8 +13,10 @@ function nextPrayer(now = new Date()) {
         const d = prayerDate(k, now);
         if (d && d > now) return { k, name: PRAYERS[k], date: d };
     }
-    const d = prayerDate('Fajr', now); if (!d) return null;
-    d.setDate(d.getDate() + 1);
+    const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextTimes = $('countrySelect') && $('citySelect') ? (ptLookup($('countrySelect').value, $('citySelect').value, tomorrow) || prayerTimings) : prayerTimings;
+    const hm = parseHM(nextTimes && nextTimes.Fajr); if (!hm) return null;
+    const d = new Date(tomorrow); d.setHours(hm[0], hm[1], 0, 0);
     return { k: 'Fajr', name: PRAYERS.Fajr, date: d };
 }
 
@@ -38,9 +40,20 @@ function updateCities(savedCity = null, isManualChange = false) {
 
 let prayersSeq = 0;
 function showPrayers(t) {
-    prayerTimings = t;
-    $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => `<div class="s-card"><b>${typeof adBellHTML === 'function' ? adBellHTML(k) : ''}${PRAYERS[k]}</b><span>${formatTime12(prayerTimings[k])}</span></div>`).join('');
+    prayerTimings = t || {};
+    const np = nextPrayer();
+    $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => {
+        const at = prayerDate(k, new Date());
+        const iqama = at ? new Date(at.getTime() + iqamaDelay(k) * 60000) : null;
+        const next = np && np.k === k;
+        return `<article class="s-card prayer-time-card${next ? ' is-next' : ''}">
+            <div class="pt-name-wrap">${typeof adBellHTML === 'function' ? adBellHTML(k) : ''}<div class="pt-name">${PRAYERS[k]}${next ? '<small>الصلاة القادمة</small>' : ''}</div></div>
+            <div class="pt-times"><div><small>الأذان</small><b>${esc(formatTime12(prayerTimings[k]))}</b></div><div><small>الإقامة المقدّرة</small><b>${iqama ? esc(formatDateTime12(iqama)) : '—'}</b></div></div>
+        </article>`;
+    }).join('');
     updateNextPrayer();
+    updatePrayerClock();
+    updateIqamaClock();
     if (typeof adhanSchedule === 'function') { adhanSchedule(); if (typeof nativeSync === 'function') nativeSync(); }
 }
 async function getPrayers(isManualChange = false) {
@@ -82,17 +95,134 @@ async function getPrayers(isManualChange = false) {
 }
 
 function updateNextPrayer() {
-    if (!prayerTimings.Fajr) return;
+    if (!prayerTimings || !prayerTimings.Fajr) return;
     const np = nextPrayer(); if (!np) return;
-    const diff = np.date - new Date();
-    const hours = Math.floor(diff / 3600000), mins = Math.floor((diff % 3600000) / 60000);
-    $('nextPrayerDisplay').innerText = `باقي على ${np.name}: ${hours}س و ${mins}د`;
+    $('nextPrayerDisplay').innerText = `باقي على ${np.name}: ${formatDuration(np.date - new Date())}`;
 }
 
 function formatTime12(s) {
     const hm = parseHM(s); if (!hm) return s || '';
     const h = hm[0];
     return `${h % 12 || 12}:${String(hm[1]).padStart(2, '0')} ${h >= 12 ? 'م' : 'ص'}`;
+}
+
+/* ---------- ساعة الصلاة ومواعيد الإقامة المحلية ----------
+   الأذان مصدره خدمة المواقيت، أما الإقامة فتختلف بين المساجد؛ لذلك نخزّن مددًا قابلة للتعديل لكل مدينة. */
+const IQAMA_DEFAULTS = { Fajr: 20, Dhuhr: 10, Asr: 10, Maghrib: 5, Isha: 10 };
+const iqamaKey = k => `iqama_${$('countrySelect') ? $('countrySelect').value : 'Egypt'}_${$('citySelect') ? $('citySelect').value : 'Cairo'}_${k}`;
+function iqamaDelay(k) {
+    const saved = parseInt(store.get(iqamaKey(k)), 10);
+    return Number.isFinite(saved) ? Math.max(0, Math.min(180, saved)) : IQAMA_DEFAULTS[k];
+}
+function formatDateTime12(d) {
+    if (!d || !Number.isFinite(d.getTime())) return '—';
+    return formatTime12(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`);
+}
+function formatDuration(ms) {
+    const seconds = Math.max(0, Math.floor((Number(ms) || 0) / 1000));
+    const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = seconds % 60;
+    return `${A(pad2(h))}:${A(pad2(m))}:${A(pad2(s))}`;
+}
+function prayerClockProgress(np, now) {
+    if (!np || !np.date) return 0;
+    const order = PT_KEYS;
+    const idx = order.indexOf(np.k);
+    let prev;
+    if (idx > 0) prev = prayerDate(order[idx - 1], now);
+    else {
+        prev = prayerDate('Isha', now);
+        if (prev && prev > now) prev.setDate(prev.getDate() - 1);
+    }
+    const span = prev ? np.date - prev : 0;
+    return span > 0 ? Math.max(0, Math.min(1, (now - prev) / span)) : 0;
+}
+function setRing(circle, progress, radius) {
+    if (!circle) return;
+    const length = 2 * Math.PI * radius;
+    circle.style.strokeDasharray = String(length);
+    circle.style.strokeDashoffset = String(length * (1 - Math.max(0, Math.min(1, progress || 0))));
+}
+function updatePrayerClock() {
+    const card = $('prayerClockCard'); if (!card) return;
+    const now = new Date(), np = prayerTimings && prayerTimings.Fajr ? nextPrayer(now) : null;
+    if (!np) {
+        $('pcCountdown').textContent = '--:--:--';
+        $('pcPrayerName').textContent = 'تعذر حساب الصلاة القادمة';
+        $('pcPrayerAt').textContent = '—'; $('pcIqamaAt').textContent = '—';
+        setRing($('pcProgress'), 0, 78); return;
+    }
+    $('pcCountdown').textContent = formatDuration(np.date - now);
+    $('pcPrayerName').textContent = np.name;
+    $('pcPrayerAt').textContent = formatDateTime12(np.date);
+    const expectedIqama = new Date(np.date.getTime() + iqamaDelay(np.k) * 60000);
+    $('pcIqamaAt').textContent = expectedIqama ? formatDateTime12(expectedIqama) : '—';
+    const citySelect = $('citySelect');
+    $('pcLocation').textContent = citySelect && citySelect.options[citySelect.selectedIndex] ? citySelect.options[citySelect.selectedIndex].text : '';
+    setRing($('pcProgress'), prayerClockProgress(np, now), 78);
+}
+function nextIqamaTarget(now = new Date()) {
+    if (!$('countrySelect') || !$('citySelect')) return null;
+    const country = $('countrySelect').value, city = $('citySelect').value, candidates = [];
+    for (let offset = 0; offset < 3; offset++) {
+        const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+        const timings = offset === 0 && prayerTimings && prayerTimings.Fajr ? prayerTimings : (ptLookup(country, city, day) || prayerTimings);
+        if (!timings) continue;
+        PT_KEYS.forEach(k => {
+            const hm = parseHM(timings[k]); if (!hm) return;
+            const prayerAt = new Date(day); prayerAt.setHours(hm[0], hm[1], 0, 0);
+            const iqamaAt = new Date(prayerAt.getTime() + iqamaDelay(k) * 60000);
+            if (iqamaAt > now) candidates.push({ k, prayerAt, date: iqamaAt, delay: iqamaDelay(k) });
+        });
+    }
+    candidates.sort((a, b) => a.date - b.date);
+    return candidates[0] || null;
+}
+function updateIqamaClock() {
+    if (!$('iqamaCountdown')) return;
+    const target = nextIqamaTarget(), now = new Date();
+    const citySelect = $('citySelect');
+    $('iqamaCityLabel').textContent = citySelect && citySelect.options[citySelect.selectedIndex] ? citySelect.options[citySelect.selectedIndex].text : 'حسب المدينة المختارة';
+    if (!target) {
+        $('iqamaCountdown').textContent = '--:--:--';
+        $('iqamaCountdownLabel').textContent = 'لا توجد مواقيت قادمة محفوظة';
+        $('iqamaNextName').textContent = '—'; $('iqamaNextAt').textContent = '—';
+        setRing($('iqamaProgress'), 0, 82); return;
+    }
+    $('iqamaCountdown').textContent = formatDuration(target.date - now);
+    $('iqamaCountdownLabel').textContent = 'متبقي حتى الإقامة';
+    $('iqamaNextName').textContent = `إقامة صلاة ${PRAYERS[target.k]}`;
+    $('iqamaNextAt').textContent = formatDateTime12(target.date);
+    const total = target.delay * 60000;
+    const progress = total > 0 ? (now - target.prayerAt) / total : 1;
+    setRing($('iqamaProgress'), progress, 82);
+}
+function openIqamaScreen() {
+    nav('p-iqama');
+}
+function setIqamaDelay(k, value) {
+    if (!PT_KEYS.includes(k)) return;
+    const mins = Math.max(0, Math.min(180, parseInt(value, 10) || 0));
+    store.set(iqamaKey(k), String(mins));
+    renderIqamaScreen(); updatePrayerClock(); updateIqamaClock();
+    const card = $('prayerList');
+    if (card && prayerTimings && prayerTimings.Fajr) showPrayers(prayerTimings);
+}
+function renderIqamaScreen() {
+    const host = $('iqamaPrayerSettings'); if (!host) return;
+    const citySelect = $('citySelect');
+    $('iqamaCityLabel').textContent = citySelect && citySelect.options[citySelect.selectedIndex] ? citySelect.options[citySelect.selectedIndex].text : 'حسب المدينة المختارة';
+    host.innerHTML = PT_KEYS.map(k => {
+        const at = prayerDate(k, new Date());
+        const iq = at ? new Date(at.getTime() + iqamaDelay(k) * 60000) : null;
+        return `<label class="iqama-setting-row"><span class="iqama-setting-name">${PRAYERS[k]}<small>الإقامة ${iq ? esc(formatDateTime12(iq)) : '—'}</small></span><span class="iqama-mins"><input type="number" inputmode="numeric" min="0" max="180" step="1" value="${iqamaDelay(k)}" aria-label="دقائق إقامة ${PRAYERS[k]}" onchange="setIqamaDelay('${k}',this.value)"><em>دقيقة</em></span></label>`;
+    }).join('');
+    updateIqamaClock();
+}
+function resetIqamaDefaults() {
+    PT_KEYS.forEach(k => store.set(iqamaKey(k), String(IQAMA_DEFAULTS[k])));
+    renderIqamaScreen(); updatePrayerClock(); updateIqamaClock();
+    if (prayerTimings && prayerTimings.Fajr) showPrayers(prayerTimings);
+    toast('تمت استعادة المدد المقترحة، ويمكنك تعديلها حسب مسجدك');
 }
 
 /* إحداثيات المدينة (بتيجي مع رد المواقيت) — بنحفظها عشان القبلة تشتغل أوفلاين */

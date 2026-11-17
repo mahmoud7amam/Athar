@@ -16,9 +16,9 @@ import android.provider.Settings;
  * جسر الويب ← الأصلي. الصفحة بتفتح رابط intent://... فيوصل هنا:
  *   athar-adhan://sync?on=1&p=11111&v=90&c=القاهرة&t=مواقيت   → حفظ + ضبط المنبّهات
  *   athar-adhan://test?i=1                                    → تجربة الأذان فوراً
- *   athar-adhan://locktest?i=1                                → تجربة قفل الصلاة (لو مفعّل)
+ *   athar-adhan://locktest?i=1                                → تجربة تذكير الصلاة (لو مفعّل)
  *   athar-adhan://stop                                        → إيقاف الأذان
- *   athar-adhan://perms                                       → إعادة طلب الأذونات (إشعارات/شاشة كاملة/فوق التطبيقات/بطارية)
+ *   athar-adhan://perms                                       → إعادة طلب الأذونات الضرورية للأذان
  * مفيش واجهة: بيخلّص ويرجّع التطبيق فوراً (إلا لو محتاج إذن الإشعارات).
  */
 public class SyncActivity extends Activity {
@@ -35,13 +35,11 @@ public class SyncActivity extends Activity {
                 int v = 90;
                 try { v = Integer.parseInt(u.getQueryParameter("v")); } catch (Exception ignored) { }
                 AdhanPrefs.save(this, !"0".equals(u.getQueryParameter("on")), p, v, nz(u.getQueryParameter("c")), u.getQueryParameter("t"));
-                String lkp = u.getQueryParameter("lk");     // قفل الصلاة (لو الصفحة بعتته)
+                String lkp = u.getQueryParameter("lk");     // تذكير الصلاة الاختياري (لو الصفحة بعتته)
                 if (lkp != null) {
-                    boolean lk = "1".equals(lkp), was = AdhanPrefs.lockOn(this);
+                    boolean lk = "1".equals(lkp);
                     AdhanPrefs.setLockOn(this, lk);
                     if (!lk) AdhanPrefs.clearLock(this);
-                    // لسه مفعّل دلوقتي ومفيش إذن «العرض فوق التطبيقات»: نطلبه (حتى لو اتطلب قبل كده)
-                    if (lk && !was && Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) AdhanPrefs.clearAsked(this, "overlay");
                 }
                 AdhanScheduler.schedule(this);
             } else if ("locktest".equals(host)) {
@@ -64,8 +62,7 @@ public class SyncActivity extends Activity {
     private static String nz(String s) { return s == null ? "" : s; }
 
     /**
-     * الأذونات بالترتيب، كل واحد مرة واحدة بس (إلا لو الصفحة طلبت athar-adhan://perms يدوياً):
-     * إشعارات ← شاشة كاملة (أندرويد 14+) ← العرض فوق التطبيقات ← استثناء البطارية. بعد كل واحد نكمّل للي بعده.
+     * الأذونات بالترتيب، كل واحد مرة واحدة بس: إشعارات ← شاشة كاملة (أندرويد 14+) ← تحسين عمل المنبه مع البطارية.
      */
     private int step = 0;
     private static final int RC_NOTIF = 11, RC_SETTINGS = 12;
@@ -73,7 +70,7 @@ public class SyncActivity extends Activity {
     private void askPermissions() { step = 0; next(); }
 
     private void next() {
-        while (step < 4) {
+        while (step < 3) {
             int s = step++;
             if (tryStep(s)) return;       // فتح شاشة طلب → هنكمّل في onActivityResult / onRequestPermissionsResult
         }
@@ -101,13 +98,7 @@ public class SyncActivity extends Activity {
                     }
                 }
             } else if (s == 2) {
-                if (Build.VERSION.SDK_INT >= 23 && !AdhanPrefs.asked(this, "overlay") && !Settings.canDrawOverlays(this)) {
-                    AdhanPrefs.setAsked(this, "overlay");
-                    startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), RC_SETTINGS);
-                    return true;
-                }
-            } else {
-                // استثناء التطبيق من توفير البطارية: أقوى ضمان إن الأذان ما يتأخرش ولا يتلغي
+                // تحسين عمل المنبه في الخلفية اختياري ويظهر مرة واحدة فقط.
                 if (Build.VERSION.SDK_INT >= 23 && !AdhanPrefs.asked(this, "batt")) {
                     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                     if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {

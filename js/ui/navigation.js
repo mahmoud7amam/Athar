@@ -10,7 +10,7 @@ function exitFullscreen() {
 }
 
 /* ---------- التنقل بين الصفحات ---------- */
-const PAGE_TO_NAV = { 'p-reader': 'p-quran', 'p-admin': 'p-settings' };
+const PAGE_TO_NAV = { 'p-reader': 'p-quran', 'p-admin': 'p-settings', 'p-iqama': 'p-prayers' };
 let duasRendered = false;
 
 function nav(id, el, keepScroll) {
@@ -48,6 +48,7 @@ function nav(id, el, keepScroll) {
     if (id === 'p-settings') { renderStorageInfo(); renderProfileCard(); }
     if (id === 'p-tafsir') checkTafsirState();
     if (id === 'p-prayers') refreshPrayerDlState();
+    if (id === 'p-iqama') renderIqamaScreen();
     if (id === 'p-qibla') qiblaEnter(); else qiblaLeave();
     if (id === 'p-hadith') renderHadith();
     if (id === 'p-tafsir' && !$('tfList').childElementCount) renderTafsirList();

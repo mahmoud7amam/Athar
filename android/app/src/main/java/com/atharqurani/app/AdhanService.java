@@ -39,7 +39,7 @@ public class AdhanService extends Service {
     /** تشغيل الأذان لصلاة رقم idx (0..4) بدون قفل */
     static void begin(Context c, int idx, long epoch) { begin(c, idx, epoch, false); }
 
-    /** lock = true: بعد الأذان بتفضل شاشة القفل قدام المستخدم لحد ما يحلف إنه صلّى ويدوس «تم» */
+    /** lock = true: يعرض تذكيرًا اختياريًا بعد الأذان مع إمكانية إغلاقه أو تأجيله. */
     static void begin(Context c, int idx, long epoch, boolean lock) {
         Intent s = new Intent(c, AdhanService.class).putExtra("idx", idx).putExtra("epoch", epoch).putExtra("lock", lock);
         try {
@@ -109,10 +109,9 @@ public class AdhanService extends Service {
     private View overlay;
 
     /**
-     * فتح شاشة الأذان من الخلفية. أندرويد بيمنع أي تطبيق يفتح شاشة وهو في الخلفية، فعندنا طريقتين:
-     *  1) fullScreenIntent في الإشعار: بيفتحها فوق القفل لو الموبايل مقفول/الشاشة مطفية.
-     *  2) لو المستخدم أدّى إذن «العرض فوق التطبيقات»: بنحط نافذة شفافة 1×1 لحظياً (ده الشرط في أندرويد 15+)
-     *     وبعدها نفتح الشاشة مباشرة حتى والموبايل مفتوح وفي تطبيق تاني قدامك.
+     * فتح شاشة الأذان عبر واجهة الإشعار ذات الشاشة الكاملة أو بعد تفاعل المستخدم مع الإشعار.
+     * نحتفظ بدعم نافذة قديمة مؤقتًا للأجهزة التي سبق أن منحت التطبيق إذن العرض فوق التطبيقات؛
+     * النسخ الجديدة لا تطلب هذا الإذن ولا تعتمد عليه في الاستخدام المعتاد.
      */
     private void launchScreen(int idx, long epoch) {
         removeOverlay();

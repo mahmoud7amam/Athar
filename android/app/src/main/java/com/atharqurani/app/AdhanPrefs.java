@@ -22,8 +22,8 @@ final class AdhanPrefs {
     }
     static long lastPlayed(Context c) { return sp(c).getLong("last_played", 0L); }
     static void setLastPlayed(Context c, long t) { sp(c).edit().putLong("last_played", t).apply(); }
-    /* ---------- قفل الصلاة ---------- */
-    static final long LOCK_MAX_MS = 90 * 60 * 1000L;   // القفل بيفك لوحده بعد 90 دقيقة (عدّى وقت الصلاة)
+    /* ---------- تذكير الصلاة الاختياري ---------- */
+    static final long LOCK_MAX_MS = 90 * 60 * 1000L;   // تنتهي صلاحية التذكير تلقائيًا بعد 90 دقيقة
     static boolean lockOn(Context c) { return sp(c).getBoolean("lock", false); }
     static void setLockOn(Context c, boolean v) { sp(c).edit().putBoolean("lock", v).apply(); }
     static void setLockPending(Context c, int idx, long epoch) {

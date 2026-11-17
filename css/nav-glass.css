@@ -55,7 +55,7 @@ body.light-mode nav {
 }
 body.light-mode nav::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .95), transparent); }
 body.light-mode nav .nav-item { color: rgba(60, 50, 25, .55); }
-body.light-mode nav .nav-item.active { color: #7a5c0d; }
+body.light-mode nav .nav-item.active { color: var(--gold); }
 body.light-mode nav .nav-item::after {
     background: linear-gradient(180deg, rgba(212, 175, 55, .30), rgba(212, 175, 55, .12));
     border-color: rgba(160, 125, 20, .35); box-shadow: 0 0 16px rgba(212, 175, 55, .22), inset 0 1px 0 rgba(255, 255, 255, .8);

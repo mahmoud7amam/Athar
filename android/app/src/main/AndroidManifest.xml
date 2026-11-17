@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
-    <!-- «العرض فوق التطبيقات»: يخلّي شاشة الأذان تفتح حتى والموبايل مفتوح وفي تطبيق تاني قدامك -->
+    <!-- توافق رجعي فقط: لا تطلب النسخة الحالية هذا الإذن ولا تعتمد عليه -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
