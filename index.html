@@ -536,9 +536,18 @@
         <div class="adh-dua" id="adhDua" hidden></div>
         <div class="adh-actions">
             <button class="adh-btn main" id="adhPlay" onclick="adhanToggle()"></button>
-            <button class="adh-btn" id="adhLockDone" onclick="adhanClose()" style="display:none">تم، متابعة التطبيق</button>
+            <button class="adh-btn" id="adhLockDone" onclick="prayerCheckOpen()" style="display:none">تأكيد الصلاة بالصوت</button>
             <button class="adh-btn" id="adhClose" onclick="adhanClose()">إغلاق</button>
         </div>
+        <section class="prayer-voice glass-panel" id="prayerVoicePanel" hidden>
+            <div class="pv-title">تأكيد أداء الصلاة</div>
+            <p id="pvPrompt">اضغط تسجيل وقل العبارة الظاهرة بوضوح.</p>
+            <div class="pv-quote" id="pvPhrase"></div>
+            <button class="adh-btn main" id="pvRecordBtn" onclick="prayerVoiceStart()">🎙️ ابدأ التسجيل الصوتي</button>
+            <div class="pv-status" id="pvStatus" aria-live="polite">لن يتم حفظ التسجيل الصوتي.</div>
+            <button class="adh-btn" id="pvRetryBtn" onclick="prayerVoiceStart()" hidden>إعادة المحاولة</button>
+            <button class="adh-btn" onclick="prayerCheckCancel()">رجوع</button>
+        </section>
     </div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>

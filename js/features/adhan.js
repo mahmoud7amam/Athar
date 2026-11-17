@@ -102,7 +102,7 @@ function adUI() {
 }
 function adhanOverlay(k, opts = {}) {
     const ov = $('adhanOv'); if (!ov) return;
-    AD.k = k; AD.ended = false; clearTimeout(AD.closeT);
+    AD.k = k; AD.ended = false; clearTimeout(AD.closeT); prayerVoiceStop(); if ($('prayerVoicePanel')) $('prayerVoicePanel').hidden = true;
     const d = prayerDate(k, new Date());
     $('adhTitle').textContent = `صلاة ${PRAYERS[k] || ''} الآن`;
     $('adhSub').textContent = `حسب توقيت ${adCity() || 'مدينتك'}` + (d ? ` • ${formatTime12(prayerTimings[k])}` : '');
@@ -112,6 +112,7 @@ function adhanOverlay(k, opts = {}) {
     adUI();
 }
 function adhanClose() {
+    prayerVoiceStop(); if ($('prayerVoicePanel')) $('prayerVoicePanel').hidden = true;
     clearTimeout(AD.closeT);
     if (AD.native) { if (AD.playing) nativeGo('stop'); AD.native = false; clearTimeout(AD.nt); AD.playing = false; }
     adhanStop();
@@ -261,13 +262,91 @@ function testAdhan() {
 // يفتح أذونات الأندرويد اللازمة لظهور شاشة الأذان وصوته والتطبيق مقفول (بتتطلب لمسة من المستخدم)
 function adhanPerms() { if (TWA.is) nativeGo('perms'); }
 
+
+/* ---------- تأكيد الصلاة بالصوت (إقرار ذاتي اختياري) ---------- */
+let prayerRecognition = null;
+let prayerVoiceBusy = false;
+function prayerCheckOpen() {
+    const panel = $('prayerVoicePanel'); if (!panel) return;
+    const name = PRAYERS[AD.k] || 'الصلاة';
+    $('pvPhrase').textContent = `والله العظيم صليت صلاة ${name}`;
+    $('pvPrompt').textContent = `بعد أداء صلاة ${name}، قل العبارة التالية بوضوح لتسجيل إقرارك الشخصي.`;
+    $('pvStatus').textContent = 'الميكروفون يعمل بعد موافقتك، ولن يُحفظ ملف صوتي.';
+    $('pvRetryBtn').hidden = true;
+    panel.hidden = false;
+    $('adhLockDone').style.display = 'none';
+    $('adhClose').textContent = 'إغلاق';
+}
+function prayerCheckCancel() {
+    prayerVoiceStop();
+    const panel = $('prayerVoicePanel'); if (panel) panel.hidden = true;
+    adUI();
+}
+function prayerVoiceStop() {
+    prayerVoiceBusy = false;
+    try { if (prayerRecognition) prayerRecognition.abort(); } catch (e) {}
+    prayerRecognition = null;
+    const b = $('pvRecordBtn'); if (b) { b.disabled = false; b.textContent = '🎙️ ابدأ التسجيل الصوتي'; }
+}
+function prayerVoiceStart() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+        $('pvStatus').textContent = 'التعرّف الصوتي غير مدعوم على هذا الجهاز أو المتصفح. جرّب فتح التطبيق في Chrome ثم أعد المحاولة.';
+        $('pvRetryBtn').hidden = false;
+        return;
+    }
+    prayerVoiceStop();
+    const expected = normAr(`والله العظيم صليت صلاة ${PRAYERS[AD.k] || ''}`).replace(/[\sـ]/g, '');
+    const rec = new SR(); prayerRecognition = rec; let gotResult = false;
+    rec.lang = 'ar-EG'; rec.continuous = false; rec.interimResults = false; rec.maxAlternatives = 3;
+    prayerVoiceBusy = true;
+    $('pvRecordBtn').disabled = true; $('pvRecordBtn').textContent = '🔴 جارٍ الاستماع…';
+    $('pvRetryBtn').hidden = true;
+    $('pvStatus').textContent = 'تحدث الآن وقل العبارة كاملة. إذا لم يتعرف عليها النظام ستتمكن من الإعادة.';
+    rec.onresult = event => {
+        gotResult = true;
+        let heard = '';
+        for (const result of event.results) for (const alt of result) {
+            const t = normAr(alt.transcript).replace(/[\sـ]/g, '');
+            if (t.length > heard.length) heard = t;
+        }
+        const prayerName = normAr(PRAYERS[AD.k] || '').replace(/[\sـ]/g, '');
+        const hasOath = heard.includes('واللهالعظيم') || heard.includes('واللهعظيم');
+        const hasPrayer = heard.includes('صليتصلاة' + prayerName) || (heard.includes('صليت') && heard.includes('صلاة' + prayerName));
+        if (hasOath && hasPrayer) {
+            const key = `prayer_selfcheck_${adDay(new Date())}`;
+            let done = {}; try { done = JSON.parse(store.get(key, '{}')) || {}; } catch (e) {}
+            done[AD.k] = { at: Date.now(), method: 'speech-recognition' };
+            store.set(key, JSON.stringify(done));
+            $('pvStatus').textContent = 'تم التعرّف على العبارة وتسجيل إقرارك الشخصي ✓';
+            $('pvPrompt').textContent = 'جزاك الله خيرًا. هذا تأكيد ذاتي وليس إثباتًا آليًا لأداء الصلاة.';
+            $('pvRecordBtn').textContent = '✓ تم التأكيد';
+            $('pvRetryBtn').hidden = true;
+            setTimeout(() => { prayerVoiceStop(); prayerCheckCancel(); adhanClose(); toast(`تم تسجيل إقرار صلاة ${PRAYERS[AD.k]}`); }, 1200);
+        } else {
+            $('pvStatus').textContent = 'لم نتعرّف على العبارة كاملة. حاول مرة أخرى وقل اسم الصلاة بوضوح.';
+            $('pvRetryBtn').hidden = false;
+        }
+    };
+    rec.onerror = event => {
+        $('pvStatus').textContent = event.error === 'not-allowed' ? 'لم يتم السماح باستخدام الميكروفون. راجع أذونات التطبيق.' : 'تعذّر التعرّف على الصوت. حاول مرة أخرى.';
+        $('pvRetryBtn').hidden = false;
+    };
+    rec.onend = () => {
+        prayerVoiceBusy = false;
+        const b = $('pvRecordBtn'); if (b && b.textContent.includes('جارٍ')) { b.disabled = false; b.textContent = '🎙️ ابدأ التسجيل الصوتي'; }
+        if (!gotResult && $('pvRetryBtn')) $('pvRetryBtn').hidden = false;
+    };
+    try { rec.start(); } catch (e) { prayerVoiceStop(); $('pvStatus').textContent = 'تعذّر بدء التسجيل. حاول مرة أخرى.'; $('pvRetryBtn').hidden = false; }
+}
+
 /* ---------- تذكير الصلاة ----------
    شاشة اختيارية داخل التطبيق. لا تمنع استخدام الهاتف أو مكالمات الطوارئ، ويمكن إغلاقها أو تأجيلها في أي وقت. */
 async function setPrayerLock(v) {
     if (v) {
         const ok = await atConfirm({
             title: 'تفعيل تذكير الصلاة 🔔',
-            text: 'عند دخول وقت الصلاة ستظهر شاشة تذكير داخل التطبيق. يمكنك الضغط على «تم» أو «لاحقًا» وإغلاقها في أي وقت؛ لن يتم قفل الهاتف أو منعك من استخدامه.',
+            text: 'عند دخول وقت الصلاة ستظهر شاشة تركيز داخل التطبيق، وبعد أداء الصلاة يمكنك تأكيدها بعبارة صوتية. يمكنك إغلاق الشاشة في أي وقت، ولن يتم منع المكالمات أو استخدام التطبيقات الأخرى.',
             ok: 'تفعيل التذكير', cancel: 'ليس الآن'
         });
         if (!ok) { adRenderSettings(); return; }
