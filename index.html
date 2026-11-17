@@ -43,68 +43,49 @@
 </head>
 <body>
 
-<!-- شاشة البداية: لوجو أَثَر + شخصية صغيرة بعمامة تطلع من ورا اللوجو (css/splash.css) -->
-<div id="splash" aria-hidden="true">
-    <div class="sp-glow"></div>
-    <div class="sp-sparks"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<!-- شاشة ترحيب تظهر عند كل فتح للتطبيق: طفل صغير بعمامة يلوّح للمستخدم -->
+<div id="splash" aria-label="ترحيب تطبيق أثر" role="dialog" aria-modal="true">
+    <div class="sp-glow" aria-hidden="true"></div>
+    <div class="sp-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <button class="sp-skip" id="spSkip" type="button">تخطي <span aria-hidden="true">✕</span></button>
     <div class="sp-stage">
-        <div class="sp-peek">
-            <svg class="sp-kid" viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg">
+        <div class="sp-welcome-card">
+            <div class="sp-greeting">السلام عليكم</div>
+            <div class="sp-sub-greeting">نَوَّرت التطبيق 🌟</div>
+        </div>
+        <div class="sp-kid-scene" aria-hidden="true">
+            <div class="sp-orbit sp-orbit-one"></div><div class="sp-orbit sp-orbit-two"></div>
+            <svg class="sp-kid" viewBox="0 0 280 300" xmlns="http://www.w3.org/2000/svg" role="presentation">
                 <defs>
-                    <linearGradient id="kTb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf3"/><stop offset="1" stop-color="#e6d9b0"/></linearGradient>
-                    <linearGradient id="kTh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffef8"/><stop offset="1" stop-color="#e9dfc0"/></linearGradient>
-                    <radialGradient id="kSk" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fbe2c4"/><stop offset="1" stop-color="#eebd92"/></radialGradient>
+                    <linearGradient id="kidRobe" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffdf5"/><stop offset="1" stop-color="#d8c9a8"/></linearGradient>
+                    <linearGradient id="kidTurban" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#ded8ca"/></linearGradient>
+                    <radialGradient id="kidFace" cx="35%" cy="25%"><stop stop-color="#ffd9b7"/><stop offset="1" stop-color="#c98760"/></radialGradient>
+                    <filter id="kidShadow"><feGaussianBlur stdDeviation="8"/></filter>
                 </defs>
-                <g class="k-body">
-                    <!-- الكمّ الشمال (قصير وصغير) -->
-                    <path d="M62 164 C48 172 44 184 46 192" stroke="#d6c999" stroke-width="19" stroke-linecap="round" fill="none"/>
-                    <path d="M62 164 C48 172 44 184 46 192" stroke="url(#kTh)" stroke-width="16" stroke-linecap="round" fill="none"/>
-                    <!-- الثوب -->
-                    <path d="M40 192 C40 158 64 146 100 146 C136 146 160 158 160 192Z" fill="url(#kTh)" stroke="#d6c999" stroke-width="1.5"/>
-                    <path d="M82 148 Q100 168 118 148" stroke="#D4AF37" stroke-width="3.2" fill="none" stroke-linecap="round"/>
-                    <path d="M100 160 V192" stroke="#D4AF37" stroke-width="1.6"/>
-                    <circle cx="100" cy="172" r="2.4" fill="#D4AF37"/><circle cx="100" cy="183" r="2.4" fill="#D4AF37"/>
-                    <!-- الرقبة -->
-                    <rect x="89" y="128" width="22" height="22" rx="9" fill="#e3b088"/>
+                <ellipse cx="140" cy="278" rx="72" ry="11" fill="#000" opacity=".25" filter="url(#kidShadow)"/>
+                <!-- الجسم الصغير -->
+                <g class="kid-body">
+                    <path d="M91 169Q98 150 140 149Q182 150 189 169L207 267Q140 287 73 267Z" fill="url(#kidRobe)" stroke="#cbb98f" stroke-width="2.5"/>
+                    <path d="M140 165V267" stroke="#c3b18a" stroke-width="2" opacity=".65"/>
+                    <path d="M110 180Q79 186 69 222L57 237" fill="none" stroke="#f2e8d4" stroke-width="21" stroke-linecap="round"/>
+                    <path class="kid-wave-arm" d="M170 181Q202 164 211 127" fill="none" stroke="#f2e8d4" stroke-width="22" stroke-linecap="round"/>
+                    <circle cx="211" cy="124" r="12" fill="url(#kidFace)"/>
+                    <path d="M106 267l-5 19m73-19 5 19" stroke="#d7c8aa" stroke-width="18" stroke-linecap="round"/>
+                    <path d="M88 289h27m49 0h27" stroke="#352d25" stroke-width="10" stroke-linecap="round"/>
                 </g>
-                <g class="k-arm">
-                    <path d="M140 168 C160 160 168 138 162 114" stroke="#d6c999" stroke-width="19" stroke-linecap="round" fill="none"/>
-                    <path d="M140 168 C160 160 168 138 162 114" stroke="url(#kTh)" stroke-width="16" stroke-linecap="round" fill="none"/>
-                    <circle cx="162" cy="105" r="11.5" fill="url(#kSk)"/>
-                    <ellipse cx="152" cy="108" rx="3.8" ry="6.6" fill="url(#kSk)" transform="rotate(-24 152 108)"/>
+                <!-- الوجه والعمامة -->
+                <g class="kid-head">
+                    <ellipse cx="140" cy="112" rx="51" ry="55" fill="url(#kidFace)"/>
+                    <path d="M89 103Q82 48 133 39Q188 35 193 94Q174 79 153 81Q116 75 89 103Z" fill="url(#kidTurban)" stroke="#c8bda8" stroke-width="2.5"/>
+                    <path d="M96 78Q137 45 181 70M91 89Q137 57 190 83M118 49Q151 38 176 56" fill="none" stroke="#b9ad96" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M118 117h3m38 0h3" stroke="#493126" stroke-width="5" stroke-linecap="round"/>
+                    <path class="kid-smile" d="M127 137Q140 150 154 137" fill="none" stroke="#8e493a" stroke-width="3.5" stroke-linecap="round"/>
+                    <ellipse cx="103" cy="132" rx="8" ry="5" fill="#e98e7d" opacity=".35"/><ellipse cx="177" cy="132" rx="8" ry="5" fill="#e98e7d" opacity=".35"/>
                 </g>
-                <g class="k-head">
-                    <g transform="translate(100 134) scale(1.1) translate(-100 -134)">
-                        <g class="k-tail"><path d="M146 54 C164 62 168 88 160 112 C155 104 150 94 147 84Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.4"/><path d="M152 70 C158 80 159 92 157 102" stroke="#d6c999" stroke-width="1.2" fill="none"/></g>
-                        <circle cx="58" cy="100" r="8.5" fill="#eebd92"/><circle cx="142" cy="100" r="8.5" fill="#eebd92"/>
-                        <ellipse cx="100" cy="97" rx="43" ry="40" fill="url(#kSk)"/>
-                        <!-- خدود منفوخة + وجنات -->
-                        <circle cx="68" cy="111" r="9" fill="#f08e7c" opacity=".5"/><circle cx="132" cy="111" r="9" fill="#f08e7c" opacity=".5"/>
-                        <path d="M76 80 Q84 75 92 79" stroke="#6a4f3c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-                        <path d="M108 79 Q116 75 124 80" stroke="#6a4f3c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-                        <!-- عيون كبيرة لامعة -->
-                        <g class="k-eye"><ellipse cx="82" cy="97" rx="8" ry="9.6" fill="#1b140e"/><circle cx="85" cy="93" r="3.2" fill="#fff"/><circle cx="79.5" cy="101" r="1.5" fill="#fff"/></g>
-                        <g class="k-eye"><ellipse cx="118" cy="97" rx="8" ry="9.6" fill="#1b140e"/><circle cx="121" cy="93" r="3.2" fill="#fff"/><circle cx="115.5" cy="101" r="1.5" fill="#fff"/></g>
-                        <!-- مناخير صغيرة وضحكة مفتوحة -->
-                        <ellipse cx="100" cy="107" rx="2.6" ry="1.9" fill="#d99a76"/>
-                        <path d="M89 114 Q100 130 111 114Z" fill="#8a3f2c" stroke="#8a3f2c" stroke-width="1.6" stroke-linejoin="round"/>
-                        <path d="M93 121.5 Q100 126 107 121.5 Q100 118.5 93 121.5Z" fill="#ee8a78"/>
-                        <!-- العمامة (أصغر وعلى قد راس طفل) -->
-                        <g transform="translate(100 70) scale(.94) translate(-100 -70)">
-                            <path d="M47 76 C42 40 68 17 100 17 C132 17 158 40 153 76 C141 67 122 63 100 63 C78 63 59 67 47 76Z" fill="url(#kTb)" stroke="#d6c999" stroke-width="1.5"/>
-                            <path d="M54 62 C74 38 112 28 149 52" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-                            <path d="M50 70 C80 46 122 40 151 64" stroke="#cdbf93" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-                            <path d="M68 32 C88 26 118 26 136 36" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                            <path d="M100 18 C95 34 98 50 110 63" stroke="#cdbf93" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                            <path d="M48 74 C64 65 82 62 100 62 C118 62 136 65 152 74" stroke="#D4AF37" stroke-width="4.6" fill="none" stroke-linecap="round"/>
-                            <circle cx="100" cy="62.5" r="4" fill="#f9e076" stroke="#a8841f" stroke-width="1"/>
-                        </g>
-                    </g>
-                </g>
+                <g class="kid-sparkle" fill="#f6d979"><path d="M43 89l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M226 190l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></g>
             </svg>
         </div>
-        <div class="sp-title">أَثَر</div>
-        <div class="sp-hi">السلام عليكم</div>
+        <div class="sp-brand"><div class="sp-brand-title">أَثَر</div><div class="sp-brand-sub">كل بداية... أثر</div></div>
         <div class="sp-bar"></div>
     </div>
 </div>
@@ -590,20 +571,36 @@
 <script src="js/features/tutorial.js"></script>
 <script src="js/app.js"></script>
 <script>
-/* إخفاء السبلاش بسلاسة: بعد ما الصفحة تجهز وبحد أدنى ~5.6 ثانية عشان الأنيميشن يكمل */
+/* ترحيب الطفل يظهر عند كل فتح للتطبيق، مع نطق التحية عند دعم المتصفح. */
 (function () {
-    var el = document.getElementById('splash'); if (!el) return;
-    var t0 = Date.now(), MIN = 5600, MAX = 8000, done = false;
-    function hide() {
-        if (done) return; done = true;
-        var wait = Math.max(0, MIN - (Date.now() - t0));
-        setTimeout(function () {
-            el.classList.add('hide');
-            setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 900);
-        }, wait);
+    var el = document.getElementById('splash');
+    if (!el) return;
+    var done = false, startedAt = Date.now(), MIN = 4200, MAX = 5200;
+    function hideNow() {
+        if (done) return;
+        done = true;
+        el.classList.add('hide');
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 650);
+        try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) {}
     }
-    if (document.readyState === 'complete') hide(); else window.addEventListener('load', hide);
-    setTimeout(hide, MAX);
+    var skip = document.getElementById('spSkip');
+    if (skip) skip.addEventListener('click', hideNow);
+    function sayWelcome() {
+        if (done || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+        try {
+            var line = new SpeechSynthesisUtterance('السلام عليكم، نورت التطبيق');
+            line.lang = 'ar-EG'; line.rate = 0.9; line.pitch = 1.12;
+            var voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+            var arabic = voices.find(function (voice) { return /^ar([-_]|$)/i.test(voice.lang || ''); });
+            if (arabic) line.voice = arabic;
+            window.speechSynthesis.cancel(); window.speechSynthesis.speak(line);
+        } catch (e) {}
+    }
+    /* بعض المتصفحات تمنع الصوت التلقائي؛ النص والترحيب المتحرك يظلان ظاهرين. */
+    setTimeout(sayWelcome, 450);
+    setTimeout(hideNow, MIN);
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) setTimeout(hideNow, 1800);
+    setTimeout(hideNow, MAX);
 })();
 </script>
 </body>

@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -207,6 +208,27 @@ public class AdhanActivity extends Activity {
         setIntent(i);
         if (!ended && same) return;
         recreate();
+    }
+
+    /* =================== إيقاف الأذان من مفاتيح الصوت =================== */
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (!ended) {
+                try { stopService(new Intent(this, AdhanService.class)); } catch (Exception ignored) { }
+                markEnded();
+                Toast.makeText(this, "تم إيقاف الأذان", Toast.LENGTH_SHORT).show();
+            }
+            return true; // أثناء ظهور شاشة الأذان، ضغطة رفع أو خفض الصوت تعني إيقافه.
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) return true;
+        return super.onKeyUp(keyCode, event);
     }
 
     /* =================== تذكير الصلاة الاختياري =================== */

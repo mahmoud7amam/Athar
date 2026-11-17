@@ -86,6 +86,24 @@ function adNativeMode(k) {
     AD.nt = setTimeout(adNativeEnd, 235000); adUI();
 }
 function adNativeEnd() { clearTimeout(AD.nt); AD.playing = false; AD.ended = true; adUI(); clearTimeout(AD.closeT); AD.closeT = setTimeout(adhanClose, 60000); }
+// إيقاف فوري من أزرار التحكم أو مفاتيح الصوت، سواء كان الصوت من الويب أو خدمة APK.
+function adhanStopFromControl() {
+    clearTimeout(AD.nt);
+    if (AD.native && nativeOk()) nativeGo('stop');
+    AD.native = false;
+    adhanStop();
+}
+function adhanVolumeKeyStop(e) {
+    if (!AD.playing || !e) return;
+    const key = String(e.key || ''), code = String(e.code || '');
+    const volumeKey = /^(AudioVolumeUp|AudioVolumeDown|VolumeUp|VolumeDown)$/.test(key) ||
+        /^(AudioVolumeUp|AudioVolumeDown|VolumeUp|VolumeDown)$/.test(code) || e.keyCode === 174 || e.keyCode === 175;
+    if (!volumeKey) return;
+    e.preventDefault(); e.stopPropagation();
+    if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+    adhanStopFromControl();
+    toast('تم إيقاف الأذان');
+}
 
 /* ---------- الشاشة ---------- */
 const ADHAN_DUA = 'اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ';
@@ -244,15 +262,17 @@ function toggleAdhanFor(k, ev) {
     const nowOn = !(adOn() && adPrayerOn(k));
     if (nowOn) { store.set('adhan_on', '1'); adhanUnlock(); }
     store.set('adhan_p_' + k, nowOn ? '1' : '0'); nativeSync(true);
+    if (!nowOn && AD.k === k && AD.playing) adhanStopFromControl();
     adRefreshBells(); adRenderSettings();
     toast(`أذان ${PRAYERS[k]}: ${nowOn ? 'مفعّل' : 'متوقف'}`);
 }
 function setAdhanOn(v) {
     store.set('adhan_on', v ? '1' : '0'); nativeSync(true);
+    if (!v && AD.playing) adhanStopFromControl();
     if (v) { adhanUnlock(); adhanEnsureCached(); if (hasNotif() && Notification.permission === 'default') Notification.requestPermission().then(p => { if (p === 'granted') initNotifications(); adRenderSettings(); }).catch(() => {}); }
     adRefreshBells(); adRenderSettings();
 }
-function setAdhanPrayer(k, v) { store.set('adhan_p_' + k, v ? '1' : '0'); nativeSync(true); adRefreshBells(); adRenderSettings(); }
+function setAdhanPrayer(k, v) { store.set('adhan_p_' + k, v ? '1' : '0'); nativeSync(true); if (!v && AD.k === k && AD.playing) adhanStopFromControl(); adRefreshBells(); adRenderSettings(); }
 function setAdhanVol(v) { store.set('adhan_vol', String(v / 100)); if (AD.audio) AD.audio.volume = adVol(); }
 function testAdhan() {
     const k = (nextPrayer() || {}).k || 'Dhuhr';
@@ -391,6 +411,7 @@ function adhanInit() {
     adRenderSettings();
     const unlock = () => adhanUnlock();
     ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, unlock, { once: true, passive: true }));
+    document.addEventListener('keydown', adhanVolumeKeyStop, true);
     if (adOn()) setTimeout(adhanEnsureCached, 3000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) { adhanTick(); adhanSchedule(); } });
     window.addEventListener('focus', () => { adhanTick(); adhanSchedule(); });

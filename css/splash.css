@@ -1,126 +1,17 @@
-/* أَثَر — شاشة البداية: لوجو أَثَر بدون خلفية، وطفل صغير بعمامة بيطل من الشمال واليمين وبعدين يطلع من تحت ويسلّم.
-   ملف مستقل. لإلغائها امسح الملف وسطر الـ link وكتلة #splash والسكريبت الصغير في آخر index.html */
-
-#splash {
-    position: fixed; inset: 0; z-index: 99999; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(120% 90% at 50% 42%, #14110a 0%, #070604 60%, #000 100%);
-    opacity: 1; pointer-events: all;
-    transition: opacity .8s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .8s;
-}
-#splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-
-#splash .sp-glow {
-    position: absolute; left: 50%; top: 47%;
-    width: min(130vw, 620px); height: min(130vw, 620px);
-    margin: calc(min(130vw, 620px) / -2) 0 0 calc(min(130vw, 620px) / -2);
-    background: radial-gradient(circle, rgba(212,175,55,.2) 0%, rgba(212,175,55,.06) 40%, rgba(212,175,55,0) 68%);
-    opacity: 0; animation: spGlow 1.4s ease .1s forwards, spBreath 3.6s ease-in-out 1.6s infinite;
-}
-
-/* نجوم صغيرة بتلمع حوالين اللوجو */
-#splash .sp-sparks i {
-    position: absolute; width: 9px; height: 9px; background: #f3d977; opacity: 0;
-    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-    animation: spTwinkle 2.4s ease-in-out infinite;
-}
-#splash .sp-sparks i:nth-child(1) { left: 18%; top: 30%; animation-delay: 1.6s; }
-#splash .sp-sparks i:nth-child(2) { left: 80%; top: 26%; animation-delay: 2.1s; width: 12px; height: 12px; }
-#splash .sp-sparks i:nth-child(3) { left: 12%; top: 58%; animation-delay: 2.5s; width: 7px; height: 7px; }
-#splash .sp-sparks i:nth-child(4) { left: 86%; top: 56%; animation-delay: 1.9s; }
-#splash .sp-sparks i:nth-child(5) { left: 30%; top: 72%; animation-delay: 2.8s; width: 6px; height: 6px; }
-#splash .sp-sparks i:nth-child(6) { left: 68%; top: 70%; animation-delay: 2.3s; width: 7px; height: 7px; }
-
-#splash .sp-stage {
-    position: relative; display: flex; flex-direction: column; align-items: center;
-    transition: opacity .6s ease, transform .8s cubic-bezier(.4, 0, .2, 1);
-}
-#splash.hide .sp-stage { opacity: 0; transform: translateY(-14px) scale(.97); }
-
-/* ===== الشخصية: ورا اللوجو، وجزئها التحتاني بيدوب ===== */
-#splash .sp-peek {
-    position: relative; z-index: 1; width: min(48vw, 188px); margin-bottom: -30px;
-    opacity: 0; transform: translate(-62vw, 40px) rotate(-24deg) scale(.8); transform-origin: 50% 100%;
-    animation: kPeek 3.9s cubic-bezier(.35, 0, .25, 1) .8s forwards;
-}
-#splash .sp-kid {
-    display: block; width: 100%; height: auto; overflow: visible;
-    -webkit-mask-image: linear-gradient(to bottom, #000 54%, transparent 86%);
-            mask-image: linear-gradient(to bottom, #000 54%, transparent 86%);
-    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .55));
-}
-#splash .sp-kid * { transform-box: view-box; }
-#splash .k-body { transform-origin: 100px 190px; animation: kBreath 3s ease-in-out 4.6s infinite alternate; }
-#splash .k-head { transform-origin: 100px 130px; animation: kHead 2.4s ease-in-out 4.5s both, kBob 3s ease-in-out 6.9s infinite alternate; }
-#splash .k-arm  { transform-origin: 148px 164px; animation: kWave 2.1s ease-in-out 4.6s both; }
-#splash .k-tail { transform-origin: 148px 56px; animation: kSway 2.2s ease-in-out 2s infinite alternate; }
-#splash .k-eye  { transform-box: fill-box; transform-origin: 50% 50%; animation: kBlink 3.4s ease-in-out 2.2s infinite; }
-
-/* ===== النصوص ===== */
-#splash .sp-title {
-    position: relative; z-index: 2;
-    font-family: 'Amiri', 'Reem Kufi', serif; font-weight: 700; font-size: clamp(76px, 22vw, 96px); line-height: 1.25;
-    color: #D4AF37;
-    background: linear-gradient(110deg, #b8921f 20%, #fff2b0 45%, #D4AF37 55%, #b8921f 80%) 120% 0 / 250% 100%;
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    opacity: 0; transform: scale(.86); filter: blur(8px);
-    animation: spTitle 1.1s cubic-bezier(.2, .8, .2, 1) .25s forwards, spShine 1.6s ease-in-out 1.15s 1 both;
-}
-#splash .sp-hi {
-    margin-top: -2px; font-family: 'Amiri', 'Alexandria', serif; font-size: 21px; color: #e8cf86; letter-spacing: .5px;
-    opacity: 0; animation: spUp .9s cubic-bezier(.2, .8, .2, 1) 4.4s forwards;
-}
-#splash .sp-bar {
-    position: relative; width: 96px; height: 2px; margin-top: 20px; border-radius: 2px; overflow: hidden;
-    background: rgba(212,175,55,.14); opacity: 0; animation: spFade .6s ease .9s forwards;
-}
-#splash .sp-bar::before {
-    content: ""; position: absolute; top: 0; bottom: 0; width: 42%; border-radius: 2px;
-    background: linear-gradient(90deg, transparent, #f3d977, transparent);
-    animation: spSlide 1.3s cubic-bezier(.45, 0, .55, 1) infinite;
-}
-
-/* ===== الحركات ===== */
-/* الطفل بيطل من الشمال، وبعدين من اليمين، وبعدين يطلع من تحت ويسلّم */
-@keyframes kPeek {
-    0%   { opacity: 0; transform: translate(-62vw, 40px) rotate(-24deg) scale(.8); }
-    8%   { opacity: 1; }
-    18%  { opacity: 1; transform: translate(-24vw, 12px) rotate(-14deg) scale(.92); }
-    27%  { opacity: 1; transform: translate(-25vw, 12px) rotate(-9deg) scale(.92); }
-    36%  { opacity: 1; transform: translate(-70vw, 30px) rotate(-26deg) scale(.85); }
-    37%  { opacity: 0; transform: translate(-70vw, 30px) rotate(-26deg) scale(.85); }
-    38%  { opacity: 0; transform: translate(62vw, 40px) rotate(24deg) scale(.8); }
-    46%  { opacity: 1; }
-    56%  { opacity: 1; transform: translate(24vw, 12px) rotate(14deg) scale(.92); }
-    65%  { opacity: 1; transform: translate(25vw, 12px) rotate(9deg) scale(.92); }
-    74%  { opacity: 1; transform: translate(70vw, 30px) rotate(26deg) scale(.85); }
-    75%  { opacity: 0; transform: translate(70vw, 30px) rotate(26deg) scale(.85); }
-    77%  { opacity: 0; transform: translate(0, 90px) rotate(0) scale(.72); }
-    84%  { opacity: 1; }
-    93%  { opacity: 1; transform: translate(0, -10px) rotate(0) scale(1.04); }
-    100% { opacity: 1; transform: none; }
-}
-@keyframes kBreath { from { transform: scale(1); } to { transform: scale(1.012) translateY(-1px); } }
-@keyframes kBob    { from { transform: rotate(-1.2deg); } to { transform: rotate(1.2deg); } }
-@keyframes kHead   { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-8deg); } 66% { transform: rotate(6deg); } }
-@keyframes kWave   {
-    0% { transform: rotate(0); } 14% { transform: rotate(-14deg); } 28% { transform: rotate(10deg); }
-    42% { transform: rotate(-14deg); } 56% { transform: rotate(10deg); } 70% { transform: rotate(-12deg); } 100% { transform: rotate(0); }
-}
-@keyframes kSway   { from { transform: rotate(-4deg); } to { transform: rotate(5deg); } }
-@keyframes kBlink  { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
-@keyframes spGlow  { to { opacity: 1; } }
-@keyframes spBreath{ 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .65; transform: scale(1.06); } }
-@keyframes spUp    { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-@keyframes spTitle { to { opacity: 1; transform: none; filter: blur(0) drop-shadow(0 0 18px rgba(212,175,55,.28)); } }
-@keyframes spShine { from { background-position: 120% 0; } to { background-position: -20% 0; } }
-@keyframes spFade  { to { opacity: 1; } }
-@keyframes spSlide { from { left: -45%; } to { left: 105%; } }
-@keyframes spTwinkle { 0%, 100% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: .95; transform: scale(1.1) rotate(45deg); } }
-
-/* لو الجهاز مفعّل تقليل الحركة: نعرض الحالة النهائية مباشرة */
-@media (prefers-reduced-motion: reduce) {
-    #splash .sp-glow, #splash .sp-hi, #splash .sp-title, #splash .sp-bar, #splash .sp-peek { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
-    #splash .sp-title { -webkit-text-fill-color: #D4AF37; }
-    #splash .sp-kid *, #splash .sp-sparks i { animation: none !important; }
-}
+/* أَثَر — ترحيب زجاجي لطفل صغير بعمامة */
+#splash{position:fixed;inset:0;z-index:99999;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));box-sizing:border-box;background:radial-gradient(90% 62% at 50% 42%,rgba(68,51,20,.48),rgba(15,13,9,.94) 63%,#050505 100%);opacity:1;pointer-events:auto;transition:opacity .65s ease,visibility 0s linear .65s}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+#splash .sp-glow{position:absolute;left:50%;top:48%;width:min(125vw,620px);aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(212,175,55,.22),rgba(212,175,55,.05) 44%,transparent 70%);animation:spGlow 1s ease both,spBreath 3s ease-in-out 1s infinite;pointer-events:none}
+#splash .sp-sparks{position:absolute;inset:0;pointer-events:none}#splash .sp-sparks i{position:absolute;width:8px;height:8px;background:#f3d977;opacity:0;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:spTwinkle 2.4s ease-in-out infinite}
+#splash .sp-sparks i:nth-child(1){left:13%;top:26%;animation-delay:.2s}#splash .sp-sparks i:nth-child(2){left:84%;top:23%;animation-delay:.8s;width:12px;height:12px}#splash .sp-sparks i:nth-child(3){left:9%;top:62%;animation-delay:1.2s}#splash .sp-sparks i:nth-child(4){left:89%;top:59%;animation-delay:.5s}#splash .sp-sparks i:nth-child(5){left:29%;top:82%;animation-delay:1.5s}#splash .sp-sparks i:nth-child(6){left:72%;top:78%;animation-delay:1s}
+#splash .sp-stage{position:relative;z-index:1;width:min(94vw,440px);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease,transform .5s ease}#splash.hide .sp-stage{opacity:0;transform:translateY(-10px) scale(.98)}
+#splash .sp-welcome-card{width:min(100%,360px);box-sizing:border-box;text-align:center;padding:17px 20px 14px;border:1px solid rgba(235,211,145,.3);border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.045));box-shadow:0 16px 45px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.13);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);animation:welcomeIn .7s cubic-bezier(.2,.8,.2,1) both}
+#splash .sp-greeting{color:#fff1c4;font-family:'Alexandria','Amiri',sans-serif;font-size:clamp(23px,6vw,31px);font-weight:800;line-height:1.5;text-shadow:0 2px 18px rgba(212,175,55,.25)}#splash .sp-sub-greeting{margin-top:3px;color:#e6d6a9;font-family:'Alexandria','Amiri',sans-serif;font-size:clamp(16px,4.5vw,21px);font-weight:700}
+#splash .sp-kid-scene{position:relative;width:min(78vw,310px);height:300px;margin:4px auto 0;display:grid;place-items:center}#splash .sp-kid{position:relative;z-index:2;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 14px 18px rgba(0,0,0,.24));animation:kidBounce 2.4s ease-in-out infinite;transform-origin:50% 90%}#splash .kid-wave-arm{transform-box:fill-box;transform-origin:15% 15%;animation:kidWave .72s ease-in-out infinite alternate}#splash .kid-head{transform-box:fill-box;transform-origin:50% 100%;animation:kidNod 2.4s ease-in-out infinite}#splash .kid-smile{animation:smileTalk 1.2s ease-in-out infinite}#splash .kid-sparkle{animation:kidSparkle 2s ease-in-out infinite}
+#splash .sp-orbit{position:absolute;left:50%;top:54%;border:1px solid rgba(212,175,55,.2);border-radius:50%;transform:translate(-50%,-50%)}#splash .sp-orbit-one{width:260px;height:260px}#splash .sp-orbit-two{width:310px;height:310px;border-style:dashed;opacity:.55;animation:orbitSpin 24s linear infinite}
+#splash .sp-brand{display:flex;align-items:center;gap:12px;margin-top:-2px;animation:welcomeIn .8s .2s both}#splash .sp-brand-title{font-family:'Amiri','Reem Kufi',serif;font-size:clamp(40px,10vw,54px);font-weight:700;line-height:1.2;background:linear-gradient(110deg,#b8921f,#fff2b0 48%,#d4af37 68%,#b8921f);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 17px rgba(212,175,55,.24))}#splash .sp-brand-sub{color:#d7c38b;font-family:'Alexandria',sans-serif;font-size:12px;letter-spacing:.5px}
+#splash .sp-bar{position:relative;width:96px;height:2px;margin-top:8px;border-radius:2px;overflow:hidden;background:rgba(212,175,55,.16)}#splash .sp-bar:before{content:"";position:absolute;top:0;bottom:0;width:42%;border-radius:2px;background:linear-gradient(90deg,transparent,#f3d977,transparent);animation:spSlide 1.3s ease-in-out infinite}
+#splash .sp-skip{position:absolute;z-index:10;top:max(8px,env(safe-area-inset-top));left:8px;display:inline-flex;align-items:center;gap:8px;padding:9px 13px;color:rgba(255,248,225,.84);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:999px;font-family:'Alexandria',sans-serif;font-size:11px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}#splash .sp-skip:active{transform:scale(.96)}
+@keyframes welcomeIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}@keyframes kidBounce{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-9px) rotate(1deg)}}@keyframes kidWave{from{transform:rotate(-13deg)}to{transform:rotate(18deg)}}@keyframes kidNod{0%,100%{transform:rotate(0)}45%{transform:rotate(-3deg)}70%{transform:rotate(2deg)}}@keyframes smileTalk{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.55)}}@keyframes kidSparkle{0%,100%{opacity:.45}50%{opacity:1}}@keyframes orbitSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes spGlow{to{opacity:1}}@keyframes spBreath{0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1)}50%{opacity:.65;transform:translate(-50%,-50%) scale(1.06)}}@keyframes spSlide{from{left:-45%}to{left:105%}}@keyframes spTwinkle{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:.95;transform:scale(1.1) rotate(45deg)}}
+@media(max-height:620px){#splash .sp-kid-scene{height:220px;width:230px}#splash .sp-kid{width:220px}#splash .sp-orbit-one{width:190px;height:190px}#splash .sp-orbit-two{width:225px;height:225px}#splash .sp-welcome-card{padding:10px 15px}#splash .sp-brand-title{font-size:36px}}
+@media(prefers-reduced-motion:reduce){#splash *,#splash *:before{animation:none!important;transition:none!important}#splash .sp-kid{transform:none}}
