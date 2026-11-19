@@ -1,18 +1,24 @@
-plugins { id 'com.android.application' }
 
-// التوقيع: متغيّرات بيئة (الـ workflow بيملاها من GitHub Secrets). لو مش موجودة بيطلع APK/AAB غير موقّع.
+plugins {
+    id 'com.android.application'
+}
+
+// التوقيع: متغيّرات بيئة (الـ workflow بيملاها من GitHub Secrets).
+// لو مش موجودة بيطلع APK/AAB غير موقّع.
 def ksPath = System.getenv("KEYSTORE_PATH")
 
 android {
-    namespace 'com.atharqurani.app'          // حزمة كود جافا + R
+    namespace 'com.atharqurani.app'
     compileSdk 36
 
     defaultConfig {
-        applicationId "app.vercel.athar_silk.twa"   // نفس حزمة تطبيق جوجل بلاي (عشان يتحدّث فوقه)
+        applicationId "app.vercel.athar_silk.twa"
         minSdk 21
         targetSdk 36
-        versionCode 14                              // لازم يكون أكبر من آخر نسخة مرفوعة في Play Console
-        versionName "2.3.0"
+
+        // الإصدار الجديد
+        versionCode 15
+        versionName "2.4.0"
     }
 
     signingConfigs {
@@ -25,19 +31,21 @@ android {
             }
         }
     }
+
     buildTypes {
         release {
             if (ksPath) signingConfig signingConfigs.release
             minifyEnabled false
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 }
 
-// منع تكرار كلاسات Kotlin (kotlin-stdlib-jdk7/jdk8 بقوا جوه stdlib من Kotlin 1.8)
+// منع تكرار كلاسات Kotlin
 configurations.all {
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
