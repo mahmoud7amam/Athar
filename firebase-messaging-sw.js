@@ -1,5 +1,5 @@
 /* أَثَر — Service Worker موحّد: كاش للتطبيق + إشعارات Firebase (بدون أي إعلانات) */
-const VERSION = 'athar-v14';
+const VERSION = 'athar-v15';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
 const TAFSIR_CACHE = 'tafsir-cache-v1';
@@ -31,6 +31,7 @@ const APP_ASSETS = [
   './css/audio-downloads.css',
   './css/tutorial.css',
   './css/nav-glass.css',
+  './css/experience-glass.css',
   './js/config.js',
   './js/core/utils.js',
   './js/core/firebase.js',

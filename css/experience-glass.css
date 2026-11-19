@@ -1,0 +1,532 @@
+/* أَثَر — طبقة الزجاج الحديثة للمصحف والأدعية والهيدر */
+
+:root {
+    --glass-stroke: rgba(255,255,255,.14);
+    --glass-hi: rgba(255,255,255,.16);
+    --glass-low: rgba(255,255,255,.045);
+    --glass-shadow: 0 12px 30px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.13);
+}
+
+/* الهيدر: زجاج شفاف مع انعكاس علوي */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    margin: 8px 10px 7px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+    border: 1px solid var(--glass-stroke);
+    border-bottom-color: rgba(212,175,55,.30);
+    border-radius: 22px;
+    background:
+        radial-gradient(110% 150% at 50% -45%, rgba(212,175,55,.20), transparent 62%),
+        linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.025) 55%),
+        rgba(16,15,13,.72);
+    -webkit-backdrop-filter: blur(24px) saturate(175%);
+    backdrop-filter: blur(24px) saturate(175%);
+    box-shadow: 0 10px 28px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.18);
+    overflow: hidden;
+}
+header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 16%;
+    right: 16%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent);
+    pointer-events: none;
+}
+header > * { position: relative; z-index: 1; }
+.logo {
+    font-size: 29px;
+    letter-spacing: .4px;
+    background: linear-gradient(110deg, #b58b22 5%, #fff1ad 44%, #d4af37 72%, #fff0a7 94%);
+    background-size: 180% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 3px 12px rgba(212,175,55,.22));
+    animation: atharLogoShine 8s ease-in-out infinite;
+}
+.mark-btn, .theme-toggle {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    justify-content: center;
+    border: 1px solid rgba(212,175,55,.24);
+    border-radius: 15px;
+    background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.025));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 5px 14px rgba(0,0,0,.12);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+.mark-btn svg { width: 23px; height: 23px; }
+.theme-toggle svg { width: 22px; height: 22px; }
+@keyframes atharLogoShine { 0%,100% { background-position: 0 0; } 50% { background-position: 100% 0; } }
+
+/* رؤوس أقسام أنيقة للمصحف والأدعية */
+.glass-page-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 92px;
+    box-sizing: border-box;
+    margin: 5px 0 15px;
+    padding: 16px 17px;
+    overflow: hidden;
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 25px;
+    background:
+        radial-gradient(120% 150% at 100% 0%, rgba(212,175,55,.18), transparent 60%),
+        linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.025)),
+        rgba(20,19,16,.55);
+    -webkit-backdrop-filter: blur(22px) saturate(165%);
+    backdrop-filter: blur(22px) saturate(165%);
+    box-shadow: var(--glass-shadow);
+}
+.glass-page-head::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    left: -78px;
+    bottom: -105px;
+    border: 1px solid rgba(212,175,55,.17);
+    border-radius: 50%;
+    box-shadow: 0 0 0 12px rgba(212,175,55,.025), 0 0 0 26px rgba(212,175,55,.02);
+    pointer-events: none;
+}
+.gph-emblem {
+    display: flex;
+    flex: 0 0 55px;
+    width: 55px;
+    height: 55px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(249,224,118,.42);
+    border-radius: 19px;
+    color: #f9e076;
+    background: linear-gradient(145deg, rgba(249,224,118,.22), rgba(212,175,55,.06));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 5px 18px rgba(212,175,55,.12);
+    font-family: 'Amiri', serif;
+    font-size: 34px;
+    line-height: 1;
+}
+.gph-copy { min-width: 0; position: relative; z-index: 1; }
+.gph-copy small { display: block; margin-bottom: 2px; color: var(--gold-light); font-size: 10px; font-weight: 800; letter-spacing: .3px; }
+.gph-copy h2 { margin: 0; color: var(--text); font-family: 'Reem Kufi','Amiri',serif; font-size: 22px; line-height: 1.45; }
+.gph-copy p { margin: 3px 0 0; color: var(--muted); font-size: 10.5px; line-height: 1.65; }
+
+/* عناصر المصحف: تحميل وبحث وتبويبات */
+#p-quran .download-btn {
+    position: relative;
+    min-height: 54px;
+    padding: 13px 15px;
+    margin-bottom: 11px;
+    border: 1px solid rgba(212,175,55,.28);
+    border-radius: 19px;
+    color: var(--gold-light);
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.025)),
+        rgba(19,18,15,.54);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 8px 22px rgba(0,0,0,.14);
+}
+#p-quran .download-btn:active { transform: scale(.985); border-color: rgba(249,224,118,.58); }
+#p-quran .search-wrap { margin: 1px 0 13px; }
+#p-quran .search-input {
+    min-height: 52px;
+    padding: 13px 17px;
+    border: 1px solid rgba(212,175,55,.23);
+    border-radius: 18px;
+    color: var(--text);
+    background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.025)), rgba(20,19,17,.52);
+    -webkit-backdrop-filter: blur(18px) saturate(155%);
+    backdrop-filter: blur(18px) saturate(155%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.11), 0 7px 20px rgba(0,0,0,.12);
+}
+#p-quran .search-input::placeholder { color: var(--muted); opacity: .9; }
+#p-quran .search-input:focus { border-color: rgba(249,224,118,.72); box-shadow: 0 0 0 3px rgba(212,175,55,.11), inset 0 1px 0 rgba(255,255,255,.14); }
+#p-quran .quran-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+    gap: 7px;
+    margin: 0 -2px 15px;
+    padding: 7px;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 21px;
+    background: linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.025)), rgba(15,14,12,.76);
+    -webkit-backdrop-filter: blur(22px) saturate(165%);
+    backdrop-filter: blur(22px) saturate(165%);
+    box-shadow: 0 8px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.14);
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+}
+#p-quran .quran-tabs::-webkit-scrollbar { display: none; }
+#p-quran .tab-btn {
+    flex: 0 0 auto;
+    min-height: 39px;
+    padding: 9px 15px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 14px;
+    color: rgba(239,233,218,.78);
+    background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.015));
+    font-size: 11.5px;
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.09);
+}
+#p-quran .tab-btn.active {
+    color: #201908;
+    border-color: rgba(255,240,172,.65);
+    background: linear-gradient(145deg, rgba(255,246,194,.96), rgba(212,175,55,.92));
+    box-shadow: 0 5px 15px rgba(212,175,55,.22), inset 0 1px 0 rgba(255,255,255,.7);
+}
+#qList { display: grid; gap: 9px; padding-bottom: 10px; }
+#qList .sr-card, #qList .num-card, #qList .s-card, #qList .search-results-item {
+    position: relative;
+    box-sizing: border-box;
+    margin: 0;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 19px;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.025)),
+        rgba(22,20,16,.52);
+    -webkit-backdrop-filter: blur(17px) saturate(150%);
+    backdrop-filter: blur(17px) saturate(150%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.13), 0 7px 19px rgba(0,0,0,.12);
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+#qList .sr-card, #qList .num-card { padding: 10px 12px; }
+#qList .sr-card:active, #qList .num-card:active, #qList .s-card:active, #qList .search-results-item:active {
+    transform: scale(.985);
+    border-color: rgba(249,224,118,.58);
+}
+#qList .sr-num { border-radius: 15px; background-color: rgba(212,175,55,.08); }
+#qList .sr-info b { color: var(--text); }
+#qList .sr-info small { color: var(--gold-light); }
+#qList .sr-chev { color: var(--gold-light); }
+#qList .num-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+#qList .num-card { min-width: 0; gap: 8px; }
+#qList .num-card .sr-num { width: 38px; height: 38px; }
+#qList .num-card .sr-info b { font-size: 15px; }
+#qList .num-card .sr-info small { font-size: 10px; }
+#qList .search-results-item { padding: 15px 16px; cursor: pointer; }
+#qList .search-results-item .ayah-text { display: block; color: var(--text); font-family: 'Amiri Quran','Amiri',serif; font-size: 21px; line-height: 1.9; }
+#qList .search-results-item .surah-info { margin-top: 7px; color: var(--gold-light); font-size: 11px; font-weight: 700; }
+#qList .state-msg { margin: 2px 0 8px; padding: 16px 12px; border: 1px solid rgba(212,175,55,.16); border-radius: 18px; background: rgba(255,255,255,.045); }
+
+/* بطاقات الأدعية والأذكار */
+#p-duas #duasList {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 11px;
+    padding-bottom: 14px;
+}
+#p-duas .dua-card {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    box-sizing: border-box;
+    min-height: 112px;
+    margin: 0;
+    padding: 18px 17px;
+    overflow: hidden;
+    border: 1px solid rgba(212,175,55,.24);
+    border-right: 3px solid rgba(212,175,55,.9);
+    border-radius: 22px;
+    text-align: center;
+    background:
+        radial-gradient(110% 130% at 100% 0%, rgba(212,175,55,.12), transparent 65%),
+        linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.025)),
+        rgba(20,19,16,.54);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 10px 24px rgba(0,0,0,.14);
+}
+#p-duas .dua-card::before {
+    content: "۞";
+    position: absolute;
+    left: 12px;
+    bottom: -24px;
+    color: rgba(212,175,55,.10);
+    font-family: 'Amiri',serif;
+    font-size: 78px;
+    line-height: 1;
+    pointer-events: none;
+}
+#p-duas .dua-card .dua-head {
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto 3px;
+    padding: 3px 13px 5px;
+    border: 1px solid rgba(212,175,55,.22);
+    border-radius: 999px;
+    color: var(--gold-light);
+    background: rgba(212,175,55,.08);
+    font-size: 11px;
+}
+#p-duas .dua-card b {
+    position: relative;
+    z-index: 1;
+    padding: 5px 0 0;
+    color: var(--text);
+    font-family: 'Amiri Quran','Amiri',serif;
+    font-size: clamp(20px,5.6vw,24px);
+    line-height: 2;
+    font-weight: 500;
+}
+
+/* أدوات القارئ واللوحات الصغيرة */
+.reader-tools {
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 0 0 22px 22px;
+    background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.025)), rgba(12,12,11,.82);
+    -webkit-backdrop-filter: blur(25px) saturate(175%);
+    backdrop-filter: blur(25px) saturate(175%);
+    box-shadow: 0 14px 36px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.15);
+}
+.rt-ic, .rt-seg { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.rt-ic { background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.025)); }
+
+/* الوضع الفاتح: زجاج عاجي واضح من غير فقدان التباين */
+body.light-mode {
+    --glass-stroke: rgba(150,119,35,.18);
+    --glass-hi: rgba(255,255,255,.88);
+    --glass-low: rgba(255,255,255,.48);
+}
+body.light-mode header {
+    border-color: rgba(160,125,20,.20);
+    border-bottom-color: rgba(160,125,20,.30);
+    background:
+        radial-gradient(110% 150% at 50% -45%, rgba(212,175,55,.15), transparent 62%),
+        linear-gradient(145deg, rgba(255,255,255,.93), rgba(255,255,255,.55)),
+        rgba(255,252,241,.78);
+    box-shadow: 0 9px 26px rgba(90,70,10,.10), inset 0 1px 0 #fff;
+}
+body.light-mode .mark-btn, body.light-mode .theme-toggle {
+    border-color: rgba(160,125,20,.20);
+    background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(248,242,224,.68));
+    box-shadow: inset 0 1px 0 #fff, 0 5px 14px rgba(90,70,10,.07);
+}
+body.light-mode .glass-page-head {
+    border-color: rgba(160,125,20,.20);
+    background:
+        radial-gradient(120% 150% at 100% 0%, rgba(212,175,55,.15), transparent 60%),
+        linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.57)),
+        rgba(255,252,241,.80);
+    box-shadow: inset 0 1px 0 #fff, 0 10px 24px rgba(90,70,10,.07);
+}
+body.light-mode .gph-copy small { color: #98751d; }
+body.light-mode .gph-copy h2 { color: #302817; }
+body.light-mode .gph-copy p { color: #766c56; }
+body.light-mode .gph-emblem {
+    color: #99751b;
+    border-color: rgba(160,125,20,.25);
+    background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,226,180,.65));
+}
+body.light-mode #p-quran .download-btn,
+body.light-mode #p-quran .search-input,
+body.light-mode #p-quran .quran-tabs,
+body.light-mode #qList .sr-card,
+body.light-mode #qList .num-card,
+body.light-mode #qList .s-card,
+body.light-mode #qList .search-results-item,
+body.light-mode #p-duas .dua-card {
+    color: #302817;
+    border-color: rgba(160,125,20,.18);
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.52)),
+        rgba(255,252,242,.78);
+    box-shadow: inset 0 1px 0 #fff, 0 8px 20px rgba(90,70,10,.07);
+}
+body.light-mode #p-quran .download-btn { color: #806117; }
+body.light-mode #p-quran .tab-btn {
+    color: #6e6248;
+    border-color: rgba(160,125,20,.15);
+    background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(245,238,220,.68));
+}
+body.light-mode #p-quran .tab-btn.active {
+    color: #201908;
+    border-color: rgba(160,125,20,.3);
+    background: linear-gradient(145deg, #fff1ad, #d4af37);
+}
+body.light-mode #qList .sr-info b,
+body.light-mode #qList .search-results-item .ayah-text,
+body.light-mode #p-duas .dua-card b { color: #302817; }
+body.light-mode #qList .sr-info small,
+body.light-mode #qList .sr-chev,
+body.light-mode #qList .search-results-item .surah-info,
+body.light-mode #p-duas .dua-card .dua-head { color: #8a681b; }
+body.light-mode #p-duas .dua-card .dua-head { border-color: rgba(160,125,20,.18); }
+body.light-mode #qList .state-msg { background: rgba(255,255,255,.65); border-color: rgba(160,125,20,.14); }
+body.light-mode .reader-tools {
+    border-color: rgba(160,125,20,.22);
+    background: linear-gradient(145deg, rgba(255,255,255,.93), rgba(255,255,255,.58)), rgba(255,252,241,.88);
+    box-shadow: 0 12px 30px rgba(90,70,10,.12), inset 0 1px 0 #fff;
+}
+
+@media (min-width: 640px) {
+    #p-duas #duasList { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 360px) {
+    header { margin-left: 7px; margin-right: 7px; padding-left: 8px; padding-right: 8px; }
+    .gph-emblem { flex-basis: 48px; width: 48px; height: 48px; }
+    .gph-copy h2 { font-size: 20px; }
+    #p-quran .tab-btn { padding-left: 12px; padding-right: 12px; }
+    #qList .num-card { gap: 6px; padding: 9px 8px; }
+    #qList .num-card .sr-num { width: 34px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { .logo { animation: none !important; } }
+
+/* تذكير الصلاة: بطاقة زجاجية صغيرة في منتصف الشاشة بدل ملء الشاشة */
+.adh-ov {
+    padding: 16px;
+    background: rgba(3,3,3,.48);
+    -webkit-backdrop-filter: blur(12px) saturate(125%);
+    backdrop-filter: blur(12px) saturate(125%);
+}
+.adh-card {
+    width: min(100%, 390px);
+    max-height: min(88dvh, 760px);
+    box-sizing: border-box;
+    overflow-y: auto;
+    padding: 22px 18px 18px;
+    border: 1px solid rgba(249,224,118,.30);
+    border-radius: 30px;
+    background:
+        radial-gradient(115% 100% at 50% 0%, rgba(212,175,55,.23), transparent 64%),
+        linear-gradient(145deg, rgba(255,255,255,.15), rgba(255,255,255,.035)),
+        rgba(13,12,10,.88);
+    -webkit-backdrop-filter: blur(26px) saturate(175%);
+    backdrop-filter: blur(26px) saturate(175%);
+    box-shadow: 0 26px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.23), inset 0 -1px 0 rgba(0,0,0,.25);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212,175,55,.35) transparent;
+}
+.adh-pulse { width: 76px; height: 76px; margin-bottom: 13px; box-shadow: 0 7px 25px rgba(212,175,55,.32), inset 0 1px 0 rgba(255,255,255,.45); }
+.adh-pulse svg { width: 43px; height: 43px; }
+.adh-title { font-size: clamp(27px,7vw,33px); }
+.adh-sub { font-size: 12px; }
+.adh-phrase { margin: 14px 0 4px; font-size: 19px; }
+.adh-dua { margin-top: 13px; font-size: 17px; }
+.adh-actions { gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+.adh-actions .adh-btn { min-width: 0; padding: 12px 9px; border-radius: 15px; font-size: 12px; }
+.adh-actions .adh-btn.main { flex: 1.15; }
+.prayer-voice { margin-top: 14px; padding: 14px; border-radius: 21px; }
+.pv-title { font-size: 17px; }
+.prayer-voice p, .pv-status { font-size: 11px; line-height: 1.8; }
+.pv-quote { margin: 9px 0; padding: 10px 8px; font-size: 20px; }
+.prayer-voice .adh-btn { padding: 11px 9px; font-size: 12px; }
+body.light-mode .adh-card {
+    color: #302817;
+    border-color: rgba(160,125,20,.28);
+    background:
+        radial-gradient(115% 100% at 50% 0%, rgba(212,175,55,.18), transparent 64%),
+        linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,255,255,.66)),
+        rgba(255,252,241,.94);
+    box-shadow: 0 25px 65px rgba(70,55,10,.22), inset 0 1px 0 #fff;
+}
+body.light-mode .adh-title { color: #927019; text-shadow: none; }
+body.light-mode .adh-sub,
+body.light-mode .adh-phrase,
+body.light-mode .prayer-voice p,
+body.light-mode .pv-status { color: #655b48; }
+body.light-mode .prayer-voice {
+    border-color: rgba(160,125,20,.22);
+    background: linear-gradient(145deg, rgba(255,255,255,.93), rgba(255,255,255,.60));
+    box-shadow: inset 0 1px 0 #fff, 0 8px 22px rgba(80,60,10,.08);
+}
+body.light-mode .pv-title { color: #876510; }
+body.light-mode .pv-quote { color: #534119; background: rgba(212,175,55,.12); border-color: rgba(160,125,20,.25); }
+@media (max-width: 360px) {
+    .adh-card { padding: 18px 13px 14px; border-radius: 25px; }
+    .adh-actions .adh-btn { font-size: 11px; }
+}
+
+/* أذكار المصحف ودعاء الختم لهما نفس طبقة الزجاج الموجودة في صفحة الأدعية */
+#qList .dua-card {
+    min-height: 104px;
+    padding: 16px 15px;
+    border-right: 3px solid rgba(212,175,55,.88);
+    border-radius: 20px;
+    overflow: hidden;
+    background:
+        radial-gradient(110% 130% at 100% 0%, rgba(212,175,55,.12), transparent 65%),
+        linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.025)),
+        rgba(20,19,16,.54);
+}
+#qList .dua-card .dua-head {
+    width: auto;
+    padding: 3px 12px 5px;
+    border: 1px solid rgba(212,175,55,.22);
+    border-radius: 999px;
+    color: var(--gold-light);
+    background: rgba(212,175,55,.08);
+    font-size: 11px;
+}
+#qList .dua-card b { font-size: clamp(20px,5.5vw,23px); line-height: 1.95; }
+
+/* قوائم اختيار القارئ والتنزيل زجاجية أيضاً */
+.sh2 {
+    border: 1px solid rgba(212,175,55,.26);
+    border-bottom: 0;
+    background: linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.035)), rgba(15,14,12,.88);
+    -webkit-backdrop-filter: blur(26px) saturate(175%);
+    backdrop-filter: blur(26px) saturate(175%);
+    box-shadow: 0 -18px 48px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.16);
+}
+.sh2-head { color: var(--gold-light); }
+.rc-item { border-color: rgba(255,255,255,.075); background: rgba(255,255,255,.035); }
+.rc-item.on { border-color: rgba(212,175,55,.30); background: rgba(212,175,55,.12); }
+body.light-mode .sh2 {
+    border-color: rgba(160,125,20,.20);
+    background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,255,255,.62)), rgba(255,252,241,.92);
+    box-shadow: 0 -16px 40px rgba(80,60,10,.14), inset 0 1px 0 #fff;
+}
+body.light-mode .sh2-head { color: #8c6815; }
+body.light-mode .rc-item { border-color: rgba(160,125,20,.12); }
+body.light-mode .rc-item.on { background: rgba(212,175,55,.14); border-color: rgba(160,125,20,.26); }
+body.light-mode #qList .dua-card {
+    border-color: rgba(160,125,20,.18);
+    border-right-color: rgba(160,125,20,.62);
+    background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.54)), rgba(255,252,242,.82);
+}
+body.light-mode #qList .dua-card .dua-head { color: #8a681b; border-color: rgba(160,125,20,.18); }
+
+
+/* تحسين الأداء: صفحات المصحف الطويلة تُعرض على دفعات */
+.q-load-more {
+    display: block;
+    width: min(100%, 420px);
+    min-height: 48px;
+    margin: 16px auto 24px;
+    padding: 12px 16px;
+    border: 1px solid rgba(212,175,55,.32);
+    border-radius: 16px;
+    color: var(--gold-light);
+    background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.025)), rgba(18,17,14,.72);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+.q-load-more:active { transform: scale(.985); }
+@media (max-width: 700px) {
+    header, .glass-page-head, .glass-panel, #p-quran .download-btn,
+    #p-quran .search-input, #p-quran .quran-tabs, #p-quran .tab-btn,
+    #qList .s-card, #qList .num-card, #duasList .dua-card,
+    #duasList .s-card, .nav-item {
+        -webkit-backdrop-filter: blur(9px) saturate(135%) !important;
+        backdrop-filter: blur(9px) saturate(135%) !important;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .logo { animation: none !important; }
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}

@@ -10,6 +10,15 @@ public class AdhanReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context c, Intent i) {
         String a = i.getAction();
+        if (AdhanScheduler.ACTION_LOCK_REMINDER.equals(a)) {
+            int reminderIdx = i.getIntExtra("idx", -1);
+            long reminderEpoch = i.getLongExtra("epoch", -1L);
+            if (AdhanPrefs.lockOn(c) && AdhanPrefs.lockPending(c)
+                    && AdhanPrefs.lockIdx(c) == reminderIdx && AdhanPrefs.lockEpoch(c) == reminderEpoch) {
+                AdhanService.beginReminder(c, reminderIdx, reminderEpoch);
+            }
+            return;
+        }
         if (AdhanScheduler.ACTION_STOP.equals(a)) {
             c.stopService(new Intent(c, AdhanService.class));
             return;
@@ -20,9 +29,12 @@ public class AdhanReceiver extends BroadcastReceiver {
         long now = System.currentTimeMillis();
         // لو الجهاز كان مطفي وقت الأذان وعدّى أكتر من 10 دقايق، ما نشغّلش أذان متأخر
         // ونمنع التكرار: المنبّه الأساسي والاحتياطي بيصحّوا بنفس الوقت، الأول بس هو اللي يشغّل
-        if (AdhanPrefs.on(c) && now - epoch < 10 * 60 * 1000L && epoch > AdhanPrefs.lastPlayed(c)) {
+        boolean soundOn = AdhanPrefs.on(c) && AdhanPrefs.flag(c, idx);
+        boolean lockOn = AdhanPrefs.lockOn(c);
+        if ((soundOn || lockOn) && now - epoch < 10 * 60 * 1000L && epoch > AdhanPrefs.lastPlayed(c)) {
             AdhanPrefs.setLastPlayed(c, epoch);
-            AdhanService.begin(c, idx, epoch, AdhanPrefs.lockOn(c));
+            if (soundOn) AdhanService.begin(c, idx, epoch, lockOn, true);
+            else AdhanService.beginReminder(c, idx, epoch);
         }
         AdhanScheduler.scheduleAfter(c, Math.max(epoch, now));
     }

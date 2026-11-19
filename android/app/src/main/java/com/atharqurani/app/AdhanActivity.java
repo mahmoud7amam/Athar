@@ -4,11 +4,13 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -27,6 +29,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -39,6 +44,9 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * شاشة الأذان الأصلية (فوق شاشة القفل): نفس تصميم شاشة الويب بالظبط —
@@ -54,12 +62,27 @@ public class AdhanActivity extends Activity {
     private Typeface amiri, amiriQuran, sans;
     private PulseIcon pulse;
     private PillButton stop;
-    private TextView phrase, dua;
-    private View card;
+    private TextView phrase, dua, titleView, subView, voiceStatus;
+    private View card, lockPanel;
+    private LinearLayout contentColumn, controlsRow;
+    private PillButton voiceStart, laterButton;
     private boolean ended = false;
     private AnimatorSet intro;
     private int idx;
     private long epoch;
+
+    // ---- تأكيد الصلاة صوتيًا: يبدأ فقط بعد ضغط المستخدم، ولا يُحفظ ملف صوتي ----
+    private static final int RC_MIC = 31;
+    private SpeechRecognizer prayerRecognizer;
+    private boolean voiceListening = false;
+    private final Handler dismissHandler = new Handler(Looper.getMainLooper());
+    private final Runnable closeOrSwitch = new Runnable() {
+        @Override public void run() {
+            if (isFinishing()) return;
+            if (lockMode && AdhanPrefs.lockPending(AdhanActivity.this)) showLockOnlyMode();
+            else finish();
+        }
+    };
 
     // ---- تذكير الصلاة الاختياري ----
     private boolean lockMode;
@@ -89,14 +112,23 @@ public class AdhanActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 17) root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
         LinearLayout col = new LinearLayout(this);
+        contentColumn = col;
         col.setOrientation(LinearLayout.VERTICAL);
         col.setGravity(Gravity.CENTER_HORIZONTAL);
+        GradientDrawable glassCard = new GradientDrawable();
+        glassCard.setColor(Color.argb(226, 19, 18, 15));
+        glassCard.setStroke(dp(1), Color.argb(92, 249, 224, 118));
+        glassCard.setCornerRadius(dp(30));
+        col.setBackground(glassCard);
+        col.setPadding(dp(18), dp(18), dp(18), dp(18));
+        if (Build.VERSION.SDK_INT >= 21) col.setElevation(dp(18));
         card = col;
 
         pulse = new PulseIcon(this);
-        col.addView(pulse, new LinearLayout.LayoutParams(dp(224), dp(224)));
+        col.addView(pulse, new LinearLayout.LayoutParams(dp(152), dp(152)));
 
-        TextView title = text("صلاة " + name + " الآن", 38, GOLD_L, amiri, true);
+        TextView title = text("صلاة " + name + " الآن", 31, GOLD_L, amiri, true);
+        titleView = title;
         title.setShadowLayer(dp(11), 0, 0, Color.argb(115, 212, 175, 55));
         title.setLineSpacing(0, 1.15f);
         LinearLayout.LayoutParams tp = wrap();
@@ -104,16 +136,17 @@ public class AdhanActivity extends Activity {
         col.addView(title, tp);
 
         TextView sub = text("حسب توقيت " + (city.length() > 0 ? city : "مدينتك") + (epoch > 0 ? " • " + AdhanService.clock(epoch) : ""), 14, MUTED, sans, true);
+        subView = sub;
         LinearLayout.LayoutParams sp = wrap();
         sp.topMargin = dp(6);
         col.addView(sub, sp);
 
         phrase = text(idx == 0 ? "الصلاة خير من النوم" : "حيّ على الصلاة، حيّ على الفلاح", 22, TEXT, amiri, false);
         LinearLayout.LayoutParams pp = wrap();
-        pp.topMargin = dp(24);
+        pp.topMargin = dp(15);
         col.addView(phrase, pp);
 
-        dua = text("اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ", 19, TEXT, amiriQuran, false);
+        dua = text("اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ", 17, TEXT, amiriQuran, false);
         dua.setLineSpacing(0, 1.55f);
         dua.setPadding(dp(14), dp(14), dp(14), dp(14));
         GradientDrawable db = new GradientDrawable();
@@ -128,6 +161,7 @@ public class AdhanActivity extends Activity {
 
         // الزراير: [إيقاف الأذان (أساسي)] [إغلاق] — زي الويب
         LinearLayout row = new LinearLayout(this);
+        controlsRow = row;
         row.setOrientation(LinearLayout.HORIZONTAL);
         if (Build.VERSION.SDK_INT >= 17) row.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
@@ -143,18 +177,21 @@ public class AdhanActivity extends Activity {
         row.addView(stop, l1);
 
         PillButton close = new PillButton(this, false);
-        close.setLabel(lockMode ? "لاحقًا" : "إغلاق", "");
+        close.setLabel(lockMode ? "تأجيل 15 دقيقة" : "إغلاق", "");
         close.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { if (lockMode) release(false); else finish(); }
+            @Override public void onClick(View v) { if (lockMode) deferReminder(); else finish(); }
         });
         LinearLayout.LayoutParams l2 = new LinearLayout.LayoutParams(0, dp(52), 1f);
         l2.setMarginEnd(dp(10));
         row.addView(close, l2);
 
         LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rp.topMargin = dp(26);
+        rp.topMargin = dp(18);
         col.addView(row, rp);
-        if (lockMode) buildLockPanel(col, name);
+        if (lockMode) {
+            lockPanel = buildLockPanel(col, name);
+            lockPanel.setVisibility(View.GONE);
+        }
 
         // ScrollView: لو الشاشة صغيرة/أفقية المحتوى يتسكرول بدل ما يتقص، ولو كبيرة يتوسّط
         int maxW = dp(380);   // نفس max-width بتاع كارت الويب
@@ -196,6 +233,7 @@ public class AdhanActivity extends Activity {
 
         IntentFilter f = new IntentFilter(AdhanService.ACTION_ENDED);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(endedRx, f, Context.RECEIVER_NOT_EXPORTED); else registerReceiver(endedRx, f);
+        if (getIntent() != null && getIntent().getBooleanExtra("silent", false)) markEnded();
     }
 
     /** أذان جديد وصل والشاشة لسه مفتوحة (singleTop): نعيد بناءها ببيانات الصلاة الجديدة. */
@@ -235,7 +273,7 @@ public class AdhanActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (lockMode) release(false); else super.onBackPressed();
+        if (lockMode) deferReminder(); else super.onBackPressed();
     }
 
     @Override
@@ -251,70 +289,251 @@ public class AdhanActivity extends Activity {
         hh.removeCallbacksAndMessages(null);
     }
 
-    private void buildLockPanel(LinearLayout col, String name) {
+    private View buildLockPanel(LinearLayout col, String name) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setPadding(dp(16), dp(16), dp(16), dp(14));
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.argb(24, 255, 255, 255));
-        bg.setStroke(dp(1), Color.argb(90, 212, 175, 55));
-        bg.setCornerRadius(dp(22));
+        bg.setColor(Color.argb(28, 255, 255, 255));
+        bg.setStroke(dp(1), Color.argb(100, 212, 175, 55));
+        bg.setCornerRadius(dp(24));
         box.setBackground(bg);
         if (Build.VERSION.SDK_INT >= 17) box.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
-        TextView head = text("🔔 تذكير الصلاة", 16, GOLD_L, sans, true);
+        TextView head = text("🔒 تأكيد الصلاة بالصوت", 20, GOLD_L, sans, true);
         box.addView(head, wrap());
-        TextView info = text("هذا تذكير اختياري بموعد صلاة " + name + ". يمكنك إغلاقه أو تأجيله في أي وقت، ولن يمنعك من استخدام الهاتف.", 13, MUTED, sans, false);
+
+        TextView oath = text("والله العظيم صليت صلاة " + name, 21, TEXT, amiriQuran, true);
+        oath.setGravity(Gravity.CENTER);
+        oath.setLineSpacing(0, 1.55f);
+        GradientDrawable oathBg = new GradientDrawable();
+        oathBg.setColor(Color.argb(25, 212, 175, 55));
+        oathBg.setStroke(dp(1), Color.argb(82, 212, 175, 55));
+        oathBg.setCornerRadius(dp(18));
+        oath.setBackground(oathBg);
+        oath.setPadding(dp(12), dp(13), dp(12), dp(13));
+        LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        op.topMargin = dp(12);
+        box.addView(oath, op);
+
+        TextView info = text("بعد أداء الصلاة اضغط زر الاستماع وقل العبارة كاملة. لن يبدأ الميكروفون قبل ضغطك، ولا يحفظ تطبيق أثر ملفًا صوتيًا. قد تتطلب خدمة التعرّف على الكلام اتصالًا بالإنترنت.", 13, MUTED, sans, false);
         info.setLineSpacing(0, 1.5f);
         LinearLayout.LayoutParams ip = wrap();
-        ip.topMargin = dp(7);
+        ip.topMargin = dp(10);
         box.addView(info, ip);
 
-        PillButton done = new PillButton(this, true);
-        done.setLabel("تم، متابعة التطبيق", "✓  ");
-        done.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { release(true); }
-        });
-        LinearLayout.LayoutParams dpp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52));
-        dpp.topMargin = dp(14);
-        box.addView(done, dpp);
+        voiceStatus = text("بطاقة التأكيد جاهزة. ابدأ بعد الانتهاء من الصلاة.", 13, GOLD_L, sans, true);
+        voiceStatus.setLineSpacing(0, 1.4f);
+        LinearLayout.LayoutParams vp = wrap();
+        vp.topMargin = dp(12);
+        box.addView(voiceStatus, vp);
 
-        PillButton later = new PillButton(this, false);
-        later.setLabel("تأجيل التذكير", "");
-        later.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { release(false); }
+        voiceStart = new PillButton(this, true);
+        voiceStart.setLabel("ابدأ التأكيد الصوتي", "🎙  ");
+        voiceStart.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { startVoiceConfirmation(); }
+        });
+        LinearLayout.LayoutParams vbp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(54));
+        vbp.topMargin = dp(14);
+        box.addView(voiceStart, vbp);
+
+        laterButton = new PillButton(this, false);
+        laterButton.setLabel("تأجيل 15 دقيقة", "");
+        laterButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { deferReminder(); }
         });
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
-        lp.topMargin = dp(8);
-        box.addView(later, lp);
+        lp.topMargin = dp(9);
+        box.addView(laterButton, lp);
 
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        bp.topMargin = dp(22);
+        bp.topMargin = dp(14);
         col.addView(box, bp);
+        return box;
     }
 
-    /** إنهاء التذكير؛ لا توجد آلية تمنع الرجوع أو استخدام بقية الهاتف. */
-    private void release(boolean openApp) {
-        AdhanPrefs.clearLock(this);
-        hh.removeCallbacksAndMessages(null);
-        if (openApp) {
-            try { stopService(new Intent(this, AdhanService.class)); } catch (Exception ignored) { }
-            try {
-                Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
-                if (open != null) { open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); startActivity(open); }
-            } catch (Exception ignored) { }
+    /** بعد انتهاء صوت الأذان بخمس ثوانٍ نغلق شاشته، أو نُبقي بطاقة التحقق فقط عند تفعيلها. */
+    private void showLockOnlyMode() {
+        if (!lockMode || lockPanel == null || !AdhanPrefs.lockPending(this)) {
+            finish();
+            return;
         }
+        if (pulse != null) { pulse.setPlaying(false); pulse.setVisibility(View.GONE); }
+        if (titleView != null) titleView.setVisibility(View.GONE);
+        if (subView != null) subView.setVisibility(View.GONE);
+        if (phrase != null) phrase.setVisibility(View.GONE);
+        if (dua != null) dua.setVisibility(View.GONE);
+        if (controlsRow != null) controlsRow.setVisibility(View.GONE);
+        if (lockPanel != null) lockPanel.setVisibility(View.VISIBLE);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (contentColumn != null) {
+            contentColumn.setGravity(Gravity.CENTER);
+            contentColumn.setPadding(dp(18), dp(18), dp(18), dp(18));
+        }
+        if (voiceStatus != null) voiceStatus.setText("بعد أداء الصلاة اضغط زر الاستماع وقل العبارة الظاهرة.");
+    }
+
+    private void startVoiceConfirmation() {
+        if (!lockMode || isFinishing()) return;
+        if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            if (voiceStatus != null) voiceStatus.setText("نحتاج إذن الميكروفون لتأكيد الصلاة بالصوت.");
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, RC_MIC);
+            return;
+        }
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            if (voiceStatus != null) voiceStatus.setText("خدمة التعرّف الصوتي غير متاحة على هذا الجهاز. فعّل خدمة تحويل الكلام إلى نص من إعدادات أندرويد.");
+            return;
+        }
+        stopVoiceRecognition();
+        try {
+            prayerRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            prayerRecognizer.setRecognitionListener(new RecognitionListener() {
+                @Override public void onReadyForSpeech(Bundle params) {
+                    if (voiceStatus != null) voiceStatus.setText("استمع الآن… قل: والله العظيم صليت صلاة " + AdhanScheduler.NAMES[idx]);
+                }
+                @Override public void onBeginningOfSpeech() {
+                    if (voiceStatus != null) voiceStatus.setText("جارٍ الاستماع والتحقق من العبارة…");
+                }
+                @Override public void onRmsChanged(float rmsdB) { }
+                @Override public void onBufferReceived(byte[] buffer) { }
+                @Override public void onEndOfSpeech() {
+                    if (voiceStatus != null) voiceStatus.setText("انتهى الكلام، جارٍ التحقق…");
+                }
+                @Override public void onError(int error) {
+                    voiceListening = false;
+                    setVoiceButtonReady();
+                    if (voiceStatus != null) voiceStatus.setText(speechError(error) + " يمكنك المحاولة مرة أخرى.");
+                    destroyRecognizer();
+                }
+                @Override public void onResults(Bundle results) {
+                    ArrayList<String> heard = results == null ? null : results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                    boolean matched = false;
+                    if (heard != null) for (String line : heard) if (matchesPrayerPhrase(line)) { matched = true; break; }
+                    voiceListening = false;
+                    destroyRecognizer();
+                    if (matched) {
+                        AdhanPrefs.recordVoiceConfirmation(AdhanActivity.this, idx, epoch);
+                        AdhanPrefs.clearLock(AdhanActivity.this);
+                        AdhanScheduler.cancelLockReminder(AdhanActivity.this);
+                        if (voiceStart != null) voiceStart.setLabel("تم التأكيد", "✓  ");
+                        if (voiceStatus != null) voiceStatus.setText("تم التعرّف على العبارة وتسجيل إقرارك الشخصي. جزاك الله خيرًا.");
+                        dismissHandler.postDelayed(new Runnable() { @Override public void run() { finish(); } }, 1400L);
+                    } else {
+                        setVoiceButtonReady();
+                        if (voiceStatus != null) voiceStatus.setText("لم نتعرّف على العبارة كاملة أو اسم الصلاة. حاول مرة أخرى.");
+                    }
+                }
+                @Override public void onPartialResults(Bundle partialResults) { }
+                @Override public void onEvent(int eventType, Bundle params) { }
+            });
+
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar-EG");
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "ar-EG");
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
+            voiceListening = true;
+            if (voiceStart != null) {
+                voiceStart.setEnabled(false);
+                voiceStart.setLabel("جارٍ الاستماع…", "●  ");
+            }
+            if (voiceStatus != null) voiceStatus.setText("الميكروفون يعمل الآن بعد ضغطك. قل العبارة كاملة.");
+            prayerRecognizer.startListening(intent);
+        } catch (Exception e) {
+            voiceListening = false;
+            destroyRecognizer();
+            setVoiceButtonReady();
+            if (voiceStatus != null) voiceStatus.setText("تعذّر تشغيل التعرّف الصوتي. تحقق من خدمة الكلام وحاول مجددًا.");
+        }
+    }
+
+    private boolean matchesPrayerPhrase(String spoken) {
+        String text = normalizeSpeech(spoken);
+        String name = normalizeSpeech(AdhanScheduler.NAMES[idx]);
+        String shortName = name.startsWith("ال") ? name.substring(2) : name;
+        boolean oath = text.contains("واللهالعظيم") || text.contains("واللهعظيم");
+        boolean prayer = text.contains("صليتصلاة" + name) || text.contains("صليتصلاة" + shortName)
+                || text.contains("صليت" + name) || text.contains("صليت" + shortName);
+        return oath && prayer;
+    }
+
+    private String normalizeSpeech(String value) {
+        if (value == null) return "";
+        return value.toLowerCase(Locale.ROOT)
+                .replaceAll("[\\u0610-\\u061A\\u064B-\\u065F\\u0670\\u06D6-\\u06ED\\u0640]", "")
+                .replace('أ', 'ا').replace('إ', 'ا').replace('آ', 'ا').replace('ٱ', 'ا')
+                .replace('ى', 'ي').replace('ة', 'ه')
+                .replaceAll("[^\\p{L}\\p{N}]", "");
+    }
+
+    private String speechError(int error) {
+        if (error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) return "إذن الميكروفون غير متاح.";
+        if (error == SpeechRecognizer.ERROR_NETWORK || error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT) return "خدمة التعرّف الصوتي تحتاج اتصالًا أو انتهت مهلة الشبكة.";
+        if (error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) return "لم نسمع العبارة بوضوح.";
+        if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY) return "خدمة الصوت مشغولة؛ انتظر قليلًا.";
+        return "حدث خطأ في التعرّف الصوتي.";
+    }
+
+    private void setVoiceButtonReady() {
+        if (voiceStart != null && !isFinishing()) {
+            voiceStart.setEnabled(true);
+            voiceStart.setLabel("إعادة محاولة التأكيد", "🎙  ");
+        }
+    }
+
+    private void destroyRecognizer() {
+        if (prayerRecognizer != null) {
+            try { prayerRecognizer.setRecognitionListener(null); } catch (Exception ignored) { }
+            try { prayerRecognizer.cancel(); } catch (Exception ignored) { }
+            try { prayerRecognizer.destroy(); } catch (Exception ignored) { }
+            prayerRecognizer = null;
+        }
+    }
+
+    private void stopVoiceRecognition() {
+        voiceListening = false;
+        destroyRecognizer();
+        setVoiceButtonReady();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == RC_MIC) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) startVoiceConfirmation();
+            else if (voiceStatus != null) voiceStatus.setText("لم يتم منح إذن الميكروفون. يمكنك السماح به من إعدادات التطبيق ثم المحاولة.");
+        }
+    }
+
+    /**
+     * التأجيل لا يُسجّل الصلاة كمؤكدة: يظل التذكير معلّقًا ويعود بعد 15 دقيقة.
+     * يظل بإمكان المستخدم استخدام الهاتف بحرية، وإيقاف الميزة نهائيًا من إعداداتها.
+     */
+    private void deferReminder() {
+        if (lockMode && AdhanPrefs.lockPending(this)) {
+            AdhanScheduler.scheduleLockReminder(this, idx, epoch);
+            Toast.makeText(this, "تم التأجيل 15 دقيقة — لم يتم تسجيل تأكيد الصلاة", Toast.LENGTH_LONG).show();
+        }
+        hh.removeCallbacksAndMessages(null);
+        dismissHandler.removeCallbacksAndMessages(null);
+        stopVoiceRecognition();
         finish();
     }
 
     private void markEnded() {
+        if (ended) return;
         ended = true;
         if (pulse != null) pulse.setPlaying(false);
-        stop.setLabel("إعادة الأذان", "▶  ");
-        phrase.setVisibility(View.GONE);
-        dua.setVisibility(View.VISIBLE);
-        dua.setAlpha(0f);
-        dua.animate().alpha(1f).setDuration(350).start();
+        if (stop != null) stop.setLabel("إعادة الأذان", "▶  ");
+        if (phrase != null) phrase.setVisibility(View.GONE);
+        if (dua != null) {
+            dua.setVisibility(View.VISIBLE);
+            dua.setAlpha(0f);
+            dua.animate().alpha(1f).setDuration(300).start();
+        }
+        dismissHandler.removeCallbacks(closeOrSwitch);
+        dismissHandler.postDelayed(closeOrSwitch, 5000L);
     }
 
     /* ---------- الخطوط: أميري + ألكسندريا من assets/fonts (بتتنزّل وقت الـ build). لو مش موجودة نرجع لخط النظام ---------- */
@@ -354,8 +573,19 @@ public class AdhanActivity extends Activity {
     private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density + 0.5f); }
 
     @Override
+    protected void onPause() {
+        if (voiceListening) {
+            stopVoiceRecognition();
+            if (voiceStatus != null) voiceStatus.setText("توقف الاستماع عند مغادرة الشاشة. اضغط لإعادة المحاولة.");
+        }
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
         hh.removeCallbacksAndMessages(null);
+        dismissHandler.removeCallbacksAndMessages(null);
+        stopVoiceRecognition();
         if (intro != null) intro.cancel();
         if (pulse != null) pulse.setPlaying(false);
         try { unregisterReceiver(endedRx); } catch (Exception ignored) { }

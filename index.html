@@ -40,6 +40,7 @@
     <link rel="stylesheet" href="css/audio-downloads.css">
     <link rel="stylesheet" href="css/tutorial.css">
     <link rel="stylesheet" href="css/nav-glass.css">
+    <link rel="stylesheet" href="css/experience-glass.css">
 </head>
 <body>
 
@@ -248,6 +249,10 @@
     </div>
 
     <div id="p-quran" class="page">
+        <div class="glass-page-head quran-page-head">
+            <div class="gph-emblem" aria-hidden="true">۞</div>
+            <div class="gph-copy"><small>نورٌ وهدى</small><h2>المصحف الشريف</h2><p>اقرأ وابحث وتنقّل بين السور والآيات بسهولة</p></div>
+        </div>
         <button class="download-btn" id="dlBtn" onclick="downloadQuranOffline(false)">
             <span id="dlText">📥 تنزيل المصحف كاملاً للاستخدام بدون إنترنت</span>
             <div id="dlBarWrap" class="download-progress-container">
@@ -335,6 +340,10 @@
     </div>
 
     <div id="p-duas" class="page">
+        <div class="glass-page-head duas-page-head">
+            <div class="gph-emblem" aria-hidden="true">✧</div>
+            <div class="gph-copy"><small>طمأنينة القلب</small><h2>الأدعية والأذكار</h2><p>مساحة هادئة للذكر والدعاء في كل يوم</p></div>
+        </div>
         <div id="duasList"></div>
     </div>
 
@@ -377,12 +386,12 @@
             <div class="ad-label">الصلوات التي يُرفع لها الأذان</div>
             <div class="ad-prayers" id="adPrayers"></div>
             <div class="ad-row"><span>مستوى الصوت</span><input type="range" id="adVol" class="ad-range" min="5" max="100" step="5" oninput="setAdhanVol(this.value)" onchange="nativeSync(true)"></div>
-            <label class="ad-row" id="adLockRow"><span>🔒 تذكير الصلاة<small>يعرض شاشة تذكير اختيارية وقت الصلاة، ويمكنك إغلاقها أو تأجيلها في أي وقت.</small></span><span class="ad-sw"><input type="checkbox" id="adLock" onchange="setPrayerLock(this.checked)"><i></i></span></label>
+            <label class="ad-row" id="adLockRow"><span>🔒 تذكير الصلاة<small>في APK يظهر تأكيد صوتي بعد الأذان. يتطلب إذن الميكروفون؛ لا يبدأ الاستماع إلا بعد ضغطك ولا يحفظ تسجيلًا.</small></span><span class="ad-sw"><input type="checkbox" id="adLock" onchange="setPrayerLock(this.checked)"><i></i></span></label>
             <div class="st-actions">
                 <button class="st-btn" onclick="testAdhan()">▶ تجربة الأذان</button>
                 <button class="st-btn" id="adLockTestBtn" onclick="testPrayerLock()" style="display:none">🔒 تجربة تذكير الصلاة</button>
                 <button class="st-btn" id="adNotifBtn" onclick="enableAdhanNotif()">🔔 تفعيل الإشعارات</button>
-                <button class="st-btn" id="adPermBtn" onclick="adhanPerms()" style="display:none">⚙️ ضبط أذونات الأذان (الشاشة الكاملة • البطارية)</button>
+                <button class="st-btn" id="adPermBtn" onclick="adhanPerms()" style="display:none">⚙️ ضبط أذونات الأذان (الميكروفون • الشاشة الكاملة • البطارية)</button>
             </div>
             <div class="ad-note" id="adStatus"></div>
             <div class="ad-note">عند دخول الوقت تظهر شاشة الصلاة داخل التطبيق. في تطبيق أندرويد يمكن جدولة الأذان محليًا؛ أما تشغيل الصوت تلقائيًا في المتصفح فيعتمد على قيود النظام وأذونات الإشعارات.</div>
@@ -509,11 +518,11 @@
             <button class="adh-btn" id="adhClose" onclick="adhanClose()">إغلاق</button>
         </div>
         <section class="prayer-voice glass-panel" id="prayerVoicePanel" hidden>
-            <div class="pv-title">تأكيد أداء الصلاة</div>
-            <p id="pvPrompt">اضغط تسجيل وقل العبارة الظاهرة بوضوح.</p>
+            <div class="pv-title">تأكيد الصلاة</div>
+            <p id="pvPrompt">هذا إقرار شخصي اختياري بعد أداء الصلاة.</p>
             <div class="pv-quote" id="pvPhrase"></div>
-            <button class="adh-btn main" id="pvRecordBtn" onclick="prayerVoiceStart()">🎙️ ابدأ التسجيل الصوتي</button>
-            <div class="pv-status" id="pvStatus" aria-live="polite">لن يتم حفظ التسجيل الصوتي.</div>
+            <button class="adh-btn main" id="pvRecordBtn" onclick="prayerVoiceStart()">🎙️ ابدأ التعرّف الصوتي</button>
+            <div class="pv-status" id="pvStatus" aria-live="polite">لن يحفظ تطبيق أثر ملفًا صوتيًا. قد تتم معالجة الصوت عبر خدمة التعرّف في المتصفح.</div>
             <button class="adh-btn" id="pvRetryBtn" onclick="prayerVoiceStart()" hidden>إعادة المحاولة</button>
             <button class="adh-btn" onclick="prayerCheckCancel()">رجوع</button>
         </section>
@@ -522,42 +531,42 @@
 <div id="toast" role="status" aria-live="polite"></div>
 
 <!-- Firebase: بيتحمّل في الآخر عشان ما يعطّلش ظهور الصفحة -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
 
-<script src="js/config.js"></script>
-<script src="js/core/utils.js"></script>
-<script src="js/core/firebase.js"></script>
-<script src="js/core/device.js"></script>
-<script src="js/data/countries.js"></script>
-<script src="js/data/quran-meta.js"></script>
-<script src="js/data/azkar.js"></script>
-<script src="js/data/hadith.js"></script>
-<script src="js/data/reciters.js"></script>
-<script src="js/core/state.js"></script>
-<script src="js/ui/toast.js"></script>
-<script src="js/ui/theme.js"></script>
-<script src="js/ui/navigation.js"></script>
-<script src="js/features/notifications.js"></script>
-<script src="js/features/prayer-times.js"></script>
-<script src="js/features/qibla.js"></script>
-<script src="js/features/adhan.js"></script>
-<script src="js/features/search.js"></script>
-<script src="js/features/admin.js"></script>
-<script src="js/features/quran-api.js"></script>
-<script src="js/features/quran-offline.js"></script>
-<script src="js/features/reader.js"></script>
-<script src="js/features/quran-lists.js"></script>
-<script src="js/features/duas.js"></script>
-<script src="js/features/tafsir.js"></script>
-<script src="js/features/hadith.js"></script>
-<script src="js/features/tasbih.js"></script>
-<script src="js/features/audio.js"></script>
-<script src="js/features/storage.js"></script>
-<script src="js/features/audio-downloads.js"></script>
-<script src="js/features/tutorial.js"></script>
-<script src="js/app.js"></script>
+<script src="js/config.js" defer></script>
+<script src="js/core/utils.js" defer></script>
+<script src="js/core/firebase.js" defer></script>
+<script src="js/core/device.js" defer></script>
+<script src="js/data/countries.js" defer></script>
+<script src="js/data/quran-meta.js" defer></script>
+<script src="js/data/azkar.js" defer></script>
+<script src="js/data/hadith.js" defer></script>
+<script src="js/data/reciters.js" defer></script>
+<script src="js/core/state.js" defer></script>
+<script src="js/ui/toast.js" defer></script>
+<script src="js/ui/theme.js" defer></script>
+<script src="js/ui/navigation.js" defer></script>
+<script src="js/features/notifications.js" defer></script>
+<script src="js/features/prayer-times.js" defer></script>
+<script src="js/features/qibla.js" defer></script>
+<script src="js/features/adhan.js" defer></script>
+<script src="js/features/search.js" defer></script>
+<script src="js/features/admin.js" defer></script>
+<script src="js/features/quran-api.js" defer></script>
+<script src="js/features/quran-offline.js" defer></script>
+<script src="js/features/reader.js" defer></script>
+<script src="js/features/quran-lists.js" defer></script>
+<script src="js/features/duas.js" defer></script>
+<script src="js/features/tafsir.js" defer></script>
+<script src="js/features/hadith.js" defer></script>
+<script src="js/features/tasbih.js" defer></script>
+<script src="js/features/audio.js" defer></script>
+<script src="js/features/storage.js" defer></script>
+<script src="js/features/audio-downloads.js" defer></script>
+<script src="js/features/tutorial.js" defer></script>
+<script src="js/app.js" defer></script>
 <script>
 /* ترحيب الطفل: يطلّ من الجانبين ثم يظهر ويقول «السلام عليكم، نوّرتوا». المدة طويلة شوية عشان الناس تسمعه. */
 (function () {

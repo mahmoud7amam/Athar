@@ -1,0 +1,40 @@
+Athar — Native Voice Confirmation + Performance + Auto-dismiss
+===============================================================
+
+Native APK prayer confirmation
+------------------------------
+- The Android APK requests RECORD_AUDIO only after the user enables the prayer reminder.
+- The native AdhanActivity displays the prayer-specific spoken phrase after the adhan ends.
+- The user starts speech recognition with an explicit tap; it checks for the oath and the correct prayer name.
+- Successful recognition records a local self-attestation timestamp and clears that prayer reminder.
+- The app does not save an audio file or listen continuously in the background. Android's speech-recognition
+  provider may process speech for transcription and may require network/service availability.
+- The microphone cannot prove that a prayer was physically performed; this is a personal self-attestation.
+- The reminder can run even when adhan sound is switched off. In that case it opens silently.
+- If voice permission or an Android recognition service is unavailable, the app does not mark the prayer
+  complete; the user can grant permission/retry or snooze the reminder.
+
+Adhan screen timing
+-------------------
+- The regular native adhan screen automatically closes five seconds after playback finishes.
+- When prayer reminder is enabled, the adhan visuals are replaced after five seconds by the centered
+  voice-confirmation card. The card remains until the user confirms by voice or postpones it.
+- The web fallback follows the same five-second close/transition behavior.
+
+Performance changes
+-------------------
+- Removed the unrequested automatic 114-surah download at startup; full offline download remains available
+  from the Quran page button.
+- Quran page navigation now renders 60 pages at a time instead of all 604 at once.
+- Cached iqama target calculations to avoid repeated local-storage JSON parsing every second.
+- Optimized current-ayah lookup during reader scrolling.
+- Deferred ordered JS loading so files download in parallel without changing execution order.
+- Removed a duplicate Google Fonts stylesheet and reduced mobile glass blur intensity.
+- Updated the service-worker cache version and added the glass stylesheet to the offline asset list.
+
+Build/deployment
+----------------
+- Android version incremented to versionCode 15 / versionName 2.4.0.
+- This archive contains modified project source; it is not a signed or newly built APK.
+- The project is a Trusted Web Activity that loads https://athar-silk.vercel.app/?twa=1.
+  Deploy the updated web project to that origin, then build and sign a new APK from android/.

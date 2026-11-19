@@ -15,7 +15,16 @@ const adCity = () => { const s = $('citySelect'); return s && s.options[s.select
 function adAudio() {
     if (!AD.audio) {
         const a = new Audio(); a.preload = 'auto';
-        a.addEventListener('ended', () => { AD.playing = false; AD.ended = true; adUI(); clearTimeout(AD.closeT); AD.closeT = setTimeout(adhanClose, 60000); });
+        a.addEventListener('ended', () => {
+            AD.playing = false; AD.ended = true; adUI();
+            clearTimeout(AD.closeT);
+            AD.closeT = setTimeout(() => {
+                if (adLock()) {
+                    const ov = $('adhanOv'); if (ov) ov.classList.add('voice-only');
+                    prayerCheckOpen();
+                } else adhanClose();
+            }, 5000);
+        });
         a.addEventListener('pause', () => { if (!a.ended) { AD.playing = false; adUI(); } });
         a.addEventListener('play', () => { AD.playing = true; AD.ended = false; adUI(); });
         a.addEventListener('error', () => { if (a.getAttribute('src') && a.src !== SILENT_WAV) { AD.playing = false; adUI(); toast('تعذر تشغيل الأذان'); } });
@@ -85,7 +94,7 @@ function adNativeMode(k) {
     AD.native = true; AD.playing = true; AD.ended = false; clearTimeout(AD.nt);
     AD.nt = setTimeout(adNativeEnd, 235000); adUI();
 }
-function adNativeEnd() { clearTimeout(AD.nt); AD.playing = false; AD.ended = true; adUI(); clearTimeout(AD.closeT); AD.closeT = setTimeout(adhanClose, 60000); }
+function adNativeEnd() { clearTimeout(AD.nt); AD.playing = false; AD.ended = true; adUI(); clearTimeout(AD.closeT); AD.closeT = setTimeout(adhanClose, 5000); }
 // إيقاف فوري من أزرار التحكم أو مفاتيح الصوت، سواء كان الصوت من الويب أو خدمة APK.
 function adhanStopFromControl() {
     clearTimeout(AD.nt);
@@ -120,7 +129,7 @@ function adUI() {
 }
 function adhanOverlay(k, opts = {}) {
     const ov = $('adhanOv'); if (!ov) return;
-    AD.k = k; AD.ended = false; clearTimeout(AD.closeT); prayerVoiceStop(); if ($('prayerVoicePanel')) $('prayerVoicePanel').hidden = true;
+    AD.k = k; AD.ended = false; clearTimeout(AD.closeT); ov.classList.remove('voice-only'); prayerVoiceStop(); if ($('prayerVoicePanel')) $('prayerVoicePanel').hidden = true;
     const d = prayerDate(k, new Date());
     $('adhTitle').textContent = `صلاة ${PRAYERS[k] || ''} الآن`;
     $('adhSub').textContent = `حسب توقيت ${adCity() || 'مدينتك'}` + (d ? ` • ${formatTime12(prayerTimings[k])}` : '');
@@ -134,7 +143,7 @@ function adhanClose() {
     clearTimeout(AD.closeT);
     if (AD.native) { if (AD.playing) nativeGo('stop'); AD.native = false; clearTimeout(AD.nt); AD.playing = false; }
     adhanStop();
-    const ov = $('adhanOv'); if (ov) ov.classList.remove('open');
+    const ov = $('adhanOv'); if (ov) { ov.classList.remove('open'); ov.classList.remove('voice-only'); }
     document.body.classList.remove('adhan-open');
 }
 
@@ -151,8 +160,7 @@ function adhanNotify(k) {
 function adhanFire(k, when, age) {
     store.set('adhan_last_' + k, adDay(when));
     const wantSound = adOn() && adPrayerOn(k) && age < 180000;
-    if (nativeOk()) {                         // تطبيق أندرويد: الصوت والإشعار من الطبقة الأصلية، والصفحة بتعرض الشاشة بس
-        if (!document.hidden && age < 180000) { adhanOverlay(k); if (wantSound) adNativeMode(k); }
+    if (nativeOk()) {                         // APK: الخدمة الأصلية مسؤولة عن الصوت والشاشة والتأكيد الصوتي.
         return;
     }
     if (document.hidden) { if (age < 600000) adhanNotify(k); }
@@ -276,7 +284,7 @@ function setAdhanPrayer(k, v) { store.set('adhan_p_' + k, v ? '1' : '0'); native
 function setAdhanVol(v) { store.set('adhan_vol', String(v / 100)); if (AD.audio) AD.audio.volume = adVol(); }
 function testAdhan() {
     const k = (nextPrayer() || {}).k || 'Dhuhr';
-    if (nativeOk()) { adhanOverlay(k); nativeGo('test', 'i=' + Math.max(0, PT_KEYS.indexOf(k))); adNativeMode(k); return; }
+    if (nativeOk()) { nativeGo('test', 'i=' + Math.max(0, PT_KEYS.indexOf(k))); return; }
     adhanUnlock(); adhanOverlay(k); adhanPlay(k);
 }
 // يفتح أذونات الأندرويد اللازمة لظهور شاشة الأذان وصوته والتطبيق مقفول (بتتطلب لمسة من المستخدم)
@@ -286,12 +294,34 @@ function adhanPerms() { if (TWA.is) nativeGo('perms'); }
 /* ---------- تأكيد الصلاة بالصوت (إقرار ذاتي اختياري) ---------- */
 let prayerRecognition = null;
 let prayerVoiceBusy = false;
+let prayerMicGranted = false;
+
+// يُطلب الإذن بعد لمس المستخدم لمفتاح تذكير الصلاة، ثم يُغلق مسار الميكروفون فورًا.
+// التطبيق لا يسجّل ملفًا صوتيًا ولا يستمع في الخلفية.
+async function requestPrayerMicAccess() {
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        return { ok: false, reason: 'unsupported' };
+    }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        stream.getTracks().forEach(track => track.stop());
+        prayerMicGranted = true;
+        return { ok: true };
+    } catch (error) {
+        prayerMicGranted = false;
+        return { ok: false, reason: error && error.name ? error.name : 'denied' };
+    }
+}
+
 function prayerCheckOpen() {
     const panel = $('prayerVoicePanel'); if (!panel) return;
+    const ov = $('adhanOv'); if (ov) ov.classList.add('voice-only');
     const name = PRAYERS[AD.k] || 'الصلاة';
     $('pvPhrase').textContent = `والله العظيم صليت صلاة ${name}`;
-    $('pvPrompt').textContent = `بعد أداء صلاة ${name}، قل العبارة التالية بوضوح لتسجيل إقرارك الشخصي.`;
-    $('pvStatus').textContent = 'الميكروفون يعمل بعد موافقتك، ولن يُحفظ ملف صوتي.';
+    $('pvPrompt').textContent = `بعد أداء صلاة ${name}، قل العبارة الظاهرة لتسجيل إقرارك الشخصي الاختياري.`;
+    $('pvStatus').textContent = 'لن يحفظ تطبيق أثر ملفًا صوتيًا. قد تتم معالجة الصوت عبر خدمة التعرّف على الكلام في المتصفح.';
+    $('pvRecordBtn').disabled = false;
+    $('pvRecordBtn').textContent = '🎙️ ابدأ التعرّف الصوتي';
     $('pvRetryBtn').hidden = true;
     panel.hidden = false;
     $('adhLockDone').style.display = 'none';
@@ -300,73 +330,112 @@ function prayerCheckOpen() {
 function prayerCheckCancel() {
     prayerVoiceStop();
     const panel = $('prayerVoicePanel'); if (panel) panel.hidden = true;
+    const ov = $('adhanOv'); if (ov) ov.classList.remove('voice-only');
     adUI();
 }
 function prayerVoiceStop() {
     prayerVoiceBusy = false;
     try { if (prayerRecognition) prayerRecognition.abort(); } catch (e) {}
     prayerRecognition = null;
-    const b = $('pvRecordBtn'); if (b) { b.disabled = false; b.textContent = '🎙️ ابدأ التسجيل الصوتي'; }
+    const b = $('pvRecordBtn'); if (b) { b.disabled = false; b.textContent = '🎙️ ابدأ التعرّف الصوتي'; }
 }
-function prayerVoiceStart() {
+async function prayerVoiceStart() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-        $('pvStatus').textContent = 'التعرّف الصوتي غير مدعوم على هذا الجهاز أو المتصفح. جرّب فتح التطبيق في Chrome ثم أعد المحاولة.';
+        $('pvStatus').textContent = 'التعرّف الصوتي العربي غير مدعوم على هذا الجهاز أو المتصفح. جرّب Chrome أو جهازًا يدعم هذه الميزة.';
         $('pvRetryBtn').hidden = false;
         return;
     }
+
     prayerVoiceStop();
-    const expected = normAr(`والله العظيم صليت صلاة ${PRAYERS[AD.k] || ''}`).replace(/[\sـ]/g, '');
-    const rec = new SR(); prayerRecognition = rec; let gotResult = false;
-    rec.lang = 'ar-EG'; rec.continuous = false; rec.interimResults = false; rec.maxAlternatives = 3;
-    prayerVoiceBusy = true;
-    $('pvRecordBtn').disabled = true; $('pvRecordBtn').textContent = '🔴 جارٍ الاستماع…';
+    const btn = $('pvRecordBtn');
+    btn.disabled = true; btn.textContent = '⏳ جاري تجهيز الميكروفون…';
     $('pvRetryBtn').hidden = true;
-    $('pvStatus').textContent = 'تحدث الآن وقل العبارة كاملة. إذا لم يتعرف عليها النظام ستتمكن من الإعادة.';
+    $('pvStatus').textContent = 'يتم فتح الميكروفون الآن بعد موافقتك، وسيُغلق بعد انتهاء التعرّف.';
+
+    // يتحقق من الإذن من خلال لمسة زر المستخدم، ولا يحتفظ بأي مسار صوتي.
+    const access = await requestPrayerMicAccess();
+    if (!access.ok) {
+        btn.disabled = false; btn.textContent = '🎙️ ابدأ التعرّف الصوتي';
+        $('pvStatus').textContent = access.reason === 'unsupported'
+            ? 'هذا المتصفح لا يتيح الوصول إلى الميكروفون. افتح التطبيق في Chrome محدّث.'
+            : 'لم يُسمح باستخدام الميكروفون. راجع أذونات التطبيق أو الموقع ثم حاول مرة أخرى.';
+        $('pvRetryBtn').hidden = false;
+        return;
+    }
+
+    const prayerKey = AD.k;
+    const prayerName = normAr(PRAYERS[prayerKey] || '').replace(/[\sـ]/g, '');
+    const rec = new SR(); prayerRecognition = rec; let gotResult = false;
+    rec.lang = 'ar-EG'; rec.continuous = false; rec.interimResults = false; rec.maxAlternatives = 4;
+    prayerVoiceBusy = true;
+    btn.disabled = true; btn.textContent = '🔴 جارٍ الاستماع…';
+    $('pvStatus').textContent = 'تحدث الآن وقل العبارة كاملة. لن يبدأ الاستماع إلا بعد ضغطك على هذا الزر.';
     rec.onresult = event => {
         gotResult = true;
         let heard = '';
         for (const result of event.results) for (const alt of result) {
-            const t = normAr(alt.transcript).replace(/[\sـ]/g, '');
-            if (t.length > heard.length) heard = t;
+            const transcript = normAr(alt.transcript).replace(/[\sـ]/g, '');
+            if (transcript.length > heard.length) heard = transcript;
         }
-        const prayerName = normAr(PRAYERS[AD.k] || '').replace(/[\sـ]/g, '');
         const hasOath = heard.includes('واللهالعظيم') || heard.includes('واللهعظيم');
         const hasPrayer = heard.includes('صليتصلاة' + prayerName) || (heard.includes('صليت') && heard.includes('صلاة' + prayerName));
         if (hasOath && hasPrayer) {
             const key = `prayer_selfcheck_${adDay(new Date())}`;
             let done = {}; try { done = JSON.parse(store.get(key, '{}')) || {}; } catch (e) {}
-            done[AD.k] = { at: Date.now(), method: 'speech-recognition' };
+            done[prayerKey] = { at: Date.now(), method: 'speech-recognition' };
             store.set(key, JSON.stringify(done));
             $('pvStatus').textContent = 'تم التعرّف على العبارة وتسجيل إقرارك الشخصي ✓';
-            $('pvPrompt').textContent = 'جزاك الله خيرًا. هذا تأكيد ذاتي وليس إثباتًا آليًا لأداء الصلاة.';
-            $('pvRecordBtn').textContent = '✓ تم التأكيد';
+            $('pvPrompt').textContent = 'جزاك الله خيرًا. هذا إقرار ذاتي فقط، ولا يستطيع الميكروفون إثبات أداء الصلاة.';
+            btn.textContent = '✓ تم التأكيد';
             $('pvRetryBtn').hidden = true;
-            setTimeout(() => { prayerVoiceStop(); prayerCheckCancel(); adhanClose(); toast(`تم تسجيل إقرار صلاة ${PRAYERS[AD.k]}`); }, 1200);
+            setTimeout(() => { prayerVoiceStop(); prayerCheckCancel(); adhanClose(); toast(`تم تسجيل إقرار صلاة ${PRAYERS[prayerKey]}`); }, 1200);
         } else {
-            $('pvStatus').textContent = 'لم نتعرّف على العبارة كاملة. حاول مرة أخرى وقل اسم الصلاة بوضوح.';
+            $('pvStatus').textContent = 'لم نتعرّف على العبارة كاملة. حاول مرة أخرى واذكر اسم الصلاة بوضوح.';
             $('pvRetryBtn').hidden = false;
         }
     };
     rec.onerror = event => {
-        $('pvStatus').textContent = event.error === 'not-allowed' ? 'لم يتم السماح باستخدام الميكروفون. راجع أذونات التطبيق.' : 'تعذّر التعرّف على الصوت. حاول مرة أخرى.';
+        prayerVoiceBusy = false;
+        $('pvStatus').textContent = event.error === 'not-allowed'
+            ? 'لم يتم السماح باستخدام الميكروفون. راجع أذونات التطبيق.'
+            : 'تعذّر التعرّف على الصوت. تحقق من اتصال الإنترنت أو أعد المحاولة.';
         $('pvRetryBtn').hidden = false;
     };
     rec.onend = () => {
         prayerVoiceBusy = false;
-        const b = $('pvRecordBtn'); if (b && b.textContent.includes('جارٍ')) { b.disabled = false; b.textContent = '🎙️ ابدأ التسجيل الصوتي'; }
+        if (btn && btn.textContent.includes('جارٍ')) { btn.disabled = false; btn.textContent = '🎙️ ابدأ التعرّف الصوتي'; }
         if (!gotResult && $('pvRetryBtn')) $('pvRetryBtn').hidden = false;
     };
-    try { rec.start(); } catch (e) { prayerVoiceStop(); $('pvStatus').textContent = 'تعذّر بدء التسجيل. حاول مرة أخرى.'; $('pvRetryBtn').hidden = false; }
+    try { rec.start(); }
+    catch (error) {
+        prayerVoiceStop();
+        $('pvStatus').textContent = 'تعذّر بدء التعرّف الصوتي. حاول مرة أخرى.';
+        $('pvRetryBtn').hidden = false;
+    }
 }
 
 /* ---------- تذكير الصلاة ----------
-   شاشة اختيارية داخل التطبيق. لا تمنع استخدام الهاتف أو مكالمات الطوارئ، ويمكن إغلاقها أو تأجيلها في أي وقت. */
+   بطاقة اختيارية داخل التطبيق. لا تمنع استخدام الهاتف أو مكالمات الطوارئ، ويمكن إغلاقها أو تأجيلها في أي وقت. */
 async function setPrayerLock(v) {
     if (v) {
+        // في APK نطلب إذن Android الأصلي عبر SyncActivity بعد الموافقة، وفي الويب نطلب إذن المتصفح.
+        if (!TWA.is) {
+            const mic = await requestPrayerMicAccess();
+            if (!mic.ok) {
+                const message = mic.reason === 'unsupported'
+                    ? 'هذا المتصفح لا يدعم طلب الميكروفون. استخدم متصفحًا محدّثًا لتفعيل التأكيد الصوتي.'
+                    : 'لم يتم منح إذن الميكروفون، لذلك لم يتم تفعيل تذكير الصلاة الصوتي. يمكنك السماح به من إعدادات الموقع.';
+                toast(message);
+                adRenderSettings();
+                return;
+            }
+        }
         const ok = await atConfirm({
             title: 'تفعيل تذكير الصلاة 🔔',
-            text: 'عند دخول وقت الصلاة ستظهر شاشة تركيز داخل التطبيق، وبعد أداء الصلاة يمكنك تأكيدها بعبارة صوتية. يمكنك إغلاق الشاشة في أي وقت، ولن يتم منع المكالمات أو استخدام التطبيقات الأخرى.',
+            text: TWA.is
+                ? 'عند دخول وقت الصلاة في APK ستظهر شاشة الصلاة، وبعد انتهاء الأذان بخمس ثوانٍ تتحول إلى بطاقة تأكيد صوتي. سيطلب أندرويد إذن الميكروفون الآن. بعد أداء الصلاة اضغط الاستماع وقل العبارة؛ لن يبدأ الميكروفون تلقائيًا ولن يحفظ التطبيق تسجيلًا صوتيًا. التأجيل لا يسجل الصلاة كمؤكدة، ويعيد التذكير بعد 15 دقيقة.'
+                : 'عند دخول وقت الصلاة ستظهر بطاقة زجاجية صغيرة. بعد أداء الصلاة اضغط الاستماع وقل العبارة لتسجيل إقرارك الشخصي. لن يبدأ الميكروفون إلا بعد ضغطك، ولا يحفظ التطبيق ملفًا صوتيًا.',
             ok: 'تفعيل التذكير', cancel: 'ليس الآن'
         });
         if (!ok) { adRenderSettings(); return; }

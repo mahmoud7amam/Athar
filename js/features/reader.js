@@ -65,10 +65,15 @@ function buildReaderHTML(type, data, title, highlight) {
 
 /* معلومات المكان الحالي في القراءة: سورة / جزء / حزب / صفحة */
 function currentAyahMeta() {
-    const els = document.querySelectorAll('#qText .ayah');
-    const line = window.innerHeight * 0.32;
-    for (const el of els) if (el.getBoundingClientRect().bottom >= line) return el.dataset;
-    return els.length ? els[els.length - 1].dataset : readerMeta;
+    const x = Math.round(window.innerWidth * 0.5);
+    const y = Math.round(window.innerHeight * 0.32);
+    const stack = document.elementsFromPoint ? document.elementsFromPoint(x, y) : [document.elementFromPoint(x, y)];
+    for (const hit of stack) {
+        const ayah = hit && hit.closest ? hit.closest('#qText .ayah, #qText .basmala[data-s]') : null;
+        if (ayah && ayah.dataset && ayah.dataset.s) return ayah.dataset;
+    }
+    const first = document.querySelector('#qText .ayah, #qText .basmala[data-s]');
+    return first && first.dataset ? first.dataset : readerMeta;
 }
 
 function renderReaderInfo() {

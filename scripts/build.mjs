@@ -24,7 +24,7 @@ const write = async (p, data) => {
 
 const html = await read('index.html');
 const cssFiles = [...html.matchAll(/<link rel="stylesheet" href="(css\/[^"]+)"/g)].map((m) => m[1]);
-const jsFiles = [...html.matchAll(/<script src="(js\/[^"]+)"/g)].map((m) => m[1]);
+const jsFiles = [...html.matchAll(/<script\b[^>]*\bsrc="(js\/[^"]+)"/g)].map((m) => m[1]);
 if (!cssFiles.length || !jsFiles.length) throw new Error('index.html لا يحتوي على ملفات css/js');
 
 await fs.rm(DIST, { recursive: true, force: true });
@@ -47,13 +47,13 @@ await write('js/app.js', js.code);
 
 // ---- HTML
 const cssBlock = /(?:[ \t]*<link rel="stylesheet" href="css\/[^"]+">\n)+/;
-const jsBlock = /(?:<script src="js\/[^"]+"><\/script>\n)+/;
+const jsBlock = /(?:<script\b(?=[^>]*\bsrc="js\/)[^>]*><\/script>\n)+/;
 if (!cssBlock.test(html) || !jsBlock.test(html)) throw new Error('تعذّر العثور على كتل css/js في index.html');
 await write(
   'index.html',
   html
     .replace(cssBlock, '    <link rel="stylesheet" href="css/app.css">\n')
-    .replace(jsBlock, '<script src="js/app.js"></script>\n'),
+    .replace(jsBlock, '<script src="js/app.js" defer></script>\n'),
 );
 
 // ---- Service Worker: قائمة الملفات تبقى ملفين فقط

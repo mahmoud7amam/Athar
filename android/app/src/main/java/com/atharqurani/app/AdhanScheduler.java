@@ -11,6 +11,7 @@ import java.util.Calendar;
 final class AdhanScheduler {
     static final String ACTION_ALARM = "com.atharqurani.app.ADHAN_ALARM";
     static final String ACTION_STOP = "com.atharqurani.app.ADHAN_STOP";
+    static final String ACTION_LOCK_REMINDER = "com.atharqurani.app.ADHAN_LOCK_REMINDER";
     static final String[] NAMES = {"الفجر", "الظهر", "العصر", "المغرب", "العشاء"};
 
     private static int piFlags() { return PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0); }
@@ -26,7 +27,7 @@ final class AdhanScheduler {
             try {
                 int y = Integer.parseInt(f[0].substring(0, 4)), m = Integer.parseInt(f[0].substring(4, 6)), d = Integer.parseInt(f[0].substring(6, 8));
                 for (int i = 0; i < 5; i++) {
-                    if (!AdhanPrefs.flag(c, i) || f[i + 1].length() != 4) continue;
+                    if (!(AdhanPrefs.lockOn(c) || (AdhanPrefs.on(c) && AdhanPrefs.flag(c, i))) || f[i + 1].length() != 4) continue;
                     Calendar cal = Calendar.getInstance();
                     cal.set(y, m - 1, d, Integer.parseInt(f[i + 1].substring(0, 2)), Integer.parseInt(f[i + 1].substring(2, 4)), 0);
                     cal.set(Calendar.MILLISECOND, 0);
@@ -48,7 +49,7 @@ final class AdhanScheduler {
         try {
             for (int off = 0; off < 3; off++) {
                 for (int i = 0; i < 5; i++) {
-                    if (!AdhanPrefs.flag(c, i) || f[i + 1].length() != 4) continue;
+                    if (!(AdhanPrefs.lockOn(c) || (AdhanPrefs.on(c) && AdhanPrefs.flag(c, i))) || f[i + 1].length() != 4) continue;
                     Calendar cal = Calendar.getInstance();
                     cal.setTimeInMillis(after);
                     cal.add(Calendar.DAY_OF_MONTH, off);
@@ -66,11 +67,34 @@ final class AdhanScheduler {
 
     static void schedule(Context c) { scheduleAfter(c, System.currentTimeMillis()); }
 
+    /** تأجيل بطاقة التأكيد 15 دقيقة من غير تسجيل الصلاة كمؤكدة. */
+    static void scheduleLockReminder(Context c, int idx, long epoch) {
+        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+        Intent in = new Intent(c, AdhanReceiver.class).setAction(ACTION_LOCK_REMINDER)
+                .putExtra("idx", idx).putExtra("epoch", epoch);
+        PendingIntent op = PendingIntent.getBroadcast(c, 7010, in, piFlags());
+        Intent launch = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
+        PendingIntent show = PendingIntent.getActivity(c, 7011, launch != null ? launch : new Intent(), piFlags());
+        long at = System.currentTimeMillis() + 15 * 60 * 1000L;
+        am.setAlarmClock(new AlarmManager.AlarmClockInfo(at, show), op);
+    }
+
+    /** يُلغى التأجيل فور إيقاف المستخدم لميزة تذكير الصلاة. */
+    static void cancelLockReminder(Context c) {
+        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+        Intent in = new Intent(c, AdhanReceiver.class).setAction(ACTION_LOCK_REMINDER);
+        PendingIntent op = PendingIntent.getBroadcast(c, 7010, in, piFlags());
+        am.cancel(op);
+        op.cancel();
+    }
+
     static void scheduleAfter(Context c, long after) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
         Intent in = new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM);
-        long[] next = AdhanPrefs.on(c) ? nextAfter(c, after) : null;
+        long[] next = (AdhanPrefs.on(c) || AdhanPrefs.lockOn(c)) ? nextAfter(c, after) : null;
         if (next == null) {
             am.cancel(PendingIntent.getBroadcast(c, 7001, in, piFlags()));
             am.cancel(PendingIntent.getBroadcast(c, 7003, new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM), piFlags()));

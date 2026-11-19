@@ -36,9 +36,14 @@ final class AdhanPrefs {
     static int lockIdx(Context c) { return sp(c).getInt("lock_idx", -1); }
     static long lockEpoch(Context c) { return sp(c).getLong("lock_epoch", -1L); }
     static void clearLock(Context c) { sp(c).edit().remove("lock_t").remove("lock_idx").remove("lock_epoch").apply(); }
+    static void recordVoiceConfirmation(Context c, int idx, long epoch) {
+        long at = epoch > 0 ? epoch : System.currentTimeMillis();
+        String day = new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(new java.util.Date(at));
+        sp(c).edit().putLong("voice_confirm_" + day + "_" + idx, System.currentTimeMillis()).apply();
+    }
     static void clearAsked(Context c, String k) { sp(c).edit().remove("asked_" + k).apply(); }
 
     static boolean asked(Context c, String k) { return sp(c).getBoolean("asked_" + k, false); }
-    static void resetAsked(Context c) { sp(c).edit().remove("asked_notif").remove("asked_fsi").remove("asked_overlay").remove("asked_batt").apply(); }
+    static void resetAsked(Context c) { sp(c).edit().remove("asked_notif").remove("asked_fsi").remove("asked_overlay").remove("asked_batt").remove("asked_mic").apply(); }
     static void setAsked(Context c, String k) { sp(c).edit().putBoolean("asked_" + k, true).apply(); }
 }

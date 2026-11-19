@@ -40,15 +40,22 @@ public class AdhanService extends Service {
     static void begin(Context c, int idx, long epoch) { begin(c, idx, epoch, false); }
 
     /** lock = true: يعرض تذكيرًا اختياريًا بعد الأذان مع إمكانية إغلاقه أو تأجيله. */
-    static void begin(Context c, int idx, long epoch, boolean lock) {
-        Intent s = new Intent(c, AdhanService.class).putExtra("idx", idx).putExtra("epoch", epoch).putExtra("lock", lock);
+    static void begin(Context c, int idx, long epoch, boolean lock) { begin(c, idx, epoch, lock, true); }
+
+    static void begin(Context c, int idx, long epoch, boolean lock, boolean sound) {
+        // احفظ سياق التذكير قبل بدء الخدمة؛ لو النظام منع تشغيل الخدمة وظلّ الإشعار هو البديل، تظل بطاقة التأكيد مرتبطة بالصلاة الصحيحة.
+        if (lock && AdhanPrefs.lockOn(c)) AdhanPrefs.setLockPending(c, idx, epoch);
+        Intent s = new Intent(c, AdhanService.class).putExtra("idx", idx).putExtra("epoch", epoch)
+                .putExtra("lock", lock).putExtra("silent", !sound);
         try {
             if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(s); else c.startService(s);
         } catch (Exception e) {
-            // لو النظام منع الخدمة: على الأقل إشعار بصوت النظام
-            try { ((NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIF_ID, build(c, idx, epoch, true)); } catch (Exception ignored) { }
+            try { ((NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIF_ID, build(c, idx, epoch, sound, !sound)); } catch (Exception ignored) { }
         }
     }
+
+    /** تذكير الصلاة يعمل حتى عند إيقاف صوت الأذان؛ لا يشغّل أي صوت. */
+    static void beginReminder(Context c, int idx, long epoch) { begin(c, idx, epoch, true, false); }
 
     private static void ensureChannel(Context c) {
         if (Build.VERSION.SDK_INT < 26) return;
@@ -63,11 +70,15 @@ public class AdhanService extends Service {
     }
 
     static Notification build(Context c, int idx, long epoch, boolean withSound) {
+        return build(c, idx, epoch, withSound, false);
+    }
+
+    static Notification build(Context c, int idx, long epoch, boolean withSound, boolean silent) {
         ensureChannel(c);
         String name = AdhanScheduler.NAMES[Math.max(0, Math.min(4, idx))];
         String city = AdhanPrefs.city(c);
         int pf = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
-        Intent ui = new Intent(c, AdhanActivity.class).putExtra("idx", idx).putExtra("epoch", epoch)
+        Intent ui = new Intent(c, AdhanActivity.class).putExtra("idx", idx).putExtra("epoch", epoch).putExtra("silent", silent)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent uiPi = PendingIntent.getActivity(c, 7100 + idx, ui, pf);
         PendingIntent stopPi = PendingIntent.getBroadcast(c, 7200, new Intent(c, AdhanReceiver.class).setAction(AdhanScheduler.ACTION_STOP), pf);
@@ -93,16 +104,23 @@ public class AdhanService extends Service {
     public int onStartCommand(Intent in, int flags, int startId) {
         int idx = in == null ? 1 : in.getIntExtra("idx", 1);
         long epoch = in == null ? 0 : in.getLongExtra("epoch", 0);
+        boolean silent = in != null && in.getBooleanExtra("silent", false);
         if (in != null && in.getBooleanExtra("lock", false) && AdhanPrefs.lockOn(this)) AdhanPrefs.setLockPending(this, idx, epoch);
-        Notification n = build(this, idx, epoch, false);
-        if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        Notification n = build(this, idx, epoch, false, silent);
+        if (Build.VERSION.SDK_INT >= 29 && !silent) startForeground(NOTIF_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        else if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIF_ID, n);
         else startForeground(NOTIF_ID, n);
         h.removeCallbacksAndMessages(null);
         stopPlayback();
-        play();
-        launchScreen(idx, epoch);
-        // شاشة الأذان تظهر عن طريق fullScreenIntent (فوق القفل) أو الضغط على الإشعار
-        h.postDelayed(new Runnable() { @Override public void run() { stopSelf(); } }, 5 * 60 * 1000L + 30000L);
+        launchScreen(idx, epoch, silent);
+        if (silent) {
+            // أرسل إشارة انتهاء قصيرة حتى تنتقل الواجهة مباشرة إلى بطاقة التذكير الصوتي.
+            h.postDelayed(new Runnable() { @Override public void run() { stopSelf(); } }, 700L);
+        } else {
+            play();
+            // حد أمان للخدمة في حال تعذر انتهاء ملف الصوت أو توقف المشغل.
+            h.postDelayed(new Runnable() { @Override public void run() { stopSelf(); } }, 5 * 60 * 1000L + 30000L);
+        }
         return START_NOT_STICKY;
     }
 
@@ -113,7 +131,7 @@ public class AdhanService extends Service {
      * نحتفظ بدعم نافذة قديمة مؤقتًا للأجهزة التي سبق أن منحت التطبيق إذن العرض فوق التطبيقات؛
      * النسخ الجديدة لا تطلب هذا الإذن ولا تعتمد عليه في الاستخدام المعتاد.
      */
-    private void launchScreen(int idx, long epoch) {
+    private void launchScreen(int idx, long epoch, boolean silent) {
         removeOverlay();
         try {
             if (Build.VERSION.SDK_INT >= 23 && Settings.canDrawOverlays(this)) {
@@ -127,7 +145,7 @@ public class AdhanService extends Service {
             }
         } catch (Exception e) { overlay = null; }
         try {
-            startActivity(new Intent(this, AdhanActivity.class).putExtra("idx", idx).putExtra("epoch", epoch)
+            startActivity(new Intent(this, AdhanActivity.class).putExtra("idx", idx).putExtra("epoch", epoch).putExtra("silent", silent)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
         } catch (Exception ignored) { }
         h.postDelayed(new Runnable() { @Override public void run() { removeOverlay(); } }, 4000L);

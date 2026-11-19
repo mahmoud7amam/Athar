@@ -75,9 +75,14 @@ async function checkOfflineState() {
 
 // تنزيل تلقائي هادئ (النص صغير الحجم) لما يكون في إنترنت وتوفير البيانات مقفول
 function scheduleAutoDownload() {
-    if (store.get('quran_downloaded') === 'true') return;
+    // لا ننزّل 114 سورة في الخلفية عند كل تثبيت؛ ذلك يستهلك الشبكة والذاكرة ويبطّئ التنقل.
+    // يظل التنزيل الكامل متاحًا بزر المستخدم داخل المصحف.
+    if (store.get('quran_auto_download') !== '1' || store.get('quran_downloaded') === 'true') return;
     if (navigator.connection && navigator.connection.saveData) return;
-    setTimeout(async () => { if (isOnline() && (await countSurahsCached()) < 114) downloadQuranOffline(true); }, 9000);
+    setTimeout(async () => {
+        if (document.visibilityState !== 'visible' || !isOnline()) return;
+        if ((await countSurahsCached()) < 114) downloadQuranOffline(true);
+    }, 30000);
 }
 
 /* ---------- بحث وقراءة محلية (بدون إنترنت) ---------- */

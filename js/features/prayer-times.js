@@ -41,6 +41,7 @@ function updateCities(savedCity = null, isManualChange = false) {
 let prayersSeq = 0;
 function showPrayers(t) {
     prayerTimings = t || {};
+    invalidateIqamaTarget();
     const np = nextPrayer();
     $('prayerList').innerHTML = Object.keys(PRAYERS).map(k => {
         const at = prayerDate(k, new Date());
@@ -139,7 +140,11 @@ function prayerClockProgress(np, now) {
 function setRing(circle, progress, radius) {
     if (!circle) return;
     const length = 2 * Math.PI * radius;
-    circle.style.strokeDasharray = String(length);
+    const circumference = String(length);
+    if (circle.dataset.circumference !== circumference) {
+        circle.style.strokeDasharray = circumference;
+        circle.dataset.circumference = circumference;
+    }
     circle.style.strokeDashoffset = String(length * (1 - Math.max(0, Math.min(1, progress || 0))));
 }
 function updatePrayerClock() {
@@ -160,9 +165,22 @@ function updatePrayerClock() {
     $('pcLocation').textContent = citySelect && citySelect.options[citySelect.selectedIndex] ? citySelect.options[citySelect.selectedIndex].text : '';
     setRing($('pcProgress'), prayerClockProgress(np, now), 78);
 }
+let iqamaTargetCacheKey = '';
+let iqamaTargetCache = null;
+function invalidateIqamaTarget() {
+    iqamaTargetCacheKey = '';
+    iqamaTargetCache = null;
+}
+
 function nextIqamaTarget(now = new Date()) {
     if (!$('countrySelect') || !$('citySelect')) return null;
-    const country = $('countrySelect').value, city = $('citySelect').value, candidates = [];
+    const country = $('countrySelect').value, city = $('citySelect').value;
+    // إعادة الحساب مرة واحدة في الدقيقة أو عند تغيير المدينة/المواقيت/الإعدادات، بدل JSON.parse المتكرر كل ثانية.
+    const minuteKey = Math.floor(now.getTime() / 60000);
+    const key = `${country}|${city}|${now.getFullYear()}-${now.getMonth()}-${now.getDate()}|${minuteKey}`;
+    if (key === iqamaTargetCacheKey) return iqamaTargetCache;
+
+    const candidates = [];
     for (let offset = 0; offset < 3; offset++) {
         const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
         const timings = offset === 0 && prayerTimings && prayerTimings.Fajr ? prayerTimings : (ptLookup(country, city, day) || prayerTimings);
@@ -170,12 +188,15 @@ function nextIqamaTarget(now = new Date()) {
         PT_KEYS.forEach(k => {
             const hm = parseHM(timings[k]); if (!hm) return;
             const prayerAt = new Date(day); prayerAt.setHours(hm[0], hm[1], 0, 0);
-            const iqamaAt = new Date(prayerAt.getTime() + iqamaDelay(k) * 60000);
-            if (iqamaAt > now) candidates.push({ k, prayerAt, date: iqamaAt, delay: iqamaDelay(k) });
+            const delay = iqamaDelay(k);
+            const iqamaAt = new Date(prayerAt.getTime() + delay * 60000);
+            if (iqamaAt > now) candidates.push({ k, prayerAt, date: iqamaAt, delay });
         });
     }
     candidates.sort((a, b) => a.date - b.date);
-    return candidates[0] || null;
+    iqamaTargetCache = candidates[0] || null;
+    iqamaTargetCacheKey = key;
+    return iqamaTargetCache;
 }
 function updateIqamaClock() {
     if (!$('iqamaCountdown')) return;
@@ -203,6 +224,7 @@ function setIqamaDelay(k, value) {
     if (!PT_KEYS.includes(k)) return;
     const mins = Math.max(0, Math.min(180, parseInt(value, 10) || 0));
     store.set(iqamaKey(k), String(mins));
+    invalidateIqamaTarget();
     renderIqamaScreen(); updatePrayerClock(); updateIqamaClock();
     const card = $('prayerList');
     if (card && prayerTimings && prayerTimings.Fajr) showPrayers(prayerTimings);
@@ -220,6 +242,7 @@ function renderIqamaScreen() {
 }
 function resetIqamaDefaults() {
     PT_KEYS.forEach(k => store.set(iqamaKey(k), String(IQAMA_DEFAULTS[k])));
+    invalidateIqamaTarget();
     renderIqamaScreen(); updatePrayerClock(); updateIqamaClock();
     if (prayerTimings && prayerTimings.Fajr) showPrayers(prayerTimings);
     toast('تمت استعادة المدد المقترحة، ويمكنك تعديلها حسب مسجدك');
