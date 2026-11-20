@@ -41,9 +41,8 @@ function init() {
 /* ---------- المؤقّت الموحّد ----------
    قبل كده: 5 دوال كل ثانية حتى والتطبيق في الخلفية أو الصفحة مش ظاهرة.
    دلوقتي: بنحدّث بس اللي قدام عين المستخدم، وبنوقف تمامًا لما التطبيق يتخبّى. */
-let tickN = 0;
+let tickN = 0, tickerId = 0;
 function tick() {
-    checkPrayerNotifications();                     // الأذان: خفيف ومهم حتى في الخلفية
     if (document.hidden) return;
     updateNextPrayer();                             // الشريط العلوي ظاهر دايمًا
     const cur = document.querySelector('.page.active'), id = cur && cur.id;
@@ -52,7 +51,25 @@ function tick() {
     if (++tickN % 60 === 0) checkHadithReminder();  // مرة في الدقيقة تكفي
 }
 function startTicker() {
-    setInterval(tick, 1000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) { updateNextPrayer(); updatePrayerClock(); updateIqamaClock(); } });
+    const pause = () => {
+        if (tickerId) clearInterval(tickerId);
+        tickerId = 0;
+    };
+    const resume = () => {
+        if (document.hidden || tickerId) return;
+        tick();
+        tickerId = setInterval(tick, 1000);
+    };
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pause();
+        else {
+            updateNextPrayer();
+            const cur = document.querySelector('.page.active');
+            if (cur && cur.id === 'p-prayers') updatePrayerClock();
+            else if (cur && cur.id === 'p-iqama') updateIqamaClock();
+            resume();
+        }
+    });
+    resume();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

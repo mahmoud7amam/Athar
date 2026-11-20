@@ -38,7 +38,9 @@ await write('css/app.css', css.code);
 const jsSrc = (await Promise.all(jsFiles.map(read))).join('\n;\n');
 const js = await transform(jsSrc, {
   loader: 'js',
-  minify: true,
+  minifyWhitespace: true,
+  minifySyntax: true,
+  minifyIdentifiers: false, // نحافظ على أسماء الدوال العامة التي تستدعيها أزرار HTML
   legalComments: 'none',
   charset: 'utf8',
   target: 'esnext', // بدون تحويل صياغة: السلوك يفضل زي ما هو
@@ -74,7 +76,14 @@ const html2 = await fs.readFile(path.join(DIST, 'index.html'), 'utf8');
 for (const name of ['loadContent', 'nav', 'hit', 'closeReader', 'toggleReaderInfo', 'pickReciter', 'openTafsir']) {
   if (!new RegExp(`function ${name}\\b`).test(out)) throw new Error(`الدالة العامة ${name} اتغيّر اسمها`);
 }
-if (/css\/base\.css|js\/core\//.test(html2)) throw new Error('index.html ما زال يشير للملفات المصدرية');
+// افحص روابط الموارد الفعلية فقط؛ لا تعتبر التعليقات أو النصوص التوضيحية روابط ملفات.
+const htmlWithoutComments = html2.replace(/<!--[\s\S]*?-->/g, '');
+const resourcePaths = [...htmlWithoutComments.matchAll(/<(?:script|link)\b[^>]*\b(?:src|href)=[\"']([^\"']+)[\"'][^>]*>/gi)].map((m) => m[1]);
+const staleResources = resourcePaths.filter((src) =>
+  (src.startsWith('css/') && src !== 'css/app.css') ||
+  (src.startsWith('js/') && src !== 'js/app.js')
+);
+if (staleResources.length) throw new Error('index.html ما زال يشير لملفات مصدرية: ' + staleResources.join(', '));
 
 const kb = (s) => (Buffer.byteLength(s) / 1024).toFixed(1) + ' KB';
 console.log(`dist/css/app.css  ${kb(css.code)}   (من ${cssFiles.length} ملف)`);

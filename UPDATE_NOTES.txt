@@ -1,4 +1,4 @@
-Athar — Performance pass + swipe-to-switch bottom bar
+Athar — Performance pass + swipe-to-switch bottom bar + Vercel build fix
 =====================================================
 
 Bottom bar finger-scrub (js/ui/navigation.js -> initNavScrub, css/perf.css)
@@ -13,24 +13,26 @@ Performance
   Glass is now only on the header, bottom bar and transient overlays; blur radius lowered 24px -> 12px.
 - Weak devices (<=4 cores / <=4GB RAM / data-saver) get class "lite" on <html>: no blur at all (see index.html head + perf.css).
 - content-visibility on cards/settings sections so off-screen items are not laid out or painted.
-- One unified 1s ticker: skips everything while the app is hidden, only updates the visible clock page,
-  prayer-clock static fields are written only when they change, hadith reminder check runs once a minute.
+- One unified 1s ticker: pauses completely while the app is hidden and updates only the visible clock page.
+  The exact adhan scheduler handles prayer alerts without a redundant per-second scan; hadith reminders are checked once a minute.
 - Firebase (~300KB) now loads dynamically after the first paint (firebaseReady promise) instead of blocking startup.
   Service-worker registration and admin tracking also wait for idle time.
 - Tafsir and dua lists are pre-rendered while idle, so the first visit is instant.
 - nav(): stopAudio() only when audio is actually open; storage stats (cache key counting) deferred + throttled.
 - Splash: full ~11s greeting only on the first open of each day, then a ~1.6s quick splash.
   Set ALWAYS_FULL = true in the splash script of index.html to restore the old behaviour.
-- Service worker (athar-v16): page opens instantly from cache and refreshes in the background (no more waiting
-  up to 4s on a slow network); fonts/icons/Firebase scripts are cache-first with no network revalidation.
+- Service worker shell cache is updated to athar-v17 so the new merged CSS/JS assets are fetched after deployment.
+  The page uses cached-first navigation and refreshes the cached HTML in the background.
   NOTE: updates now reach users on the *next* launch after they are deployed.
 - touch-action: manipulation (no 300ms tap delay), lighter transitions, short opacity fade between pages.
 
-Measured in headless Chromium, 4x CPU throttle, mobile viewport (before -> after):
-  Quran list scroll: ~28-33 fps -> ~43-50 fps, slow frames down ~50-75%.
-  Page switching: avg ~180-210ms -> ~140ms (tafsir/settings/quran gain the most).
+Vercel build fix
+----------------
+- The previous build check falsely rejected a comment containing a source JS path. It now validates actual src/href resource tags only.
+- JavaScript whitespace/syntax are minified while public function names are preserved for inline HTML handlers.
+- Service worker shell cache bumped to athar-v17 so the deployed bundle refreshes.
 
-Deploy: web-only change (the APK is a TWA that loads the Vercel site) — deploy and no new APK is required.
+Deploy: web-only change (the APK is a TWA that loads the Vercel site) — web deployment does not require a new APK unless native Android code/permissions changed.
 
 ----- previous notes -----
 

@@ -1,5 +1,5 @@
 /* أَثَر — Service Worker موحّد: كاش للتطبيق + إشعارات Firebase (بدون أي إعلانات) */
-const VERSION = 'athar-v16';
+const VERSION = 'athar-v17';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
 const TAFSIR_CACHE = 'tafsir-cache-v1';
