@@ -1,5 +1,5 @@
 /* أَثَر — Service Worker موحّد: كاش للتطبيق + إشعارات Firebase (بدون أي إعلانات) */
-const VERSION = 'athar-v15';
+const VERSION = 'athar-v16';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
 const TAFSIR_CACHE = 'tafsir-cache-v1';
@@ -32,6 +32,7 @@ const APP_ASSETS = [
   './css/tutorial.css',
   './css/nav-glass.css',
   './css/experience-glass.css',
+  './css/perf.css',
   './js/config.js',
   './js/core/utils.js',
   './js/core/firebase.js',
@@ -99,7 +100,7 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const RUNTIME_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'i.postimg.cc', 'www.gstatic.com'];
+const IMMUTABLE_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'i.postimg.cc', 'www.gstatic.com'];
 
 function cacheable(res) { return res && (res.ok || res.type === 'opaque'); }
 
@@ -108,19 +109,17 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // الصفحة نفسها: الشبكة أولاً (عشان التحديثات توصل) ثم الكاش
+  // الصفحة نفسها: من الكاش فورًا (فتح لحظي) وتتحدّث في الخلفية للمرة الجاية.
+  // قبل كده كانت بتستنى الشبكة لحد 4 ثواني قبل ما تفتح لو النت بطيء.
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
-      try {
-        const net = await Promise.race([
-          fetch(req),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
-        ]);
-        if (net && net.ok) { const c = await caches.open(SHELL_CACHE); c.put('./index.html', net.clone()); }
+      const cached = (await caches.match('./index.html')) || (await caches.match('./'));
+      const refresh = fetch(req).then(async (net) => {
+        if (net && net.ok) { const c = await caches.open(SHELL_CACHE); await c.put('./index.html', net.clone()); }
         return net;
-      } catch (e) {
-        return (await caches.match('./index.html')) || (await caches.match('./')) || Response.error();
-      }
+      }).catch(() => null);
+      if (cached) { event.waitUntil(refresh); return cached; }       // فتح فوري من الكاش
+      return (await refresh) || Response.error();                      // أول زيارة: من الشبكة
     })());
     return;
   }
@@ -143,13 +142,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ملفات التطبيق + الخطوط + الصور + سكريبتات Firebase: من الكاش فوراً وتتحدث في الخلفية
-  if (url.origin === self.location.origin || RUNTIME_HOSTS.includes(url.hostname)) {
+  // خطوط وصور وسكربتات خارجية ثابتة (بتتغيّر نادرًا): من الكاش مباشرة بدون طلب شبكة في كل مرة
+  if (IMMUTABLE_HOSTS.includes(url.hostname)) {
+    event.respondWith((async () => {
+      const cache = await caches.open(RUNTIME_CACHE);
+      const cached = (await cache.match(req)) || (await caches.match(req, { ignoreVary: true }));
+      if (cached) return cached;
+      try { const res = await fetch(req); if (cacheable(res)) cache.put(req, res.clone()); return res; }
+      catch (e) { return Response.error(); }
+    })());
+    return;
+  }
+
+  // ملفات التطبيق نفسها: من الكاش فورًا وتتحدّث في الخلفية (وبـ waitUntil عشان ما تتقطعش)
+  if (url.origin === self.location.origin) {
     event.respondWith((async () => {
       const cache = await caches.open(RUNTIME_CACHE);
       const cached = (await cache.match(req)) || (await caches.match(req, { ignoreVary: true }));
       const fetching = fetch(req).then((res) => { if (cacheable(res)) cache.put(req, res.clone()); return res; }).catch(() => null);
-      return cached || (await fetching) || Response.error();
+      if (cached) { event.waitUntil(fetching); return cached; }
+      return (await fetching) || Response.error();
     })());
   }
   // باقي الطلبات (قاعدة البيانات، المواقيت، API المصحف) تمر عادي

@@ -147,22 +147,29 @@ function setRing(circle, progress, radius) {
     }
     circle.style.strokeDashoffset = String(length * (1 - Math.max(0, Math.min(1, progress || 0))));
 }
+let pcSig = '';
 function updatePrayerClock() {
     const card = $('prayerClockCard'); if (!card) return;
     const now = new Date(), np = prayerTimings && prayerTimings.Fajr ? nextPrayer(now) : null;
     if (!np) {
         $('pcCountdown').textContent = '--:--:--';
         $('pcPrayerName').textContent = 'تعذر حساب الصلاة القادمة';
-        $('pcPrayerAt').textContent = '—'; $('pcIqamaAt').textContent = '—';
+        $('pcPrayerAt').textContent = '—'; $('pcIqamaAt').textContent = '—'; pcSig = '';
         setRing($('pcProgress'), 0, 78); return;
     }
     $('pcCountdown').textContent = formatDuration(np.date - now);
-    $('pcPrayerName').textContent = np.name;
-    $('pcPrayerAt').textContent = formatDateTime12(np.date);
-    const expectedIqama = new Date(np.date.getTime() + iqamaDelay(np.k) * 60000);
-    $('pcIqamaAt').textContent = expectedIqama ? formatDateTime12(expectedIqama) : '—';
+    // باقي الحقول ما بتتغيّرش كل ثانية: نكتبها بس لما الصلاة/المدينة/مدة الإقامة تتغيّر
     const citySelect = $('citySelect');
-    $('pcLocation').textContent = citySelect && citySelect.options[citySelect.selectedIndex] ? citySelect.options[citySelect.selectedIndex].text : '';
+    const cityTxt = citySelect && citySelect.options[citySelect.selectedIndex] ? citySelect.options[citySelect.selectedIndex].text : '';
+    const sig = np.k + '|' + np.date.getTime() + '|' + iqamaDelay(np.k) + '|' + cityTxt;
+    if (sig !== pcSig) {
+        pcSig = sig;
+        $('pcPrayerName').textContent = np.name;
+        $('pcPrayerAt').textContent = formatDateTime12(np.date);
+        const expectedIqama = new Date(np.date.getTime() + iqamaDelay(np.k) * 60000);
+        $('pcIqamaAt').textContent = formatDateTime12(expectedIqama);
+        $('pcLocation').textContent = cityTxt;
+    }
     setRing($('pcProgress'), prayerClockProgress(np, now), 78);
 }
 let iqamaTargetCacheKey = '';

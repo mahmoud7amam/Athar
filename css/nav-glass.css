@@ -9,7 +9,7 @@ body nav {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, .13) 0%, rgba(255, 255, 255, .03) 46%, rgba(255, 255, 255, .06) 100%),
         rgba(20, 18, 13, .52);
-    -webkit-backdrop-filter: blur(24px) saturate(170%); backdrop-filter: blur(24px) saturate(170%);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
     box-shadow: 0 14px 34px rgba(0, 0, 0, .55), 0 2px 8px rgba(0, 0, 0, .35),
                 inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 0 rgba(0, 0, 0, .28);
     overflow: hidden; z-index: 100;
@@ -75,10 +75,7 @@ body.light-mode nav .nav-item.active span { text-shadow: none; }
 #toast { bottom: calc(96px + env(safe-area-inset-bottom)); }
 @media (prefers-reduced-motion: reduce) { body nav .nav-item, body nav .nav-item::after, body nav .nav-item .nav-img { transition: none !important; } }
 
-/* توحيد البطاقات الداخلية بطبقة زجاجية ناعمة */
-.s-card,.dua-card,.settings-section,.quran-tabs,.reading-area,.download-btn,.tf-card,.hadith-card {
-    -webkit-backdrop-filter: blur(18px) saturate(145%); backdrop-filter: blur(18px) saturate(145%);
-}
+/* توحيد البطاقات الداخلية: بدون backdrop-filter (كان بيبطّأ السكرول على مئات الكروت) */
 .s-card,.dua-card { background: linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.025)),var(--card); border:1px solid rgba(255,255,255,.12); box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 8px 24px rgba(0,0,0,.12); }
 .dua-card { border-right:3px solid var(--gold); }
 #duasList { display:grid; grid-template-columns:1fr; gap:10px; }

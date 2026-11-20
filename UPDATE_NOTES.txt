@@ -1,3 +1,39 @@
+Athar — Performance pass + swipe-to-switch bottom bar
+=====================================================
+
+Bottom bar finger-scrub (js/ui/navigation.js -> initNavScrub, css/perf.css)
+---------------------------------------------------------------------------
+- Put a finger on any tab and slide left/right: the tab under the finger is highlighted live (tiny haptic tick).
+- Stop on a tab for ~140ms and it opens; lift the finger and it opens immediately. A plain tap works as before.
+- Tune with SCRUB_DWELL_MS / SCRUB_MOVE_PX at the bottom of navigation.js.
+
+Performance
+-----------
+- Removed backdrop-filter blur from every card/list/reading-area (hundreds of elements re-blurred each scroll frame).
+  Glass is now only on the header, bottom bar and transient overlays; blur radius lowered 24px -> 12px.
+- Weak devices (<=4 cores / <=4GB RAM / data-saver) get class "lite" on <html>: no blur at all (see index.html head + perf.css).
+- content-visibility on cards/settings sections so off-screen items are not laid out or painted.
+- One unified 1s ticker: skips everything while the app is hidden, only updates the visible clock page,
+  prayer-clock static fields are written only when they change, hadith reminder check runs once a minute.
+- Firebase (~300KB) now loads dynamically after the first paint (firebaseReady promise) instead of blocking startup.
+  Service-worker registration and admin tracking also wait for idle time.
+- Tafsir and dua lists are pre-rendered while idle, so the first visit is instant.
+- nav(): stopAudio() only when audio is actually open; storage stats (cache key counting) deferred + throttled.
+- Splash: full ~11s greeting only on the first open of each day, then a ~1.6s quick splash.
+  Set ALWAYS_FULL = true in the splash script of index.html to restore the old behaviour.
+- Service worker (athar-v16): page opens instantly from cache and refreshes in the background (no more waiting
+  up to 4s on a slow network); fonts/icons/Firebase scripts are cache-first with no network revalidation.
+  NOTE: updates now reach users on the *next* launch after they are deployed.
+- touch-action: manipulation (no 300ms tap delay), lighter transitions, short opacity fade between pages.
+
+Measured in headless Chromium, 4x CPU throttle, mobile viewport (before -> after):
+  Quran list scroll: ~28-33 fps -> ~43-50 fps, slow frames down ~50-75%.
+  Page switching: avg ~180-210ms -> ~140ms (tafsir/settings/quran gain the most).
+
+Deploy: web-only change (the APK is a TWA that loads the Vercel site) — deploy and no new APK is required.
+
+----- previous notes -----
+
 Athar — Native Voice Confirmation + Performance + Auto-dismiss
 ===============================================================
 

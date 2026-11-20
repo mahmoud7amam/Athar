@@ -2,8 +2,9 @@
 let pendingGlobal = 0, flushTimer = null;
 function flushGlobal() {
     flushTimer = null;
+    if (!database) { if (pendingGlobal) flushTimer = setTimeout(flushGlobal, 5000); return; }   // لسه Firebase ما اتحمّلش: نحتفظ بالعدّ
     const n = pendingGlobal; pendingGlobal = 0;
-    if (n && database) database.ref('app_stats/global_tasbih').transaction(c => (c || 0) + n);
+    if (n) database.ref('app_stats/global_tasbih').transaction(c => (c || 0) + n);
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) flushGlobal(); });
 

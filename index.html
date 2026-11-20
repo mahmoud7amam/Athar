@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#D4AF37">
+    <script>
+    /* أجهزة ضعيفة (رامات/معالج صغير) أو توفير البيانات: نلغي الزجاج المموّه من أول لحظة */
+    (function () {
+        try {
+            var n = navigator, c = n.connection || {};
+            if ((n.deviceMemory && n.deviceMemory <= 4) || (n.hardwareConcurrency && n.hardwareConcurrency <= 4) || c.saveData) document.documentElement.className += ' lite';
+        } catch (e) {}
+    })();
+    </script>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
@@ -41,6 +50,7 @@
     <link rel="stylesheet" href="css/tutorial.css">
     <link rel="stylesheet" href="css/nav-glass.css">
     <link rel="stylesheet" href="css/experience-glass.css">
+    <link rel="stylesheet" href="css/perf.css">
 </head>
 <body>
 
@@ -530,10 +540,7 @@
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<!-- Firebase: بيتحمّل في الآخر عشان ما يعطّلش ظهور الصفحة -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
+<!-- Firebase بيتحمّل ديناميكيًا بعد ما التطبيق يفتح (js/core/firebase.js) عشان ما يعطّلش البداية -->
 
 <script src="js/config.js" defer></script>
 <script src="js/core/utils.js" defer></script>
@@ -575,6 +582,15 @@
     var done = false, spoken = false, started = false;
     var ARRIVE = 5000;          // وقت وصول الطفل وبداية الكلام (ms)
     var MIN = 10500, MAX = 15000, hideAt = MIN, hideTimer = null;
+    /* الأداء: الترحيب الكامل (~11 ثانية) أول فتح في اليوم بس، وبعدها سبلاش سريع (~1.6 ثانية).
+       لو عايزه كامل كل مرة غيّر القيمة دي لـ true. */
+    var ALWAYS_FULL = false, quick = false;
+    try {
+        var day = new Date().toDateString();
+        quick = !ALWAYS_FULL && localStorage.getItem('athar_splash_day') === day;
+        localStorage.setItem('athar_splash_day', day);
+    } catch (e) {}
+    if (quick) { ARRIVE = 600000; MIN = 1600; MAX = 3000; hideAt = MIN; }
     var kid = document.getElementById('spKid'), hint = document.getElementById('spHint');
     var LINE = 'السلام عليكم، نَوَّرتوا';
 

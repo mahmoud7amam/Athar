@@ -1,0 +1,51 @@
+/* أَثَر — الأداء: بيتحمّل آخر ملف عشان يغلب على اللي قبله.
+   الفكرة: الزجاج (backdrop-filter) بس على الهيدر والقائمة السفلية والنوافذ المؤقتة،
+   مش على مئات الكروت اللي بتتحرك مع السكرول. */
+
+/* ---- 1) إلغاء blur من كل عناصر المحتوى (بيتعاد حسابه كل فريم سكرول) ---- */
+.s-card, .sr-card, .num-card, .dua-card, .tf-card, .hadith-card, .search-results-item,
+.settings-section, .quran-tabs, .reading-area, .download-btn, .q-load-more,
+.glass-page-head, .glass-panel, .mark-btn, .theme-toggle, .nav-item,
+#p-quran .download-btn, #p-quran .search-input, #p-quran .quran-tabs, #p-quran .tab-btn,
+#qList .sr-card, #qList .num-card, #qList .s-card, #qList .search-results-item,
+#p-duas .dua-card, #duasList .dua-card, #duasList .s-card {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* ---- 2) رسم الكروت اللي على الشاشة بس ---- */
+.sr-card, .num-card { content-visibility: auto; contain-intrinsic-size: auto 64px; }
+.dua-card, .tf-card, .search-results-item { content-visibility: auto; contain-intrinsic-size: auto 150px; }
+.settings-section { content-visibility: auto; contain-intrinsic-size: auto 220px; }
+/* بدل transition: all */
+.sr-card, .num-card { transition: transform .15s ease, border-color .15s ease; }
+
+/* ---- 3) لمس أسرع: بدون تأخير الضغط المزدوج ---- */
+html { -webkit-tap-highlight-color: transparent; }
+body, nav, .nav-item, .s-card, .sr-card, .num-card, button, .tab-btn, select, input { touch-action: manipulation; }
+
+/* ---- 4) تبديل الصفحات: ظهور ناعم وخفيف (opacity بس، على الـ GPU) ---- */
+@keyframes atharPageIn { from { opacity: 0; } to { opacity: 1; } }
+.page.active:not(#p-reader) { animation: atharPageIn .14s ease-out; }
+
+/* ---- 5) القائمة السفلية: طبقة GPU مستقلة + سحب بالصباع ---- */
+body nav {
+    transform: translateZ(0);
+    touch-action: none;                       /* عشان المتصفح ما يسرقش السحب الأفقي */
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+body nav .nav-img { pointer-events: none; -webkit-user-drag: none; }
+/* التبويب اللي تحت صباعك وقت السحب */
+body nav .nav-item.scrub { color: var(--gold-light); }
+body nav .nav-item.scrub::after { opacity: .85; transform: scale(1); }
+body nav .nav-item.scrub .nav-img { opacity: 1; transform: translateY(-3px) scale(1.22); filter: drop-shadow(0 4px 8px rgba(212, 175, 55, .6)); }
+body.light-mode nav .nav-item.scrub { color: var(--gold); }
+
+/* ---- 6) الأجهزة الضعيفة / توفير البيانات: بدون blur نهائيًا (class بيتحط من index.html) ---- */
+html.lite header, html.lite body nav, html.lite #reader-info.active, html.lite .reader-tools, html.lite .rt-ic, html.lite .rt-seg, html.lite .plr {
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+html.lite body:not(.light-mode) header { background: rgba(16, 15, 13, .96); }
+html.lite body:not(.light-mode) nav { background: rgba(20, 18, 13, .96); box-shadow: 0 6px 16px rgba(0, 0, 0, .4); }
+html.lite body.light-mode nav { background: rgba(255, 252, 240, .97); }
+html.lite .logo, html.lite .sp-glow, html.lite .sp-sparks { animation: none !important; }

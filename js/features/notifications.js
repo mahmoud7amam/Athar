@@ -21,6 +21,7 @@ async function showNotify(title, opts = {}) {
 
 async function initNotifications() {
     try {
+        await Promise.race([firebaseReady, sleep(8000)]);   // أوفلاين: ما نستناش للأبد
         const reg = swReg || await registerSW();
         if (messaging && reg) {
             await navigator.serviceWorker.ready;
