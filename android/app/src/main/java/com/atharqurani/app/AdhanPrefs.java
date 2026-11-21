@@ -44,6 +44,6 @@ final class AdhanPrefs {
     static void clearAsked(Context c, String k) { sp(c).edit().remove("asked_" + k).apply(); }
 
     static boolean asked(Context c, String k) { return sp(c).getBoolean("asked_" + k, false); }
-    static void resetAsked(Context c) { sp(c).edit().remove("asked_notif").remove("asked_fsi").remove("asked_overlay").remove("asked_batt").remove("asked_mic").apply(); }
+    static void resetAsked(Context c) { sp(c).edit().remove("asked_notif").remove("asked_fsi").remove("asked_overlay").remove("asked_batt").remove("asked_mic").remove("asked_exact").apply(); }
     static void setAsked(Context c, String k) { sp(c).edit().putBoolean("asked_" + k, true).apply(); }
 }

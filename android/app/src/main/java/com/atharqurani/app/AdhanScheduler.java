@@ -67,6 +67,20 @@ final class AdhanScheduler {
 
     static void schedule(Context c) { scheduleAfter(c, System.currentTimeMillis()); }
 
+    private static boolean canScheduleExact(AlarmManager am) {
+        return Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms();
+    }
+
+    private static void scheduleInexact(AlarmManager am, long at, PendingIntent operation) {
+        try {
+            if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, operation);
+            else am.set(AlarmManager.RTC_WAKEUP, at, operation);
+        } catch (SecurityException denied) {
+            // احتياط أخير: تنبيه عادي غير دقيق، دون تعطيل بقية التطبيق.
+            try { am.set(AlarmManager.RTC_WAKEUP, at, operation); } catch (Exception ignored) { }
+        }
+    }
+
     /** تأجيل بطاقة التأكيد 15 دقيقة من غير تسجيل الصلاة كمؤكدة. */
     static void scheduleLockReminder(Context c, int idx, long epoch) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
@@ -77,7 +91,12 @@ final class AdhanScheduler {
         Intent launch = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
         PendingIntent show = PendingIntent.getActivity(c, 7011, launch != null ? launch : new Intent(), piFlags());
         long at = System.currentTimeMillis() + 15 * 60 * 1000L;
-        am.setAlarmClock(new AlarmManager.AlarmClockInfo(at, show), op);
+        if (canScheduleExact(am)) {
+            try { am.setAlarmClock(new AlarmManager.AlarmClockInfo(at, show), op); }
+            catch (SecurityException denied) { scheduleInexact(am, at, op); }
+        } else {
+            scheduleInexact(am, at, op);
+        }
     }
 
     /** يُلغى التأجيل فور إيقاف المستخدم لميزة تذكير الصلاة. */
@@ -93,30 +112,34 @@ final class AdhanScheduler {
     static void scheduleAfter(Context c, long after) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
-        Intent in = new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM);
-        long[] next = (AdhanPrefs.on(c) || AdhanPrefs.lockOn(c)) ? nextAfter(c, after) : null;
-        if (next == null) {
-            am.cancel(PendingIntent.getBroadcast(c, 7001, in, piFlags()));
-            am.cancel(PendingIntent.getBroadcast(c, 7003, new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM), piFlags()));
-            return;
-        }
-        in.putExtra("idx", (int) next[1]).putExtra("epoch", next[0]);
-        PendingIntent op = PendingIntent.getBroadcast(c, 7001, in, piFlags());
-        Intent launch = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
-        PendingIntent show = PendingIntent.getActivity(c, 7002, launch != null ? launch : new Intent(), piFlags());
-        am.setAlarmClock(new AlarmManager.AlarmClockInfo(next[0], show), op);
 
-        // منبّه احتياطي بنفس الوقت: لو نظام الجهاز (شاومي/هواوي/سامسونج...) لغى الأول، التاني يشتغل. التكرار بيتمنع في AdhanReceiver.
-        try {
-            Intent in2 = new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM).putExtra("idx", (int) next[1]).putExtra("epoch", next[0]);
-            PendingIntent op2 = PendingIntent.getBroadcast(c, 7003, in2, piFlags());
+        // ألغِ أي جدولة سابقة (بما فيها المنبّه الاحتياطي من الإصدارات السابقة).
+        Intent alarmIntent = new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM);
+        PendingIntent oldPrimary = PendingIntent.getBroadcast(c, 7001, alarmIntent, piFlags());
+        PendingIntent oldBackup = PendingIntent.getBroadcast(c, 7003, alarmIntent, piFlags());
+        am.cancel(oldPrimary);
+        am.cancel(oldBackup);
+
+        long[] next = (AdhanPrefs.on(c) || AdhanPrefs.lockOn(c)) ? nextAfter(c, after) : null;
+        if (next == null) return;
+
+        Intent nextIntent = new Intent(c, AdhanReceiver.class).setAction(ACTION_ALARM)
+                .putExtra("idx", (int) next[1]).putExtra("epoch", next[0]);
+        PendingIntent operation = PendingIntent.getBroadcast(c, 7001, nextIntent, piFlags());
+        Intent launch = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
+        PendingIntent show = PendingIntent.getActivity(c, 7002,
+                launch != null ? launch : new Intent(), piFlags());
+
+        // منبّه واحد فقط: setAlarmClock دقيق عند السماح، وإلا نستخدم تنبيهًا مرنًا
+        // حتى لا يتعطل التطبيق أو يتوقف الأذان نهائيًا عند رفض الإذن الخاص.
+        if (canScheduleExact(am)) {
             try {
-                if (Build.VERSION.SDK_INT >= 23) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next[0], op2);
-                else am.setExact(AlarmManager.RTC_WAKEUP, next[0], op2);
-            } catch (SecurityException se) {
-                if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next[0], op2);
-                else am.set(AlarmManager.RTC_WAKEUP, next[0], op2);
+                am.setAlarmClock(new AlarmManager.AlarmClockInfo(next[0], show), operation);
+                return;
+            } catch (SecurityException denied) {
+                // ننتقل أدناه إلى الجدولة المرنة.
             }
-        } catch (Exception ignored) { }
+        }
+        scheduleInexact(am, next[0], operation);
     }
 }

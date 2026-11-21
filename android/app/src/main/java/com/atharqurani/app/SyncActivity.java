@@ -2,6 +2,7 @@ package com.atharqurani.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.provider.Settings;
 
 /**
@@ -28,6 +28,11 @@ public class SyncActivity extends Activity {
         Uri u = getIntent() == null ? null : getIntent().getData();
         if (u == null) { finish(); return; }
         String host = String.valueOf(u.getHost());
+        if (!("sync".equals(host) || "locktest".equals(host) || "test".equals(host)
+                || "stop".equals(host) || "perms".equals(host))) {
+            finish();
+            return;
+        }
         try {
             if ("sync".equals(host)) {
                 String p = u.getQueryParameter("p");
@@ -65,7 +70,7 @@ public class SyncActivity extends Activity {
     private static String nz(String s) { return s == null ? "" : s; }
 
     /**
-     * الأذونات بالترتيب: إشعارات ← ميكروفون عند تفعيل تأكيد الصلاة ← شاشة كاملة (أندرويد 14+) ← استثناء البطارية.
+     * الأذونات بالترتيب: إشعارات ← ميكروفون عند تفعيل التأكيد الصوتي ← المنبهات الدقيقة ← الشاشة الكاملة (أندرويد 14+).
      */
     private int step = 0;
     private static final int RC_NOTIF = 11, RC_SETTINGS = 12, RC_MIC = 13;
@@ -77,6 +82,7 @@ public class SyncActivity extends Activity {
             int s = step++;
             if (tryStep(s)) return;       // فتح شاشة طلب → هنكمّل في onActivityResult / onRequestPermissionsResult
         }
+        if (AdhanPrefs.on(this) || AdhanPrefs.lockOn(this)) AdhanScheduler.schedule(this);
         finish();
         overridePendingTransition(0, 0);
     }
@@ -101,21 +107,22 @@ public class SyncActivity extends Activity {
                     return true;
                 }
             } else if (s == 2) {
-                if (Build.VERSION.SDK_INT >= 34 && !AdhanPrefs.asked(this, "fsi")) {
-                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    if (nm != null && !nm.canUseFullScreenIntent()) {
-                        AdhanPrefs.setAsked(this, "fsi");
-                        startActivityForResult(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:" + getPackageName())), RC_SETTINGS);
+                if (Build.VERSION.SDK_INT >= 31 && (AdhanPrefs.on(this) || AdhanPrefs.lockOn(this)) && !AdhanPrefs.asked(this, "exact")) {
+                    AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    if (am != null && !am.canScheduleExactAlarms()) {
+                        AdhanPrefs.setAsked(this, "exact");
+                        startActivityForResult(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                Uri.parse("package:" + getPackageName())), RC_SETTINGS);
                         return true;
                     }
                 }
             } else if (s == 3) {
-                // تحسين عمل المنبه في الخلفية اختياري ويظهر مرة واحدة فقط.
-                if (Build.VERSION.SDK_INT >= 23 && !AdhanPrefs.asked(this, "batt")) {
-                    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                    if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
-                        AdhanPrefs.setAsked(this, "batt");
-                        startActivityForResult(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName())), RC_SETTINGS);
+                if (Build.VERSION.SDK_INT >= 34 && (AdhanPrefs.on(this) || AdhanPrefs.lockOn(this)) && !AdhanPrefs.asked(this, "fsi")) {
+                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (nm != null && !nm.canUseFullScreenIntent()) {
+                        AdhanPrefs.setAsked(this, "fsi");
+                        startActivityForResult(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                                Uri.parse("package:" + getPackageName())), RC_SETTINGS);
                         return true;
                     }
                 }
