@@ -15,8 +15,6 @@ public class CrashApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        // تسجيل الأخطاء في Downloads للتجربة فقط — مش في نسخة الإنتاج
-        if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) == 0) return;
         final Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override

@@ -1,81 +1,63 @@
-plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.compose'
-}
+plugins { id 'com.android.application' }
 
-// Keep the existing Play Store application ID so an update can replace the old app
-// when it is signed with the same original upload key.
-def ksPath = System.getenv('KEYSTORE_PATH')
-
-// منع بناء Release غير موقّع بالخطأ: لازم KEYSTORE_PATH أو توقيع من نافذة Android Studio
-gradle.taskGraph.whenReady { graph ->
-    def wantsRelease = graph.allTasks.any { it.name in ['assembleRelease', 'bundleRelease', 'packageRelease', 'packageReleaseBundle'] }
-    def studioSigned = project.hasProperty('android.injected.signing.store.file')
-    if (wantsRelease && !ksPath && !studioSigned) {
-        throw new GradleException('Release build needs signing: set KEYSTORE_PATH, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD or use Build > Generate Signed Bundle in Android Studio.')
-    }
-}
+// التوقيع: متغيّرات بيئة (الـ workflow بيملاها من GitHub Secrets). لو مش موجودة بيطلع APK/AAB غير موقّع.
+def ksPath = System.getenv("KEYSTORE_PATH")
 
 android {
-    namespace 'com.atharqurani.app'
+    namespace 'com.atharqurani.app'          // حزمة كود جافا + R
     compileSdk 36
 
     defaultConfig {
-        applicationId 'app.vercel.athar_silk.twa'
-        minSdk 24
+        applicationId "app.vercel.athar_silk.twa"   // نفس حزمة تطبيق جوجل بلاي (عشان يتحدّث فوقه)
+        minSdk 21
         targetSdk 36
-        versionCode 16
-        versionName '2.5.0-native'
+        versionCode 17                              // لازم يكون أكبر من آخر نسخة مرفوعة في Play Console
+        versionName "2.5.0"
+        // نحتفظ باللغتين العربية والإنجليزية فقط من موارد المكتبات (بتوفّر حجم من غير ما نحذف أي ميزة)
+        resConfigs "ar", "en"
     }
 
     signingConfigs {
         release {
             if (ksPath) {
                 storeFile file(ksPath)
-                storePassword System.getenv('KEYSTORE_PASSWORD')
-                keyAlias System.getenv('KEY_ALIAS')
-                keyPassword System.getenv('KEY_PASSWORD')
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
             }
         }
     }
-
     buildTypes {
-        debug {
-            applicationIdSuffix '.debug'
-            versionNameSuffix '-debug'
-        }
         release {
             if (ksPath) signingConfig signingConfigs.release
+            // R8: تصغير الكود وإزالة الكلاسات غير المستخدمة + تقليص الموارد غير المستخدمة
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable false
+            crunchPngs true
         }
     }
-
-    buildFeatures { compose true }
-
+    // ملفات ميتاداتا زايدة داخل الـ APK (آمنة تماماً)
+    packaging {
+        resources {
+            excludes += ['/META-INF/{AL2.0,LGPL2.1}', '/META-INF/*.version', '/DebugProbesKt.bin']
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = '17' }
 }
 
+// منع تكرار كلاسات Kotlin (kotlin-stdlib-jdk7/jdk8 بقوا جوه stdlib من Kotlin 1.8)
 configurations.all {
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
 }
 
 dependencies {
-    def composeBom = platform('androidx.compose:compose-bom:2026.09.00')
-    implementation composeBom
-    implementation 'androidx.activity:activity-compose:1.13.0'
-    implementation 'androidx.compose.ui:ui'
-    implementation 'androidx.compose.ui:ui-tooling-preview'
-    implementation 'androidx.compose.material3:material3'
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.core:core-ktx:1.17.0'
-
-    debugImplementation 'androidx.compose.ui:ui-tooling'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    implementation 'com.google.androidbrowserhelper:locationdelegation:1.1.1'
 }

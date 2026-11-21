@@ -164,24 +164,22 @@ public class AdhanService extends Service {
         } catch (Exception ignored) { }
         try {
             am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            // نحترم مستوى صوت المنبّه الذي اختاره المستخدم ولا نغيّر إعدادات الصوت العامة للهاتف.
-            try { am.requestAudioFocus(null, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT); } catch (Exception ignored) { }
+            try { // لو صوت المنبّه صفر، نرفعه عشان الأذان يتسمع
+                int max = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
+                if (am.getStreamVolume(AudioManager.STREAM_ALARM) < Math.max(1, max / 2)) am.setStreamVolume(AudioManager.STREAM_ALARM, Math.max(1, (int) (max * 0.6)), 0);
+            } catch (Exception ignored) { }
+            try { am.requestAudioFocus(null, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT); } catch (Exception ignored) { }   // لو فشل ما يوقفش الأذان
             mp = new MediaPlayer();
-            final MediaPlayer player = mp;
-            player.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+            mp.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
             AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.adhan);
-            try { player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()); }
-            finally { afd.close(); }
-            float v = Math.max(0.0f, Math.min(1f, AdhanPrefs.vol(this) / 100f));
-            player.setVolume(v, v);
-            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override public void onPrepared(MediaPlayer media) {
-                    try { media.start(); } catch (Exception e) { stopSelf(); }
-                }
-            });
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() { @Override public void onCompletion(MediaPlayer m) { stopSelf(); } });
-            player.setOnErrorListener(new MediaPlayer.OnErrorListener() { @Override public boolean onError(MediaPlayer m, int w, int e) { stopSelf(); return true; } });
-            player.prepareAsync();
+            mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            afd.close();
+            float v = Math.max(0.05f, Math.min(1f, AdhanPrefs.vol(this) / 100f));
+            mp.setVolume(v, v);
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() { @Override public void onCompletion(MediaPlayer m) { stopSelf(); } });
+            mp.setOnErrorListener(new MediaPlayer.OnErrorListener() { @Override public boolean onError(MediaPlayer m, int w, int e) { stopSelf(); return true; } });
+            mp.prepare();
+            mp.start();
         } catch (Exception e) {
             stopSelf();
         }
