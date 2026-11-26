@@ -2,12 +2,13 @@
    الأداء: سكربتات Firebase تقيلة (~300KB) فبتتحمّل بعد ما التطبيق يفتح، مش قبله.
    أي كود محتاج database/messaging يستنى firebaseReady. */
 
-let database = null, messaging = null;
+let database = null, messaging = null, auth = null;
 let firebaseLoadStarted = false, firebaseResolve = null;
 const firebaseReady = new Promise(r => { firebaseResolve = r; });
 const FIREBASE_SCRIPTS = [
     'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js',
     'https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js',
+    'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js',
     'https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js'
 ];
 
@@ -16,6 +17,7 @@ function initFirebaseObjects() {
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
             if (firebase.database) database = firebase.database();
+            if (firebase.auth) auth = firebase.auth();
             try {
                 if (firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported()) messaging = firebase.messaging();
             } catch (e) {}

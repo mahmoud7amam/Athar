@@ -22,6 +22,7 @@ async function showNotify(title, opts = {}) {
 async function initNotifications() {
     try {
         await Promise.race([firebaseReady, sleep(8000)]);   // أوفلاين: ما نستناش للأبد
+        if (auth && !auth.currentUser && typeof ensureAtharUserSession === 'function') await ensureAtharUserSession();
         const reg = swReg || await registerSW();
         if (messaging && reg) {
             await navigator.serviceWorker.ready;
@@ -29,10 +30,19 @@ async function initNotifications() {
                 vapidKey: 'BCnVK9Yqt6EwwWJpW4GRQQetASsKOJqa_oTDIruAjIGGWLYWc4Yw9jGFyj-KndtKVcjrOp8ZMAMXG64RKPpI7Ok',
                 serviceWorkerRegistration: reg
             });
-            if (token && database) {
-                database.ref('fcm_tokens/' + getBrowserUid()).set({
-                    token: token, lastSeen: Date.now(), deviceName: getDeviceName()
+            if (token && database && auth && auth.currentUser) {
+                const uid = auth.currentUser.uid;
+                database.ref('fcm_tokens/' + uid).set({
+                    token: token, lastSeen: Date.now(), deviceName: getDeviceName(), device: getDeviceDetails()
+                }).catch(error => console.warn('FCM token registration blocked:', error.message));
+            }
+            if (messaging && !foregroundMessagingAttached && messaging.onMessage) {
+                messaging.onMessage(payload => {
+                    const data = payload && payload.data || {};
+                    const notification = payload && payload.notification || {};
+                    showNotify(notification.title || data.title || 'أَثَر', { body: notification.body || data.body || data.message || '' });
                 });
+                foregroundMessagingAttached = true;
             }
         }
     } catch (error) { console.warn('FCM Initialization Error:', error); }
@@ -51,6 +61,7 @@ function setupNotificationPrompt() {
 }
 
 let azkarTimer = null;
+let foregroundMessagingAttached = false;
 function initRandomAzkarNotifications() {
     if (azkarTimer) return;
     const INTERVAL_MS = 4 * 60 * 60 * 1000;

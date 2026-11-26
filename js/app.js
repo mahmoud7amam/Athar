@@ -26,7 +26,10 @@ function init() {
     const afterPaint = fn => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2500 }) : setTimeout(fn, 1200));
     afterPaint(() => {
         registerSW().then(() => setupNotificationPrompt());
-        loadFirebase().then(() => setTimeout(setupAdminTracking, 500));
+        loadFirebase().then(async () => {
+            try { if (typeof ensureAtharUserSession === 'function') await ensureAtharUserSession(); } catch (e) {}
+            setTimeout(setupAdminTracking, 500);
+        });
     });
     // نجهّز الصفحات التقيلة وهي مخفية، فأول زيارة تبقى فورية
     setTimeout(() => afterPaint(() => {

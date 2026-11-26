@@ -41,6 +41,17 @@ final class AdhanPrefs {
         String day = new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(new java.util.Date(at));
         sp(c).edit().putLong("voice_confirm_" + day + "_" + idx, System.currentTimeMillis()).apply();
     }
+    static boolean recordManualConfirmation(Context c, int idx, long at) {
+        String day = new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(new java.util.Date(at));
+        String key = "manual_confirm_" + day + "_" + idx;
+        if (sp(c).contains(key)) return false;
+        sp(c).edit().putLong(key, at).apply();
+        return true;
+    }
+    static boolean hasManualConfirmation(Context c, int idx, long at) {
+        String day = new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(new java.util.Date(at));
+        return sp(c).contains("manual_confirm_" + day + "_" + idx);
+    }
     static void clearAsked(Context c, String k) { sp(c).edit().remove("asked_" + k).apply(); }
 
     static boolean asked(Context c, String k) { return sp(c).getBoolean("asked_" + k, false); }

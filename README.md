@@ -39,7 +39,7 @@ npm run build     # ينتج dist/ (CSS و JS مجمّعين ومصغّرين)
 ## قبل النشر (أمان)
 
 - قيّد مفتاح Firebase بالدومين وفعّل App Check، وراجع قواعد Realtime Database.
-- لوحة الأدمن لازم تتحمى بـ Firebase Auth (كلمة السر الحالية ظاهرة في الكود).
+- لوحة المطوّر تعتمد على Firebase Authentication وقواعد قاعدة البيانات؛ العبارة المخفية تفتح صفحة الدخول فقط ولا تمنح صلاحية الإدارة. طبّق خطوات `ADMIN_SETUP_AR.md` قبل الاستخدام.
 - ما تكتبش باسورد الـ keystore في الـ workflow؛ استخدم GitHub Secrets وثبّت keystore واحد.
 
 ## الأذان الأصلي في تطبيق أندرويد (APK / AAB لجوجل بلاي)
@@ -48,7 +48,7 @@ npm run build     # ينتج dist/ (CSS و JS مجمّعين ومصغّرين)
 منبّه نظام (`setAlarmClock`) + خدمة أمامية بتشغّل `adhan.m4a` من داخل التطبيق + شاشة أذان فوق القفل.
 الصفحة بتبعتله مواقيت 40 يوم عبر `intent://` (جسر `SyncActivity`) فيشتغل الأذان والتطبيق مقفول وبدون نت.
 
-**البناء:** GitHub Actions ← `android.yml` (يدوي أو عند تعديل `android/`). محتاج 4 Secrets:
+**البناء:** GitHub Actions ← `android.yml` (يدوي أو عند تعديل `android/`) يثبّت Gradle 8.11.1 ويبني APK Debug دائمًا. ملفات Gradle Wrapper غير موجودة في هذه الحزمة؛ في Android Studio قد تحتاج إعداد Gradle محليًا أو استخدام GitHub Actions للبناء. لإنتاج APK/AAB Release موقّع، يلزم 4 Secrets:
 `ANDROID_KEYSTORE_B64` (`base64 -w0 signing.keystore`) و`ANDROID_KEYSTORE_PASSWORD` و`ANDROID_KEY_ALIAS` و`ANDROID_KEY_PASSWORD`
 (لازم نفس keystore نسخة بلاي الحالية). الناتج: `.apk` للتجربة و`.aab` للرفع على Play Console.
 **ارفع `versionCode`** في `android/app/build.gradle` عن آخر نسخة مرفوعة.
@@ -76,3 +76,8 @@ npm run build     # ينتج dist/ (CSS و JS مجمّعين ومصغّرين)
 - عند ظهور شاشة الأذان الأصلية في APK، ضغط زر رفع أو خفض الصوت يوقف الأذان بدل تغيير مستوى الصوت. ويظل زر «إيقاف الأذان» في الشاشة والإشعار متاحًا.
 - داخل نسخة الويب، مفاتيح الصوت توقف الأذان فقط عندما يرسل المتصفح حدث المفتاح؛ كثير من المتصفحات لا تكشف مفاتيح الصوت المادية لصفحات الويب.
 - إطفاء جرس صلاة بعينها أو إطفاء الأذان بالكامل من الإعدادات يوقف التشغيل الحالي للصلاة المعنية أيضًا.
+
+
+## لوحة المطوّر وتأكيد الصلاة
+
+راجع ملف `ADMIN_SETUP_AR.md` لإعداد Firebase Authentication وقواعد Realtime Database ونشر Cloud Functions الخاصة بإشعارات Push. لا تعمل لوحة الإدارة بشكل آمن قبل تطبيق إعدادات القواعد وحساب المطوّر.

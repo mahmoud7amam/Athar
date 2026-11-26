@@ -134,31 +134,40 @@
 <div class="container" id="mainScroll">
 
     <div id="p-admin" class="page">
-        <div class="admin-box">
-            <h3 style="color:var(--gold); text-align:center; margin-top:0;">لوحة التحكم المطورة</h3>
-            <button class="admin-btn" style="background:#222; color:var(--gold); border:1px solid var(--gold);" onclick="location.reload()">تحديث اللوحة 🔄</button>
-            <div class="stat-grid">
-                <div class="stat-card">المستخدمين الآن<span id="online-users">0</span></div>
-                <div class="stat-card">إجمالي المسجلين<span id="total-users">0</span></div>
-                <div class="stat-card" style="grid-column: span 2;">التسبيحات الكلية<span id="global-tasbih">0</span></div>
-            </div>
-
-            <p style="font-size:12px; margin-top:10px; color:var(--gold);">المستخدمون النشطون الآن (بالأجهزة):</p>
-            <div class="device-list" id="active-device-list"></div>
-
-            <p style="font-size:12px; margin-top:10px; color:var(--gold);">الأجهزة المسجلة (مرة واحدة):</p>
-            <div class="device-list" id="unique-device-list"></div>
-
-            <p style="font-size:12px; margin-top:10px; color:var(--gold);">سجل الدخول الكامل (تكرار):</p>
-            <div class="device-list" id="all-log-list"></div>
-
-            <hr style="border: 0.5px solid #333; margin: 20px 0;">
-
-            <p style="font-size:12px; margin-bottom:8px; color:var(--gold);">إرسال إشعار عام للنظام:</p>
-            <input type="text" id="adminTitle" class="admin-input" placeholder="عنوان الإشعار (مثال: تذكير)">
-            <input type="text" id="adminMsg" class="admin-input" placeholder="نص الرسالة...">
-            <button class="admin-btn" onclick="sendGlobalPush()">بث الإشعار للجميع 📢</button>
-            <button onclick="nav('p-quran')" style="background:none; border:none; color:#555; width:100%; margin-top:15px; cursor:pointer;">إغلاق اللوحة</button>
+        <div class="admin-box admin-shell">
+            <div class="admin-heading"><span>أَثَر • مركز المطوّر</span><small>إدارة الأجهزة والإشعارات</small></div>
+            <section id="adminLogin" class="admin-login-card">
+                <div class="admin-lock-icon">⌘</div>
+                <h3>تسجيل دخول المطوّر</h3>
+                <p>الدخول مقيّد بحساب Firebase المصرّح له فقط.</p>
+                <input type="email" id="adminEmail" class="admin-input" autocomplete="username" placeholder="البريد الإلكتروني">
+                <input type="password" id="adminPassword" class="admin-input" autocomplete="current-password" placeholder="كلمة المرور">
+                <button class="admin-btn" onclick="loginDeveloper()">دخول آمن 🔐</button>
+                <div class="admin-auth-status" id="adminAuthStatus" role="status">تحتاج إلى ضبط ADMIN_UID ونشر قواعد قاعدة البيانات أولًا.</div>
+            </section>
+            <section id="adminDashboard" hidden>
+                <div class="admin-toolbar"><span id="adminWelcome">مرحبًا بالمطوّر</span><div><button class="admin-mini-btn" onclick="refreshAdminDashboard()">تحديث ↻</button> <button class="admin-mini-btn danger" onclick="logoutDeveloper()">خروج</button></div></div>
+                <div class="admin-health" id="adminHealth">جاري الاتصال بقاعدة البيانات…</div>
+                <div class="stat-grid admin-stats-grid">
+                    <div class="stat-card">متصلون الآن<span id="online-users">0</span></div>
+                    <div class="stat-card">أجهزة مسجّلة<span id="total-users">0</span></div>
+                    <div class="stat-card">إجمالي التسبيحات المتزامنة<span id="global-tasbih">0</span></div>
+                </div>
+                <div class="admin-section-head"><b>الأجهزة المتصلة</b><small>معلومات تقنية متاحة للمتصفح فقط</small></div>
+                <input type="search" id="adminDeviceSearch" class="admin-input" placeholder="ابحث باسم الجهاز أو الطراز…" oninput="filterAdminDevices()">
+                <div class="admin-device-grid" id="active-device-list"></div>
+                <div class="admin-section-head"><b>كل الأجهزة المسجّلة</b><small>آخر ظهور والطراز والنظام والمتصفح</small></div>
+                <div class="admin-device-grid compact" id="unique-device-list"></div>
+                <div class="admin-privacy-note">اللوحة لا تجمع الموقع الدقيق أو عنوان IP أو جهات الاتصال أو الملفات. قد لا يكشف المتصفح طراز الجهاز كاملًا، وعندها سيظهر «غير متاح».</div>
+                <div class="admin-section-head"><b>إرسال إشعار Push</b><small>يصل للأجهزة التي سمحت بالإشعارات وسجّلت FCM</small></div>
+                <input type="text" id="adminTitle" class="admin-input" maxlength="60" placeholder="عنوان الإشعار (حتى 60 حرفًا)">
+                <textarea id="adminMsg" class="admin-input admin-textarea" maxlength="220" placeholder="نص الإشعار (حتى 220 حرفًا)"></textarea>
+                <button class="admin-btn" onclick="sendGlobalPush()">إرسال إشعار لكل الأجهزة 📢</button>
+                <div class="admin-section-head"><b>سجل الإشعارات</b><small>حالة الإرسال وعدد الأجهزة</small></div>
+                <div class="device-list admin-history" id="admin-broadcast-list"></div>
+                <div class="admin-privacy-note">الإرسال يعمل عبر Firebase Cloud Messaging. يتطلب نشر الوظيفة الموجودة في مجلد functions وتفعيل FCM للمشروع.</div>
+            </section>
+            <button onclick="nav('p-quran')" class="admin-close">إغلاق اللوحة</button>
         </div>
     </div>
 
@@ -524,16 +533,31 @@
         <div class="adh-dua" id="adhDua" hidden></div>
         <div class="adh-actions">
             <button class="adh-btn main" id="adhPlay" onclick="adhanToggle()"></button>
-            <button class="adh-btn" id="adhLockDone" onclick="prayerCheckOpen()" style="display:none">تأكيد الصلاة بالصوت</button>
+            <button class="adh-btn" id="adhLockDone" onclick="prayerCheckOpen()" style="display:none">تأكيد الصلاة</button>
             <button class="adh-btn" id="adhClose" onclick="adhanClose()">إغلاق</button>
         </div>
         <section class="prayer-voice glass-panel" id="prayerVoicePanel" hidden>
             <div class="pv-title">تأكيد الصلاة</div>
-            <p id="pvPrompt">هذا إقرار شخصي اختياري بعد أداء الصلاة.</p>
-            <div class="pv-quote" id="pvPhrase"></div>
-            <button class="adh-btn main" id="pvRecordBtn" onclick="prayerVoiceStart()">🎙️ ابدأ التعرّف الصوتي</button>
-            <div class="pv-status" id="pvStatus" aria-live="polite">لن يحفظ تطبيق أثر ملفًا صوتيًا. قد تتم معالجة الصوت عبر خدمة التعرّف في المتصفح.</div>
-            <button class="adh-btn" id="pvRetryBtn" onclick="prayerVoiceStart()" hidden>إعادة المحاولة</button>
+            <p id="pvPrompt">اختر طريقة الإقرار بعد أداء الصلاة. التسجيل اختياري وشخصي.</p>
+            <div class="pv-manual-card">
+                <div class="pv-manual-head">تأكيد يدوي بالقسم</div>
+                <label class="pv-field-label" for="pvPrayerSelect">الصلاة التي أديتها اليوم</label>
+                <select id="pvPrayerSelect" class="pv-prayer-select" onchange="prayerManualSelectionChanged()">
+                    <option value="Fajr">الفجر</option><option value="Dhuhr">الظهر</option><option value="Asr">العصر</option><option value="Maghrib">المغرب</option><option value="Isha">العشاء</option>
+                </select>
+                <div class="pv-today" id="pvTodayDate">تاريخ اليوم: —</div>
+                <div class="pv-quote" id="pvPhrase">والله العظيم صليت صلاة الفجر اليوم</div>
+                <label class="pv-agree"><input type="checkbox" id="pvManualAgree"> <span>أقرّ بنفسي أنني أديت الصلاة المختارة اليوم.</span></label>
+                <button class="adh-btn main" id="pvManualBtn" onclick="prayerManualConfirm()">✓ والله العظيم صليت هذه الصلاة اليوم</button>
+                <div class="pv-status" id="pvManualStatus" aria-live="polite">يُحفظ هذا الإقرار على جهازك فقط، ولا يثبت التطبيق أداء الصلاة.</div>
+            </div>
+            <details class="pv-voice-details">
+                <summary>أو استخدم التأكيد الصوتي 🎙️</summary>
+                <p id="pvVoicePrompt">اضغط بدء التعرّف ثم انطق العبارة الظاهرة.</p>
+                <button class="adh-btn" id="pvRecordBtn" onclick="prayerVoiceStart()">🎙️ ابدأ التعرّف الصوتي</button>
+                <div class="pv-status" id="pvStatus" aria-live="polite">لن يحفظ تطبيق أثر ملفًا صوتيًا. قد تتم معالجة الصوت عبر خدمة التعرّف في المتصفح.</div>
+                <button class="adh-btn" id="pvRetryBtn" onclick="prayerVoiceStart()" hidden>إعادة المحاولة</button>
+            </details>
             <button class="adh-btn" onclick="prayerCheckCancel()">رجوع</button>
         </section>
     </div>

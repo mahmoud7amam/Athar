@@ -1,0 +1,40 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "app_stats": {
+      ".read": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+      "online_users": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      },
+      "unique_devices": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".read": "auth != null && auth.uid === $uid"
+        }
+      },
+      "all_logs": {
+        "$uid": {
+          "$logId": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    },
+    "fcm_tokens": {
+      ".read": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "admin_broadcasts": {
+      ".read": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+      "$id": {
+        ".write": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+        ".validate": "newData.hasChildren(['title','body','createdAt','status','requestedBy']) && newData.child('title').isString() && newData.child('body').isString() && newData.child('title').val().length <= 60 && newData.child('body').val().length <= 220"
+      }
+    }
+  }
+}

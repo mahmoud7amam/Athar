@@ -1,10 +1,34 @@
 /* ---------- المسبحة ---------- */
-let pendingGlobal = 0, flushTimer = null;
-function flushGlobal() {
+let pendingGlobal = 0, flushTimer = null, flushAttempts = 0;
+async function flushGlobal() {
     flushTimer = null;
-    if (!database) { if (pendingGlobal) flushTimer = setTimeout(flushGlobal, 5000); return; }   // لسه Firebase ما اتحمّلش: نحتفظ بالعدّ
-    const n = pendingGlobal; pendingGlobal = 0;
-    if (n) database.ref('app_stats/global_tasbih').transaction(c => (c || 0) + n);
+    if (!pendingGlobal) { flushAttempts = 0; return; }
+    if (!database || !auth) {
+        if (flushAttempts++ < 6) flushTimer = setTimeout(flushGlobal, 10000);
+        else flushAttempts = 0; // نحتفظ بالعدّ، ونعيد المحاولة عند اللمسة التالية أو إخفاء الصفحة.
+        return;
+    }
+    if (!auth.currentUser && typeof ensureAtharUserSession === 'function') {
+        try { await ensureAtharUserSession(); } catch (e) {}
+    }
+    if (!auth.currentUser) {
+        if (flushAttempts++ < 6) flushTimer = setTimeout(flushGlobal, 10000);
+        else flushAttempts = 0;
+        return;
+    }
+    const n = pendingGlobal;
+    pendingGlobal = 0;
+    const uid = auth.currentUser.uid;
+    try {
+        await database.ref('app_stats/unique_devices/' + uid + '/tasbihTotal')
+            .transaction(c => Number(c || 0) + n);
+        flushAttempts = 0;
+    } catch (error) {
+        pendingGlobal += n;
+        console.warn('Tasbih sync failed:', error && error.message);
+        if (flushAttempts++ < 6) flushTimer = setTimeout(flushGlobal, 15000);
+        else flushAttempts = 0;
+    }
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) flushGlobal(); });
 

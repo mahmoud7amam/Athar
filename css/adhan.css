@@ -72,3 +72,17 @@ body.adhan-open { overflow: hidden; }
     box-shadow: 0 18px 48px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.16);
 }
 #adhanOv.voice-only .prayer-voice { display: block; }
+
+
+/* تأكيد يدوي بتاريخ اليوم — يعمل دون ميكروفون */
+.pv-manual-card { margin: 14px 0; padding: 14px; border: 1px solid rgba(212,175,55,.38); border-radius: 18px; background: rgba(212,175,55,.07); text-align: right; }
+.pv-manual-head { color: var(--gold); font-weight: 800; margin-bottom: 10px; }
+.pv-field-label { display:block; color:var(--text); font-size:12px; margin:8px 0 6px; }
+.pv-prayer-select { margin:0 0 8px; padding:11px 12px; font-size:14px; }
+.pv-today { color:var(--text); opacity:.78; font-size:12px; margin:5px 0 10px; }
+.pv-manual-card .pv-quote { margin:8px 0; font-size:17px; line-height:1.9; }
+.pv-agree { display:flex; align-items:flex-start; gap:8px; color:var(--text); font-size:12px; line-height:1.8; margin:12px 0; }
+.pv-agree input { width:18px; height:18px; margin-top:3px; accent-color:var(--gold); flex:0 0 auto; }
+.pv-manual-card button:disabled { opacity:.65; }
+.pv-voice-details { border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:10px 12px; margin:12px 0; text-align:right; }
+.pv-voice-details summary { color:var(--gold); font-size:13px; cursor:pointer; font-weight:700; }

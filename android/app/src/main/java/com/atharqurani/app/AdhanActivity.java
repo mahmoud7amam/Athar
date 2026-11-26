@@ -41,6 +41,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.TextView;
@@ -65,7 +66,8 @@ public class AdhanActivity extends Activity {
     private TextView phrase, dua, titleView, subView, voiceStatus;
     private View card, lockPanel;
     private LinearLayout contentColumn, controlsRow;
-    private PillButton voiceStart, laterButton;
+    private PillButton voiceStart, laterButton, manualConfirm;
+    private CheckBox manualAgreement;
     private boolean ended = false;
     private AnimatorSet intro;
     private int idx;
@@ -300,10 +302,16 @@ public class AdhanActivity extends Activity {
         box.setBackground(bg);
         if (Build.VERSION.SDK_INT >= 17) box.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
-        TextView head = text("🔒 تأكيد الصلاة بالصوت", 20, GOLD_L, sans, true);
+        TextView head = text("🔒 تأكيد الصلاة", 20, GOLD_L, sans, true);
         box.addView(head, wrap());
 
-        TextView oath = text("والله العظيم صليت صلاة " + name, 21, TEXT, amiriQuran, true);
+        String today = new java.text.SimpleDateFormat("EEEE، d MMMM yyyy", new Locale("ar", "EG")).format(new java.util.Date());
+        TextView dateView = text("تاريخ اليوم: " + today, 12, MUTED, sans, false);
+        LinearLayout.LayoutParams dateParams = wrap();
+        dateParams.topMargin = dp(8);
+        box.addView(dateView, dateParams);
+
+        TextView oath = text("والله العظيم صليت صلاة " + name + " اليوم، " + today, 20, TEXT, amiriQuran, true);
         oath.setGravity(Gravity.CENTER);
         oath.setLineSpacing(0, 1.55f);
         GradientDrawable oathBg = new GradientDrawable();
@@ -316,13 +324,34 @@ public class AdhanActivity extends Activity {
         op.topMargin = dp(12);
         box.addView(oath, op);
 
-        TextView info = text("بعد أداء الصلاة اضغط زر الاستماع وقل العبارة كاملة. لن يبدأ الميكروفون قبل ضغطك، ولا يحفظ تطبيق أثر ملفًا صوتيًا. قد تتطلب خدمة التعرّف على الكلام اتصالًا بالإنترنت.", 13, MUTED, sans, false);
+        TextView info = text("بعد أداء الصلاة يمكنك استخدام التأكيد اليدوي بالقسم أو التأكيد الصوتي. الميكروفون لا يعمل إلا بعد ضغطك، ولا يحفظ تطبيق أثر ملفًا صوتيًا.", 13, MUTED, sans, false);
         info.setLineSpacing(0, 1.5f);
         LinearLayout.LayoutParams ip = wrap();
         ip.topMargin = dp(10);
         box.addView(info, ip);
 
-        voiceStatus = text("بطاقة التأكيد جاهزة. ابدأ بعد الانتهاء من الصلاة.", 13, GOLD_L, sans, true);
+        manualAgreement = new CheckBox(this);
+        manualAgreement.setText("أقرّ بنفسي أنني أديت هذه الصلاة اليوم.");
+        manualAgreement.setTextColor(TEXT);
+        manualAgreement.setTextSize(13);
+        if (Build.VERSION.SDK_INT >= 21) manualAgreement.setButtonTintList(android.content.res.ColorStateList.valueOf(GOLD));
+        LinearLayout.LayoutParams agreeParams = wrap();
+        agreeParams.topMargin = dp(10);
+        box.addView(manualAgreement, agreeParams);
+
+        manualConfirm = new PillButton(this, true);
+        manualConfirm.setLabel("تأكيد يدوي بالقسم", "✓  ");
+        manualConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { confirmManually(); }
+        });
+        LinearLayout.LayoutParams manualParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52));
+        manualParams.topMargin = dp(9);
+        box.addView(manualConfirm, manualParams);
+
+        TextView voiceHead = text("أو التأكيد بالصوت", 14, GOLD_L, sans, true);
+        LinearLayout.LayoutParams vh = wrap(); vh.topMargin = dp(14); box.addView(voiceHead, vh);
+
+        voiceStatus = text("بطاقة التأكيد جاهزة. اختر التأكيد اليدوي أو ابدأ الاستماع بعد الصلاة.", 13, GOLD_L, sans, true);
         voiceStatus.setLineSpacing(0, 1.4f);
         LinearLayout.LayoutParams vp = wrap();
         vp.topMargin = dp(12);
@@ -370,7 +399,24 @@ public class AdhanActivity extends Activity {
             contentColumn.setGravity(Gravity.CENTER);
             contentColumn.setPadding(dp(18), dp(18), dp(18), dp(18));
         }
-        if (voiceStatus != null) voiceStatus.setText("بعد أداء الصلاة اضغط زر الاستماع وقل العبارة الظاهرة.");
+        if (voiceStatus != null) voiceStatus.setText("بعد أداء الصلاة اختر التأكيد اليدوي بالقسم أو استخدم الاستماع الصوتي.");
+    }
+
+    private void confirmManually() {
+        if (!lockMode || isFinishing()) return;
+        if (manualAgreement == null || !manualAgreement.isChecked()) {
+            Toast.makeText(this, "ضع علامة الإقرار أولًا إذا كنت قد أديت الصلاة بالفعل.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!AdhanPrefs.recordManualConfirmation(this, idx, System.currentTimeMillis())) {
+            if (voiceStatus != null) voiceStatus.setText("تم تسجيل إقرار هذه الصلاة اليوم بالفعل.");
+            return;
+        }
+        AdhanPrefs.clearLock(this);
+        AdhanScheduler.cancelLockReminder(this);
+        if (manualConfirm != null) { manualConfirm.setEnabled(false); manualConfirm.setLabel("تم تسجيل الإقرار", "✓  "); }
+        if (voiceStatus != null) voiceStatus.setText("تم تسجيل إقرارك الشخصي لصلاة " + AdhanScheduler.NAMES[idx] + " اليوم. هذا إقرار ذاتي فقط.");
+        dismissHandler.postDelayed(new Runnable() { @Override public void run() { finish(); } }, 1200L);
     }
 
     private void startVoiceConfirmation() {

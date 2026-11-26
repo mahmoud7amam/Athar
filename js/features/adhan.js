@@ -316,13 +316,17 @@ async function requestPrayerMicAccess() {
 function prayerCheckOpen() {
     const panel = $('prayerVoicePanel'); if (!panel) return;
     const ov = $('adhanOv'); if (ov) ov.classList.add('voice-only');
-    const name = PRAYERS[AD.k] || 'الصلاة';
-    $('pvPhrase').textContent = `والله العظيم صليت صلاة ${name}`;
-    $('pvPrompt').textContent = `بعد أداء صلاة ${name}، قل العبارة الظاهرة لتسجيل إقرارك الشخصي الاختياري.`;
+    const select = $('pvPrayerSelect');
+    const selectedKey = AD.k && PRAYERS[AD.k] ? AD.k : 'Dhuhr';
+    if (select) select.value = selectedKey;
+    $('pvManualAgree').checked = false;
+    $('pvManualStatus').textContent = 'يُحفظ هذا الإقرار على جهازك فقط، ولا يثبت التطبيق أداء الصلاة.';
+    $('pvPrompt').textContent = 'اختر طريقة الإقرار بعد أداء الصلاة. التسجيل اختياري وشخصي.';
     $('pvStatus').textContent = 'لن يحفظ تطبيق أثر ملفًا صوتيًا. قد تتم معالجة الصوت عبر خدمة التعرّف على الكلام في المتصفح.';
     $('pvRecordBtn').disabled = false;
     $('pvRecordBtn').textContent = '🎙️ ابدأ التعرّف الصوتي';
     $('pvRetryBtn').hidden = true;
+    prayerManualSelectionChanged();
     panel.hidden = false;
     $('adhLockDone').style.display = 'none';
     $('adhClose').textContent = 'إغلاق';
@@ -339,6 +343,51 @@ function prayerVoiceStop() {
     prayerRecognition = null;
     const b = $('pvRecordBtn'); if (b) { b.disabled = false; b.textContent = '🎙️ ابدأ التعرّف الصوتي'; }
 }
+function prayerTodayDateLabel() {
+    try { return new Intl.DateTimeFormat('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date()); }
+    catch (e) { return adDay(new Date()); }
+}
+function prayerManualSelectionChanged() {
+    const select = $('pvPrayerSelect'); if (!select) return;
+    const key = select.value, name = PRAYERS[key] || 'الصلاة';
+    const dateLabel = prayerTodayDateLabel();
+    $('pvTodayDate').textContent = 'تاريخ اليوم بحسب جهازك: ' + dateLabel;
+    $('pvPhrase').textContent = `والله العظيم صليت صلاة ${name} اليوم، ${dateLabel}`;
+    $('pvVoicePrompt').textContent = `بعد أداء الصلاة، قل: والله العظيم صليت صلاة ${name}`;
+    const dayKey = `prayer_selfcheck_${adDay(new Date())}`;
+    let done = {}; try { done = JSON.parse(store.get(dayKey, '{}')) || {}; } catch (e) {}
+    const existing = done[key];
+    $('pvManualBtn').disabled = !!existing;
+    $('pvManualBtn').textContent = existing ? '✓ تم تسجيل الإقرار اليوم' : `✓ والله العظيم صليت صلاة ${name} اليوم`;
+    $('pvManualAgree').checked = false;
+    $('pvManualStatus').textContent = existing
+        ? `تم تسجيل إقرار ${name} اليوم عبر ${existing.method === 'manual-oath' ? 'التأكيد اليدوي' : 'التأكيد الصوتي'}.`
+        : 'يُحفظ هذا الإقرار على جهازك فقط. يمكنك إغلاق النافذة دون تسجيل شيء.';
+}
+function savePrayerSelfCheck(prayerKey, method) {
+    const key = `prayer_selfcheck_${adDay(new Date())}`;
+    let done = {}; try { done = JSON.parse(store.get(key, '{}')) || {}; } catch (e) {}
+    if (done[prayerKey]) return false;
+    done[prayerKey] = { at: Date.now(), method: method, date: adDay(new Date()), selfDeclared: true };
+    store.set(key, JSON.stringify(done));
+    return true;
+}
+function prayerManualConfirm() {
+    const prayerKey = $('pvPrayerSelect').value;
+    if (!PRAYERS[prayerKey]) return toast('اختر صلاة صحيحة أولًا');
+    if (!$('pvManualAgree').checked) return toast('ضع علامة الإقرار أولًا لتأكيد اختيارك');
+    if (!savePrayerSelfCheck(prayerKey, 'manual-oath')) {
+        $('pvManualStatus').textContent = 'هذا الإقرار مسجّل بالفعل لهذه الصلاة اليوم.';
+        prayerManualSelectionChanged(); return;
+    }
+    const name = PRAYERS[prayerKey];
+    $('pvManualStatus').textContent = `تم تسجيل إقرارك الشخصي لصلاة ${name} بتاريخ ${prayerTodayDateLabel()} ✓`;
+    $('pvManualBtn').disabled = true;
+    $('pvManualBtn').textContent = '✓ تم تسجيل الإقرار اليوم';
+    toast(`تم تسجيل إقرار صلاة ${name} على هذا الجهاز`);
+    // لا نغلق النافذة تلقائيًا حتى يتمكن المستخدم من مراجعة ما تم تسجيله.
+}
+
 async function prayerVoiceStart() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
@@ -364,7 +413,7 @@ async function prayerVoiceStart() {
         return;
     }
 
-    const prayerKey = AD.k;
+    const prayerKey = $('pvPrayerSelect') ? $('pvPrayerSelect').value : AD.k;
     const prayerName = normAr(PRAYERS[prayerKey] || '').replace(/[\sـ]/g, '');
     const rec = new SR(); prayerRecognition = rec; let gotResult = false;
     rec.lang = 'ar-EG'; rec.continuous = false; rec.interimResults = false; rec.maxAlternatives = 4;
@@ -381,10 +430,7 @@ async function prayerVoiceStart() {
         const hasOath = heard.includes('واللهالعظيم') || heard.includes('واللهعظيم');
         const hasPrayer = heard.includes('صليتصلاة' + prayerName) || (heard.includes('صليت') && heard.includes('صلاة' + prayerName));
         if (hasOath && hasPrayer) {
-            const key = `prayer_selfcheck_${adDay(new Date())}`;
-            let done = {}; try { done = JSON.parse(store.get(key, '{}')) || {}; } catch (e) {}
-            done[prayerKey] = { at: Date.now(), method: 'speech-recognition' };
-            store.set(key, JSON.stringify(done));
+            savePrayerSelfCheck(prayerKey, 'speech-recognition');
             $('pvStatus').textContent = 'تم التعرّف على العبارة وتسجيل إقرارك الشخصي ✓';
             $('pvPrompt').textContent = 'جزاك الله خيرًا. هذا إقرار ذاتي فقط، ولا يستطيع الميكروفون إثبات أداء الصلاة.';
             btn.textContent = '✓ تم التأكيد';
@@ -419,23 +465,13 @@ async function prayerVoiceStart() {
    بطاقة اختيارية داخل التطبيق. لا تمنع استخدام الهاتف أو مكالمات الطوارئ، ويمكن إغلاقها أو تأجيلها في أي وقت. */
 async function setPrayerLock(v) {
     if (v) {
-        // في APK نطلب إذن Android الأصلي عبر SyncActivity بعد الموافقة، وفي الويب نطلب إذن المتصفح.
-        if (!TWA.is) {
-            const mic = await requestPrayerMicAccess();
-            if (!mic.ok) {
-                const message = mic.reason === 'unsupported'
-                    ? 'هذا المتصفح لا يدعم طلب الميكروفون. استخدم متصفحًا محدّثًا لتفعيل التأكيد الصوتي.'
-                    : 'لم يتم منح إذن الميكروفون، لذلك لم يتم تفعيل تذكير الصلاة الصوتي. يمكنك السماح به من إعدادات الموقع.';
-                toast(message);
-                adRenderSettings();
-                return;
-            }
-        }
+        // لا نطلب إذن الميكروفون عند تفعيل التذكير؛ التأكيد اليدوي لا يحتاجه،
+        // والتأكيد الصوتي يطلب الإذن فقط عند ضغط المستخدم على زر الاستماع.
         const ok = await atConfirm({
             title: 'تفعيل تذكير الصلاة 🔔',
             text: TWA.is
-                ? 'عند دخول وقت الصلاة في APK ستظهر شاشة الصلاة، وبعد انتهاء الأذان بخمس ثوانٍ تتحول إلى بطاقة تأكيد صوتي. سيطلب أندرويد إذن الميكروفون الآن. بعد أداء الصلاة اضغط الاستماع وقل العبارة؛ لن يبدأ الميكروفون تلقائيًا ولن يحفظ التطبيق تسجيلًا صوتيًا. التأجيل لا يسجل الصلاة كمؤكدة، ويعيد التذكير بعد 15 دقيقة.'
-                : 'عند دخول وقت الصلاة ستظهر بطاقة زجاجية صغيرة. بعد أداء الصلاة اضغط الاستماع وقل العبارة لتسجيل إقرارك الشخصي. لن يبدأ الميكروفون إلا بعد ضغطك، ولا يحفظ التطبيق ملفًا صوتيًا.',
+                ? 'عند دخول وقت الصلاة في APK ستظهر شاشة الصلاة، وبعد انتهاء الأذان بخمس ثوانٍ تتحول إلى بطاقة تأكيد الصلاة اليدوي أو الصوتي. يمكنك التأكيد يدويًا بالقسم دون إذن ميكروفون، أو اختيار التأكيد الصوتي الذي سيطلب الإذن عند ضغط الاستماع فقط؛ لن يعمل الميكروفون تلقائيًا ولن يحفظ التطبيق تسجيلًا صوتيًا. التأجيل لا يسجل الصلاة كمؤكدة، ويعيد التذكير بعد 15 دقيقة.'
+                : 'عند دخول وقت الصلاة ستظهر بطاقة زجاجية صغيرة. يمكنك تسجيل إقرار يدوي بالقسم دون ميكروفون، أو اختيار التأكيد الصوتي الذي لا يبدأ إلا بعد ضغطك على الاستماع. لا يحفظ التطبيق ملفًا صوتيًا.',
             ok: 'تفعيل التذكير', cancel: 'ليس الآن'
         });
         if (!ok) { adRenderSettings(); return; }

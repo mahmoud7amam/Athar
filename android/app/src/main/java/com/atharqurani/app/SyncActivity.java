@@ -65,15 +65,15 @@ public class SyncActivity extends Activity {
     private static String nz(String s) { return s == null ? "" : s; }
 
     /**
-     * الأذونات بالترتيب: إشعارات ← ميكروفون عند تفعيل تأكيد الصلاة ← شاشة كاملة (أندرويد 14+) ← استثناء البطارية.
+     * الأذونات بالترتيب: إشعارات ← شاشة كاملة (أندرويد 14+) ← استثناء البطارية. إذن الميكروفون لا يُطلب إلا عند اختيار المستخدم التأكيد الصوتي.
      */
     private int step = 0;
-    private static final int RC_NOTIF = 11, RC_SETTINGS = 12, RC_MIC = 13;
+    private static final int RC_NOTIF = 11, RC_SETTINGS = 12;
 
     private void askPermissions() { step = 0; next(); }
 
     private void next() {
-        while (step < 4) {
+        while (step < 3) {
             int s = step++;
             if (tryStep(s)) return;       // فتح شاشة طلب → هنكمّل في onActivityResult / onRequestPermissionsResult
         }
@@ -92,15 +92,6 @@ public class SyncActivity extends Activity {
                     return true;
                 }
             } else if (s == 1) {
-                // نطلب الميكروفون وقت تفعيل المستخدم لتأكيد الصلاة، وليس عند أول تشغيل التطبيق.
-                if (AdhanPrefs.lockOn(this) && Build.VERSION.SDK_INT >= 23
-                        && checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
-                        && !AdhanPrefs.asked(this, "mic")) {
-                    AdhanPrefs.setAsked(this, "mic");
-                    requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, RC_MIC);
-                    return true;
-                }
-            } else if (s == 2) {
                 if (Build.VERSION.SDK_INT >= 34 && !AdhanPrefs.asked(this, "fsi")) {
                     NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     if (nm != null && !nm.canUseFullScreenIntent()) {
@@ -109,7 +100,7 @@ public class SyncActivity extends Activity {
                         return true;
                     }
                 }
-            } else if (s == 3) {
+            } else if (s == 2) {
                 // تحسين عمل المنبه في الخلفية اختياري ويظهر مرة واحدة فقط.
                 if (Build.VERSION.SDK_INT >= 23 && !AdhanPrefs.asked(this, "batt")) {
                     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -127,9 +118,6 @@ public class SyncActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
         super.onRequestPermissionsResult(code, perms, res);
-        if (code == RC_MIC && (res.length == 0 || res[0] != PackageManager.PERMISSION_GRANTED)) {
-            android.widget.Toast.makeText(this, "تأكيد الصلاة الصوتي يحتاج إذن الميكروفون. يمكنك السماح به من إعدادات التطبيق.", android.widget.Toast.LENGTH_LONG).show();
-        }
         next();
     }
 
