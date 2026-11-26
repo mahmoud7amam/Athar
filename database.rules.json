@@ -3,7 +3,7 @@
     ".read": false,
     ".write": false,
     "app_stats": {
-      ".read": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+      ".read": "auth != null && auth.uid === '2FiprrG4efN1pgLXxfV6B7faBLt1'",
       "online_users": {
         "$uid": {
           ".write": "auth != null && auth.uid === $uid"
@@ -24,15 +24,15 @@
       }
     },
     "fcm_tokens": {
-      ".read": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+      ".read": "auth != null && auth.uid === '2FiprrG4efN1pgLXxfV6B7faBLt1'",
       "$uid": {
         ".write": "auth != null && auth.uid === $uid"
       }
     },
     "admin_broadcasts": {
-      ".read": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+      ".read": "auth != null && auth.uid === '2FiprrG4efN1pgLXxfV6B7faBLt1'",
       "$id": {
-        ".write": "auth != null && auth.uid === 'SET_ADMIN_UID_IN_FIREBASE_SETUP'",
+        ".write": "auth != null && auth.uid === '2FiprrG4efN1pgLXxfV6B7faBLt1'",
         ".validate": "newData.hasChildren(['title','body','createdAt','status','requestedBy']) && newData.child('title').isString() && newData.child('body').isString() && newData.child('title').val().length <= 60 && newData.child('body').val().length <= 220"
       }
     }
